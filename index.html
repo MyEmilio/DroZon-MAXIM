@@ -1672,7 +1672,7 @@ header{
 /* ── Fire heatmap overlay ── */
 #fire-heatmap-overlay {
   display:none; position:fixed; bottom:80px; left:10px; right:10px;
-  height:180px; background:linear-gradient(180deg,#7f0000 0%,#ff4500 40%,#ff8c00 70%,#ffd700 100%);
+  height:180px; background:linear-gradient(180deg,#7f0000 0%,#ff4500 40%,#e8960a 70%,#ffd700 100%);
   border-radius:12px; opacity:.78; pointer-events:none; z-index:4000;
 }
 
@@ -2006,7 +2006,7 @@ body { font-size:13px; }
               </defs>
               <rect width="340" height="160" fill="url(#skyG)"/>
               <rect y="100" width="340" height="60" fill="url(#groundG)"/>
-              <line x1="0" y1="100" x2="340" y2="100" stroke="#00ff9d" stroke-width=".5" stroke-dasharray="4 8" opacity=".3"/>
+              <line x1="0" y1="100" x2="340" y2="100" stroke="#3aaa6e" stroke-width=".5" stroke-dasharray="4 8" opacity=".3"/>
               <rect x="20" y="105" width="40" height="25" fill="#0d2010" opacity=".8"/>
               <rect x="80" y="110" width="30" height="20" fill="#0d2010" opacity=".7"/>
               <rect x="200" y="108" width="50" height="22" fill="#0d2010" opacity=".8"/>
@@ -2874,12 +2874,12 @@ body { font-size:13px; }
           <div class="cam-hud-br" id="sp-hud-zoom" style="color:var(--accent2)">ZOOM: 1×</div>
           <div class="cam-crosshair">
             <svg width="50" height="50" viewBox="0 0 50 50">
-              <rect x="0" y="0" width="15" height="15" fill="none" stroke="#00d4ff" stroke-width="1.5"/>
-              <rect x="35" y="0" width="15" height="15" fill="none" stroke="#00d4ff" stroke-width="1.5"/>
-              <rect x="0" y="35" width="15" height="15" fill="none" stroke="#00d4ff" stroke-width="1.5"/>
-              <rect x="35" y="35" width="15" height="15" fill="none" stroke="#00d4ff" stroke-width="1.5"/>
-              <line x1="25" y1="18" x2="25" y2="32" stroke="#00d4ff" stroke-width=".8" opacity=".5"/>
-              <line x1="18" y1="25" x2="32" y2="25" stroke="#00d4ff" stroke-width=".8" opacity=".5"/>
+              <rect x="0" y="0" width="15" height="15" fill="none" stroke="#4d9de0" stroke-width="1.5"/>
+              <rect x="35" y="0" width="15" height="15" fill="none" stroke="#4d9de0" stroke-width="1.5"/>
+              <rect x="0" y="35" width="15" height="15" fill="none" stroke="#4d9de0" stroke-width="1.5"/>
+              <rect x="35" y="35" width="15" height="15" fill="none" stroke="#4d9de0" stroke-width="1.5"/>
+              <line x1="25" y1="18" x2="25" y2="32" stroke="#4d9de0" stroke-width=".8" opacity=".5"/>
+              <line x1="18" y1="25" x2="32" y2="25" stroke="#4d9de0" stroke-width=".8" opacity=".5"/>
             </svg>
           </div>
         </div>
@@ -3363,7 +3363,7 @@ const LIQUID_TYPES = {
 };
 
 const DRONE_TYPES = {
-  standard:    {l:'Standard',        i:'🛸', col:'#00d4ff', desc:'Uz general, condiții normale',
+  standard:    {l:'Standard',        i:'🛸', col:'#4d9de0', desc:'Uz general, condiții normale',
     lim:{tMin:-10,tMax:45,wMax:10,gMax:14,rMax:1,visMin:1000,snow:false,ice:false,sand:false}},
   allweather:  {l:'All-Weather',     i:'🌧️', col:'#4499ff', desc:'Ploaie intensă, vânt puternic, IP54+',
     lim:{tMin:-20,tMax:50,wMax:18,gMax:24,rMax:15,visMin:300,snow:true,ice:false,sand:false}},
@@ -3381,7 +3381,7 @@ const DRONE_TYPES = {
     lim:{tMin:-10,tMax:80,wMax:12,gMax:16,rMax:20,visMin:100,snow:false,ice:false,sand:true}},
 };
 
-const SC = {activ:'#00ff9d',misiune:'#ff8c00',standby:'#4a7090',pericol:'#ff2244'};
+const SC = {activ:'#3aaa6e',misiune:'#e8960a',standby:'#4a7090',pericol:'#dc2626'};
 
 // ════════════════════════════════════════════
 // DATE DRONE
@@ -3614,7 +3614,7 @@ function dIcon(d){
   const wi=d.weather?wxIcon(d.weather.code):'';
   const tankPct=d.tankCap>0?(d.tankLvl/d.tankCap*100):100;
   const liqBar=d.liquidType!=='none'&&d.tankCap>0
-    ?`<div style="width:28px;height:3px;background:#0f2a40;border-radius:2px;margin-top:2px;overflow:hidden"><div style="height:100%;width:${tankPct}%;background:${tankPct<25?'#ff2244':tankPct<50?'#ff8c00':'#00ff9d'};border-radius:2px"></div></div>`
+    ?`<div style="width:28px;height:3px;background:#0f2a40;border-radius:2px;margin-top:2px;overflow:hidden"><div style="height:100%;width:${tankPct}%;background:${tankPct<25?'#dc2626':tankPct<50?'#e8960a':'#3aaa6e'};border-radius:2px"></div></div>`
     :'';
   return L.divIcon({className:'',iconSize:[52,56],iconAnchor:[26,28],
     html:`<div style="text-align:center">
@@ -4070,7 +4070,7 @@ let routeAnimLines = {}; // id dronă -> linia animată de traseu
 // Marchează bazele pe hartă
 BASES.forEach(b=>{
   const ico = L.divIcon({className:'',iconSize:[32,32],iconAnchor:[16,16],
-    html:`<div style="width:28px;height:28px;border-radius:4px;border:2px solid #00ff9d;background:rgba(5,10,15,.9);display:flex;align-items:center;justify-content:center;font-size:14px;box-shadow:0 0 10px rgba(58,170,110,.4)">🏠</div>`});
+    html:`<div style="width:28px;height:28px;border-radius:4px;border:2px solid #3aaa6e;background:rgba(5,10,15,.9);display:flex;align-items:center;justify-content:center;font-size:14px;box-shadow:0 0 10px rgba(58,170,110,.4)">🏠</div>`});
   L.marker([b.lat,b.lng],{icon:ico}).addTo(map).bindTooltip(`<b>${b.name}</b>`,{className:'leaflet-dark-tooltip',permanent:false});
 });
 
@@ -4120,7 +4120,7 @@ function sendDroneToCoords(id, lat, lng, src='comandă'){
 
   // Marchează waypoint-ul pe hartă
   if(wpMarkers[id]) map.removeLayer(wpMarkers[id]);
-  const col = SC[d.status]||'#ff8c00';
+  const col = SC[d.status]||'#e8960a';
   const wpIco = L.divIcon({className:'',iconSize:[24,24],iconAnchor:[12,12],
     html:`<div style="width:22px;height:22px;border-radius:50%;border:2px solid ${col};background:rgba(5,10,15,.85);display:flex;align-items:center;justify-content:center;font-size:11px;box-shadow:0 0 10px ${col}88;animation:pulse 1s infinite">📍</div>`});
   const wpm = L.marker([lat,lng],{icon:wpIco}).addTo(map);
@@ -4187,7 +4187,7 @@ function sendDroneAutonomous(id, lat, lng, src='comandă') {
 
   // Marchează waypoint și traseu pe hartă
   if (wpMarkers[id]) map.removeLayer(wpMarkers[id]);
-  const col = '#ff8c00';
+  const col = '#e8960a';
   const wpIco = L.divIcon({ className:'', iconSize:[28,28], iconAnchor:[14,14],
     html:`<div style="width:26px;height:26px;border-radius:50%;border:2px solid ${col};background:rgba(5,10,15,.9);display:flex;align-items:center;justify-content:center;font-size:13px;box-shadow:0 0 14px ${col}99;animation:pulse 1s infinite">🎯</div>`
   });
@@ -5120,7 +5120,7 @@ function addDetectionBoxes(report) {
   det.innerHTML = '';
   if (report.level === 'CLEAR') return;
 
-  const col = report.level === 'DANGER' ? '#ff2244' : '#ff8c00';
+  const col = report.level === 'DANGER' ? '#dc2626' : '#e8960a';
   const boxes = [
     { x:150, y:85, w:60, h:40 },
     { x:60,  y:100, w:35, h:25 },
@@ -5242,7 +5242,7 @@ const GAS_PROFILES = {
   gas_cbrn: [
     {id:'CO2',  name:'CO₂',     unit:'ppm',  norm:400,  warnAt:1000, critAt:5000,  color:'#00aaff'},
     {id:'H2S',  name:'H₂S',     unit:'ppm',  norm:0,    warnAt:1,    critAt:10,    color:'#aaff00'},
-    {id:'SARIN',name:'Sarin',   unit:'ppb',  norm:0,    warnAt:0.01, critAt:0.1,   color:'#ff2244'},
+    {id:'SARIN',name:'Sarin',   unit:'ppb',  norm:0,    warnAt:0.01, critAt:0.1,   color:'#dc2626'},
     {id:'RAD',  name:'Radiații',unit:'μSv/h',norm:0.1,  warnAt:1,    critAt:10,    color:'#ff00ff'},
     {id:'CL2',  name:'Clor Cl₂',unit:'ppm',  norm:0,    warnAt:0.5,  critAt:3,     color:'#88ff44'},
     {id:'NH3',  name:'Amoniac', unit:'ppm',  norm:0,    warnAt:25,   critAt:300,   color:'#ffaa00'},
@@ -7382,8 +7382,8 @@ setInterval(()=>{ if(BAT.open) renderBatPanel(); },5000);
 // V8 MODULE 4 — MULTI-OPERATOR
 // ════════════════════════════════════════════
 const OPERATORS=[
-  {id:'op1',name:'CMD-ALPHA',role:'Commander',color:'#00d4ff',icon:'👨‍✈️',drones:['d1','d2'],active:true},
-  {id:'op2',name:'PILOT-01', role:'Pilot',     color:'#00ff9d',icon:'🎮',drones:['d3','d4'],active:true},
+  {id:'op1',name:'CMD-ALPHA',role:'Commander',color:'#4d9de0',icon:'👨‍✈️',drones:['d1','d2'],active:true},
+  {id:'op2',name:'PILOT-01', role:'Pilot',     color:'#3aaa6e',icon:'🎮',drones:['d3','d4'],active:true},
   {id:'op3',name:'INTEL-01', role:'Intel',     color:'#aa44ff',icon:'🔍',drones:['d5','d6'],active:false},
   {id:'op4',name:'MED-01',   role:'Medical',   color:'#ff88ff',icon:'🏥',drones:['d7','d8'],active:true},
 ];
@@ -7433,9 +7433,9 @@ const THREAT={ active:[], markers:{}, detectionInt:null };
 
 const THREAT_PROFILES=[
   {id:'t1',name:'DRONĂ NECUNOSCUTĂ',type:'unknown',icon:'❓',threat:'MEDIUM',speed:45,alt:120,color:'#ffcc00'},
-  {id:'t2',name:'DRONĂ INAMICĂ ARMATĂ',type:'armed',icon:'⚔️',threat:'HIGH',speed:90,alt:200,color:'#ff2244'},
-  {id:'t3',name:'DRONĂ COMERCIALĂ',type:'commercial',icon:'📦',threat:'LOW',speed:30,alt:80,color:'#ff8c00'},
-  {id:'t4',name:'DRONĂ RECON',type:'recon',icon:'🕵️',threat:'HIGH',speed:70,alt:300,color:'#ff2244'},
+  {id:'t2',name:'DRONĂ INAMICĂ ARMATĂ',type:'armed',icon:'⚔️',threat:'HIGH',speed:90,alt:200,color:'#dc2626'},
+  {id:'t3',name:'DRONĂ COMERCIALĂ',type:'commercial',icon:'📦',threat:'LOW',speed:30,alt:80,color:'#e8960a'},
+  {id:'t4',name:'DRONĂ RECON',type:'recon',icon:'🕵️',threat:'HIGH',speed:70,alt:300,color:'#dc2626'},
 ];
 
 function startThreatDetection() {
@@ -8616,7 +8616,7 @@ function swSpawn(){
   // Clear existing
   SW.markers.forEach(m=>{try{SW.map.removeLayer(m);}catch(e){}});SW.markers=[];SW.drones=[];
   const center={lat:44.42,lng:26.10};
-  const cols=['#00ff9d','#00d4ff','#ff8c00','#ff2244','#aa44ff','#ffcc00'];
+  const cols=['#3aaa6e','#4d9de0','#e8960a','#dc2626','#aa44ff','#ffcc00'];
   for(let i=0;i<SW.count;i++){
     const pos=swGetFormationPos(i,SW.count,center,SW.formation);
     const d={id:i,lat:pos.lat,lng:pos.lng,bat:85+Math.random()*15,spd:SW.speed+(Math.random()-0.5)*10,col:cols[i%cols.length],destLat:null,destLng:null};
