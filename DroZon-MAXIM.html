@@ -19,46 +19,71 @@
 body{font-family:'IBM Plex Mono',monospace;background:var(--bg);color:var(--text);height:100vh;overflow:hidden;display:flex;flex-direction:column;}
 
 /* ── HEADER ── */
-header{display:flex;align-items:center;justify-content:space-between;padding:0 20px;height:52px;border-bottom:1px solid var(--border);background:var(--panel);flex-shrink:0;z-index:200;}
-.logo{font-family:'Orbitron',sans-serif;font-weight:900;font-size:20px;color:var(--accent);letter-spacing:6px;text-shadow:var(--glow);}
+header{
+  display:flex;
+  flex-direction:column;
+  padding:0;
+  border-bottom:2px solid #1e4a6a;
+  background:linear-gradient(180deg,#0e1e30 0%,#080e18 100%);
+  flex-shrink:0;
+  z-index:200;
+  box-shadow:0 2px 16px rgba(0,0,0,.6),0 1px 0 rgba(0,180,255,.1);
+}
+.hrow1{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:7px 20px;
+  min-height:50px;
+  border-bottom:1px solid #152535;
+}
+.hrow2{
+  display:flex;
+  align-items:center;
+  gap:4px;
+  padding:5px 14px;
+  flex-wrap:wrap;
+  background:rgba(0,0,0,.25);
+}
+.logo{font-family:'Orbitron',sans-serif;font-weight:900;font-size:20px;color:var(--accent);letter-spacing:6px;text-shadow:0 0 20px rgba(0,212,255,.6);}
 .logo span{color:var(--accent2);}
 .hstats{display:flex;gap:20px;}
-.hs{font-size:9px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;text-align:center;}
+.hs{font-size:9px;letter-spacing:1px;color:#6090b0;text-transform:uppercase;text-align:center;}
 .hs strong{display:block;font-size:15px;font-weight:700;letter-spacing:2px;color:var(--accent);}
 .hs.g strong{color:var(--accent2);} .hs.w strong{color:var(--warn);} .hs.d strong{color:var(--danger);}
-#clock{font-family:'Orbitron',sans-serif;font-size:12px;color:var(--accent);letter-spacing:3px;}
+#clock{font-family:'Orbitron',sans-serif;font-size:12px;color:var(--accent);letter-spacing:3px;text-shadow:0 0 10px rgba(0,212,255,.4);}
 
 /* ── LAYOUT ── */
 .main{display:flex;flex:1;overflow:hidden;}
 
 /* ── LEFT PANEL ── */
-.lp{width:285px;flex-shrink:0;background:var(--panel);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;}
+.lp{width:305px;flex-shrink:0;background:var(--panel);border-right:1px solid #122230;display:flex;flex-direction:column;overflow:hidden;}
 .ptitle{font-family:'Orbitron',sans-serif;font-size:9px;letter-spacing:3px;color:var(--muted);text-transform:uppercase;padding:10px 14px 8px;border-bottom:1px solid var(--border);}
 .dlist{overflow-y:auto;flex:1;padding:6px;}
 .dlist::-webkit-scrollbar{width:3px;} .dlist::-webkit-scrollbar-thumb{background:var(--border);}
 
-.dc{border:1px solid var(--border);border-radius:5px;padding:10px;margin-bottom:6px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;background:var(--panel2);}
-.dc::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;}
-.dc.s-activ::before{background:var(--accent2);}
-.dc.s-misiune::before{background:var(--warn);}
+.dc{border:1px solid #1a3a58;border-radius:6px;padding:12px;margin-bottom:7px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;background:#0b1825;}
+.dc::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;}
+.dc.s-activ::before{background:var(--accent2);box-shadow:0 0 8px rgba(0,255,157,.5);}
+.dc.s-misiune::before{background:var(--warn);box-shadow:0 0 8px rgba(255,140,0,.5);}
 .dc.s-standby::before{background:var(--muted);}
-.dc.s-pericol::before{background:var(--danger);animation:blink-border 1s infinite;}
+.dc.s-pericol::before{background:var(--danger);animation:blink-border 1s infinite;box-shadow:0 0 8px rgba(255,34,68,.6);}
 @keyframes blink-border{0%,100%{opacity:1;}50%{opacity:.4;}}
-.dc:hover,.dc.sel{border-color:var(--accent);box-shadow:var(--glow);background:#091520;}
-.dc-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;}
-.dc-name{font-family:'Orbitron',sans-serif;font-size:10px;font-weight:700;color:#fff;letter-spacing:2px;}
-.sbadge{font-size:8px;letter-spacing:1px;padding:2px 6px;border-radius:3px;text-transform:uppercase;font-weight:600;}
-.s-activ .sbadge{background:rgba(0,255,157,.12);color:var(--accent2);border:1px solid rgba(0,255,157,.3);}
-.s-misiune .sbadge{background:rgba(255,140,0,.12);color:var(--warn);border:1px solid rgba(255,140,0,.3);}
-.s-standby .sbadge{background:rgba(74,112,144,.12);color:var(--muted);border:1px solid rgba(74,112,144,.3);}
-.s-pericol .sbadge{background:rgba(255,34,68,.12);color:var(--danger);border:1px solid rgba(255,34,68,.3);}
-.dc-model{font-size:9px;color:var(--muted);margin-bottom:4px;}
-.dc-mis{font-size:9px;color:var(--text);margin-bottom:4px;}
+.dc:hover,.dc.sel{border-color:var(--accent);box-shadow:0 0 18px rgba(0,212,255,.35),0 0 6px rgba(0,212,255,.15);background:#0d1e30;}
+.dc-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px;}
+.dc-name{font-family:'Orbitron',sans-serif;font-size:11px;font-weight:700;color:#e8f4ff;letter-spacing:2px;text-shadow:0 0 8px rgba(200,224,240,.2);}
+.sbadge{font-size:9px;letter-spacing:1px;padding:3px 7px;border-radius:3px;text-transform:uppercase;font-weight:700;}
+.s-activ .sbadge{background:rgba(0,255,157,.18);color:var(--accent2);border:1px solid rgba(0,255,157,.5);text-shadow:0 0 6px rgba(0,255,157,.4);}
+.s-misiune .sbadge{background:rgba(255,140,0,.18);color:var(--warn);border:1px solid rgba(255,140,0,.5);text-shadow:0 0 6px rgba(255,140,0,.4);}
+.s-standby .sbadge{background:rgba(74,112,144,.18);color:#6a90b0;border:1px solid rgba(74,112,144,.45);}
+.s-pericol .sbadge{background:rgba(255,34,68,.18);color:var(--danger);border:1px solid rgba(255,34,68,.55);text-shadow:0 0 6px rgba(255,34,68,.4);}
+.dc-model{font-size:9px;color:#6a8fa8;margin-bottom:4px;}
+.dc-mis{font-size:9px;color:#aac8e0;margin-bottom:4px;}
 .brow{display:flex;align-items:center;gap:6px;}
-.bbar{flex:1;height:3px;background:var(--border);border-radius:2px;overflow:hidden;}
+.bbar{flex:1;height:4px;background:#0f2030;border-radius:2px;overflow:hidden;}
 .bfill{height:100%;border-radius:2px;transition:width .5s;}
-.bpct{font-size:9px;color:var(--muted);min-width:28px;text-align:right;}
-.dc-sub{font-size:8px;color:var(--muted);margin-top:3px;}
+.bpct{font-size:9px;color:#7a9ab8;min-width:28px;text-align:right;}
+.dc-sub{font-size:8px;color:#5a7888;margin-top:3px;}
 
 /* mini payload in card */
 .dc-payload{display:flex;align-items:center;gap:6px;margin-top:5px;padding-top:5px;border-top:1px solid var(--border);}
@@ -81,8 +106,8 @@ header{display:flex;align-items:center;justify-content:space-between;padding:0 2
 #map{width:100%;height:100%;}
 .mc::after{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.025) 2px,rgba(0,0,0,.025) 4px);pointer-events:none;z-index:499;}
 .movl{position:absolute;top:10px;right:10px;z-index:500;display:flex;flex-direction:column;gap:6px;}
-.mbtn{background:var(--panel);border:1px solid var(--border);color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:1px;padding:6px 11px;border-radius:4px;cursor:pointer;transition:all .2s;text-transform:uppercase;}
-.mbtn:hover,.mbtn.on{border-color:var(--accent);color:var(--accent);box-shadow:var(--glow);}
+.mbtn{background:#0d1a28;border:1px solid #1e3a55;color:#a0c8e8;font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:1px;padding:6px 11px;border-radius:4px;cursor:pointer;transition:all .2s;text-transform:uppercase;}
+.mbtn:hover,.mbtn.on{border-color:var(--accent);color:var(--accent);box-shadow:var(--glow);background:#102030;}
 .sigbox{position:absolute;bottom:10px;left:10px;z-index:500;background:var(--panel);border:1px solid var(--border);border-radius:5px;padding:8px 12px;}
 .sigrow{display:flex;align-items:center;gap:6px;margin-bottom:3px;}
 .sigdot{width:6px;height:6px;border-radius:50%;animation:pulse 2s infinite;}
@@ -744,8 +769,8 @@ header{display:flex;align-items:center;justify-content:space-between;padding:0 2
 
 .spk-vol-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
 .spk-vol-lbl{font-size:7px;color:var(--muted);letter-spacing:1px;white-space:nowrap;}
-.spk-vol-slider{flex:1;-webkit-appearance:none;height:3px;border-radius:2px;background:#0f2a40;outline:none;}
-.spk-vol-slider::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:12px;border-radius:50%;background:var(--accent2);cursor:pointer;box-shadow:0 0 6px var(--accent2);}
+.spk-vol-slider{flex:1;-webkit-appearance:none;appearance:none;height:3px;border-radius:2px;background:#0f2a40;outline:none;}
+.spk-vol-slider::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:12px;height:12px;border-radius:50%;background:var(--accent2);cursor:pointer;box-shadow:0 0 6px var(--accent2);}
 .spk-vol-val{font-size:9px;color:var(--accent2);font-family:'Orbitron',sans-serif;min-width:28px;text-align:right;}
 
 /* Quick voice messages */
@@ -1013,8 +1038,8 @@ header{display:flex;align-items:center;justify-content:space-between;padding:0 2
 .ck-slider-box{background:rgba(0,0,0,.3);border:1px solid #0f2a40;border-radius:5px;padding:10px;}
 .ck-slider-label{font-size:8px;color:#4a7090;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;display:flex;justify-content:space-between;}
 .ck-slider-label span{font-size:11px;font-weight:700;}
-.ck-slider{width:100%;-webkit-appearance:none;height:4px;border-radius:2px;background:var(--border);outline:none;}
-.ck-slider::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--accent);cursor:pointer;box-shadow:0 0 8px var(--accent);}
+.ck-slider{width:100%;-webkit-appearance:none;appearance:none;height:4px;border-radius:2px;background:var(--border);outline:none;}
+.ck-slider::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:16px;height:16px;border-radius:50%;background:var(--accent);cursor:pointer;box-shadow:0 0 8px var(--accent);}
 .ck-slider.green::-webkit-slider-thumb{background:var(--accent2);box-shadow:0 0 8px var(--accent2);}
 
 /* Mission control */
@@ -1238,8 +1263,8 @@ header{display:flex;align-items:center;justify-content:space-between;padding:0 2
 .sw-control{background:rgba(0,0,0,.3);border:1px solid #0f2a40;border-radius:6px;padding:10px;}
 .sw-control-t{font-family:'Orbitron',sans-serif;font-size:8px;letter-spacing:2px;color:var(--muted);margin-bottom:8px;}
 .sw-slider-row{display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:8px;color:var(--muted);}
-.sw-slider{flex:1;-webkit-appearance:none;height:3px;border-radius:2px;background:#0f2a40;outline:none;}
-.sw-slider::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:12px;border-radius:50%;background:var(--accent2);cursor:pointer;}
+.sw-slider{flex:1;-webkit-appearance:none;appearance:none;height:3px;border-radius:2px;background:#0f2a40;outline:none;}
+.sw-slider::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:12px;height:12px;border-radius:50%;background:var(--accent2);cursor:pointer;}
 .sw-val{font-family:'Orbitron',sans-serif;font-size:10px;color:var(--accent2);min-width:32px;text-align:right;}
 .sw-formation-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;}
 .sw-form-btn{padding:6px 4px;border:1px solid #0f2a40;border-radius:4px;background:transparent;color:#4a7090;font-size:7px;font-family:'IBM Plex Mono',monospace;letter-spacing:1px;cursor:pointer;transition:all .2s;text-align:center;}
@@ -1282,8 +1307,8 @@ header{display:flex;align-items:center;justify-content:space-between;padding:0 2
 .fin-slider-box{display:flex;flex-direction:column;gap:8px;}
 .fin-slider-row{display:flex;align-items:center;gap:10px;font-size:9px;}
 .fin-slider-lbl{width:140px;color:var(--muted);}
-.fin-slider{flex:1;-webkit-appearance:none;height:3px;border-radius:2px;background:#0f2a40;outline:none;}
-.fin-slider::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--accent2);cursor:pointer;box-shadow:0 0 6px var(--accent2);}
+.fin-slider{flex:1;-webkit-appearance:none;appearance:none;height:3px;border-radius:2px;background:#0f2a40;outline:none;}
+.fin-slider::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:14px;height:14px;border-radius:50%;background:var(--accent2);cursor:pointer;box-shadow:0 0 6px var(--accent2);}
 .fin-slider-val{width:80px;text-align:right;font-family:'Orbitron',sans-serif;font-size:10px;color:var(--accent2);}
 .fin-chart{height:80px;display:flex;align-items:flex-end;gap:4px;padding:4px 0;}
 .fin-bar{flex:1;border-radius:3px 3px 0 0;min-height:4px;position:relative;cursor:pointer;transition:opacity .2s;}
@@ -1406,7 +1431,6 @@ header{display:flex;align-items:center;justify-content:space-between;padding:0 2
 .demo-btn{padding:6px 14px;border-radius:4px;border:1px solid #0f2a40;background:transparent;color:#4a7090;font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:1px;cursor:pointer;transition:all .2s;}
 .demo-btn:hover{border-color:var(--accent);color:var(--accent);}
 .demo-btn.primary{border-color:var(--accent2);color:var(--accent2);background:rgba(0,255,157,.07);}
-</style>
 
 /* ══════════════════════════════════════
    SISTEM DRONE BIODEGRADABILE
@@ -1471,8 +1495,8 @@ header{display:flex;align-items:center;justify-content:space-between;padding:0 2
 .kmk-params{padding:10px 12px;border-bottom:1px solid #1a0800;}
 .kmk-param-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:9px;}
 .kmk-param-lbl{width:110px;color:var(--muted);}
-.kmk-param-slider{flex:1;-webkit-appearance:none;height:3px;border-radius:2px;background:#1a0800;outline:none;}
-.kmk-param-slider::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:12px;border-radius:50%;background:#ff6600;cursor:pointer;box-shadow:0 0 6px #ff6600;}
+.kmk-param-slider{flex:1;-webkit-appearance:none;appearance:none;height:3px;border-radius:2px;background:#1a0800;outline:none;}
+.kmk-param-slider::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:12px;height:12px;border-radius:50%;background:#ff6600;cursor:pointer;box-shadow:0 0 6px #ff6600;}
 .kmk-param-val{width:50px;text-align:right;font-family:'Orbitron',sans-serif;font-size:9px;color:#ff8844;}
 .kmk-telem{padding:10px 12px;border-bottom:1px solid #1a0800;}
 .kmk-telem-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px;}
@@ -1597,8 +1621,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:0 2
 @keyframes sos-ring{0%{box-shadow:0 0 0 0 rgba(255,34,68,.7);}70%{box-shadow:0 0 0 20px rgba(255,34,68,0);}100%{box-shadow:0 0 0 0 rgba(255,34,68,0);}}
 .mother-marker{width:36px;height:36px;border-radius:50%;border:2px solid var(--accent2);background:rgba(0,255,157,.1);display:flex;align-items:center;justify-content:center;font-size:16px;box-shadow:0 0 16px rgba(0,255,157,.5);}
 
-<!-- ===== MAXIM MODULES ===== -->
-<style>
+/* ===== MAXIM MODULES ===== */
 /* ── General MAXIM panel style ── */
 .maxim-panel {
   display:none; position:fixed; top:0; left:0; right:0; bottom:0;
@@ -1655,13 +1678,15 @@ header{display:flex;align-items:center;justify-content:space-between;padding:0 2
 
 /* ── Weather widget ── */
 #weather-widget {
-  position:fixed; bottom:18px; right:18px; z-index:8000;
-  background:rgba(10,10,20,.9); border:1px solid #1a3a5c;
-  border-radius:14px; padding:12px 18px; color:#cde; font-size:.85rem;
-  min-width:200px; display:none;
+  position:fixed; top:8px; right:18px; z-index:8000;
+  background:linear-gradient(160deg,rgba(5,12,25,.97),rgba(8,18,35,.97));
+  border:1px solid #2a6090;
+  border-radius:14px; padding:14px 20px; color:#cde; font-size:.85rem;
+  min-width:215px; display:none;
+  box-shadow:0 0 24px rgba(0,180,255,.22),0 4px 24px rgba(0,0,0,.7),inset 0 1px 0 rgba(0,200,255,.1);
 }
-#weather-widget .w-temp { font-size:1.6rem; font-weight:700; color:#7ecfff; }
-#weather-widget .w-label { font-size:.78rem; opacity:.7; margin-bottom:4px; }
+#weather-widget .w-temp { font-size:1.85rem; font-weight:700; color:#7ecfff; text-shadow:0 0 12px rgba(126,207,255,.5); }
+#weather-widget .w-label { font-size:.8rem; color:#6ab0d8; margin-bottom:5px; letter-spacing:1px; text-transform:uppercase; }
 
 /* ── Simulator canvas ── */
 #sim-canvas { width:100%; height:340px; background:#0a0a14; border-radius:12px;
@@ -1693,47 +1718,123 @@ header{display:flex;align-items:center;justify-content:space-between;padding:0 2
 /* ── Toolbar extra buttons ── */
 .tb-maxim {
   display:inline-flex; align-items:center; gap:6px;
-  padding:7px 13px; border-radius:8px; border:1px solid #2a3a4a;
-  background:#0d1520; color:#7ecfff; cursor:pointer; font-size:.82rem;
-  transition:background .15s;
+  padding:7px 13px; border-radius:8px; border:1px solid #2a4a6a;
+  background:#0e1e30; color:#7ecfff; cursor:pointer; font-size:.82rem;
+  transition:all .15s; font-weight:600;
 }
-.tb-maxim:hover { background:#162030; }
+.tb-maxim:hover { background:#162840; border-color:#3a6a9a; box-shadow:0 0 10px rgba(0,180,255,.2); }
 
 /* ── Responsive ── */
 @media(max-width:600px){
   .maxim-inner { padding:16px 10px 50px; }
   .maxim-inner h2 { font-size:1.25rem; }
 }
+
+/* ══════════════════════════════════════
+   BOTTOM DOCK
+══════════════════════════════════════ */
+#bottom-dock{
+  display:flex;flex-direction:row;flex-shrink:0;
+  height:195px;
+  background:linear-gradient(180deg,#060d16,#040b12);
+  border-top:2px solid #1e4a6a;
+  overflow:hidden;
+  box-shadow:0 -4px 20px rgba(0,0,0,.6);
+}
+.dock-card{
+  flex:1;display:flex;flex-direction:column;
+  border-right:1px solid #0f2535;
+  overflow:hidden;min-width:0;
+}
+.dock-card:last-child{border-right:none;}
+.dock-card-hdr{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:7px 12px;
+  border-bottom:1px solid #0f2535;
+  background:linear-gradient(90deg,rgba(0,212,255,.06),transparent);
+  flex-shrink:0;
+}
+.dock-card-title{
+  font-family:'Orbitron',sans-serif;font-size:9px;letter-spacing:3px;
+  color:var(--accent);display:flex;align-items:center;gap:7px;
+}
+.dock-card-body{flex:1;overflow:hidden;padding:8px 12px;}
+
+/* Override vp inside dock */
+#bottom-dock .vp{
+  position:static!important;width:auto!important;height:100%!important;
+  border:none!important;border-radius:0!important;box-shadow:none!important;
+  background:transparent!important;display:flex;flex-direction:column;
+}
+#bottom-dock .vp-hdr{display:none!important;}
+#bottom-dock .vp-body{padding:8px 12px;flex:1;overflow:hidden;display:flex;flex-direction:column;gap:5px;}
+#bottom-dock .vp-tx{font-size:9px;min-height:24px;padding:4px 8px;}
+#bottom-dock .vp-waves{height:14px;margin:0;}
+#bottom-dock .vwave{width:3px;}
+#bottom-dock .vp-res{font-size:8px;padding:3px 8px;margin-bottom:0;}
+#bottom-dock .vp-btns{display:flex;gap:4px;margin-bottom:0;}
+#bottom-dock .vpb{padding:5px 4px;font-size:7px;}
+#bottom-dock .vp-cmds{display:none!important;}
+
+/* Override ai-vision-panel inside dock */
+#bottom-dock .ai-vision-panel{
+  position:static!important;width:auto!important;height:100%!important;
+  border:none!important;border-radius:0!important;
+  box-shadow:none!important;background:transparent!important;
+  overflow:hidden;display:flex;flex-direction:column;
+}
+#bottom-dock .aiv-hdr{padding:7px 12px;background:transparent;}
+#bottom-dock .aiv-body{padding:6px 10px;flex:1;overflow:hidden;display:flex;flex-direction:column;gap:5px;}
+#bottom-dock .aiv-feed{height:90px;margin-bottom:5px;}
+#bottom-dock .aiv-drone-row{margin-bottom:0;}
+#bottom-dock .aiv-result{padding:5px 8px;font-size:8px;margin-bottom:0;}
+#bottom-dock .aiv-alarms{max-height:40px;}
+#bottom-dock .aiv-footer{padding-top:4px;margin-top:0;}
+#bottom-dock .aiv-status{margin-bottom:0;}
+
+/* Weather dock card */
+#dock-wx-card{padding:10px 14px;display:flex;flex-direction:column;justify-content:center;height:100%;}
+#dock-wx-card .dw-temp{font-size:2rem;font-weight:700;color:#7ecfff;text-shadow:0 0 14px rgba(126,207,255,.5);line-height:1;}
+#dock-wx-card .dw-desc{color:#aadcff;font-size:.9rem;font-weight:600;margin:5px 0 3px;}
+#dock-wx-card .dw-wind{color:#88ccee;font-size:.8rem;}
+#dock-wx-card .dw-loc{font-size:.72rem;color:#4a7a9a;margin-top:6px;}
+#dock-wx-card .dw-label{font-size:.72rem;color:#6ab0d8;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;}
+#dock-wx-card .dw-idle{color:#3a6080;font-size:.82rem;font-style:italic;}
 </style>
 
 </head>
 <body>
 
 <header>
-  <div class="logo">DRO<span>ZON</span></div>
-  <div class="hstats">
-    <div class="hs g"><strong id="s1">0</strong>Active</div>
-    <div class="hs w"><strong id="s2">0</strong>Misiune</div>
-    <div class="hs"><strong id="s3">0</strong>Standby</div>
-    <div class="hs d"><strong id="s4">0</strong>Alertă</div>
-    <div class="hs"><strong id="s5">0</strong>Total</div>
+  <!-- Rând 1: logo, statistici, ceas, butoane principale -->
+  <div class="hrow1">
+    <div class="logo">DRO<span>ZON</span></div>
+    <div class="hstats">
+      <div class="hs g"><strong id="s1">0</strong>Active</div>
+      <div class="hs w"><strong id="s2">0</strong>Misiune</div>
+      <div class="hs"><strong id="s3">0</strong>Standby</div>
+      <div class="hs d"><strong id="s4">0</strong>Alertă</div>
+      <div class="hs"><strong id="s5">0</strong>Total</div>
+    </div>
+    <div id="clock">--:--:--</div>
+    <div style="display:flex;gap:4px;flex-wrap:wrap;">
+      <button class="mbtn" onclick="openStats()" title="Statistici">📊</button>
+      <button class="mbtn" onclick="openWaypoints()" title="Rute">🗺️</button>
+      <button class="mbtn" onclick="toggleBatPanel()" title="Baterii" id="bat-hdr-btn">🔋</button>
+      <button class="mbtn" onclick="toggleOperatorMode()" title="Operatori" id="op-mode-btn">👥</button>
+      <button class="mbtn" onclick="openSwarm()" title="Swarm" style="color:var(--accent2);border-color:rgba(0,255,157,.3)">📡 SWARM</button>
+      <button class="mbtn" onclick="openRescue()" title="Rescue" style="color:var(--danger);border-color:rgba(255,34,68,.35);font-weight:700;animation:blink-border 2s infinite">🚁 RESCUE</button>
+      <button class="kmk-hdr-btn" onclick="openBiodrone()" title="Biodrone">🌿 BIODRONE</button>
+      <button class="mbtn" onclick="openFinancial()" title="Financiar" style="color:#00ff9d;border-color:rgba(0,255,157,.2)">💰</button>
+      <button class="mbtn" onclick="openLegal()" title="Legal" style="color:#ffcc00;border-color:rgba(255,204,0,.2)">📜</button>
+      <button class="mbtn" onclick="openSecurity()" title="Securitate" style="color:var(--danger);border-color:rgba(255,34,68,.2)">🔐</button>
+      <button class="mbtn" onclick="openBusiness()" title="Business" style="color:var(--accent)">🏢</button>
+      <button class="mbtn" onclick="openPitch()" title="Pitch Deck" style="color:#aa44ff;border-color:rgba(170,68,255,.3);font-weight:700">📈 PITCH</button>
+      <button class="mbtn" onclick="startDemo()" title="Demo Auto" style="color:var(--warn);border-color:rgba(255,140,0,.3);font-weight:700">🎬 DEMO</button>
+    </div>
   </div>
-  <div id="clock">--:--:--</div>
-  <div style="display:flex;gap:4px;margin-left:8px;flex-wrap:wrap;">
-    <button class="mbtn" onclick="openStats()" title="Statistici">📊</button>
-    <button class="mbtn" onclick="openWaypoints()" title="Rute">🗺️</button>
-    <button class="mbtn" onclick="toggleBatPanel()" title="Baterii" id="bat-hdr-btn">🔋</button>
-    <button class="mbtn" onclick="toggleOperatorMode()" title="Operatori" id="op-mode-btn">👥</button>
-    <button class="mbtn" onclick="openSwarm()" title="Swarm" style="color:var(--accent2);border-color:rgba(0,255,157,.3)">📡 SWARM</button>
-    <button class="mbtn" onclick="openRescue()" title="Rescue" style="color:var(--danger);border-color:rgba(255,34,68,.35);font-weight:700;animation:blink-border 2s infinite">🚁 RESCUE</button>
-    <button class="kmk-hdr-btn" onclick="openBiodrone()" title="Biodrone">🌿 BIODRONE</button>
-    <button class="mbtn" onclick="openFinancial()" title="Financiar" style="color:#00ff9d;border-color:rgba(0,255,157,.2)">💰</button>
-    <button class="mbtn" onclick="openLegal()" title="Legal" style="color:#ffcc00;border-color:rgba(255,204,0,.2)">📜</button>
-    <button class="mbtn" onclick="openSecurity()" title="Securitate" style="color:var(--danger);border-color:rgba(255,34,68,.2)">🔐</button>
-    <button class="mbtn" onclick="openBusiness()" title="Business" style="color:var(--accent)">🏢</button>
-    <button class="mbtn" onclick="openPitch()" title="Pitch Deck" style="color:#aa44ff;border-color:rgba(170,68,255,.3);font-weight:700">📈 PITCH</button>
-    <button class="mbtn" onclick="startDemo()" title="Demo Auto" style="color:var(--warn);border-color:rgba(255,140,0,.3);font-weight:700">🎬 DEMO</button>
-    <!-- ===== MAXIM toolbar buttons ===== -->
+  <!-- Rând 2: butoane MAXIM -->
+  <div class="hrow2">
     <button class="tb-maxim" onclick="openMaxim('fire')">🔥 INCENDII</button>
     <button class="tb-maxim" onclick="openMaxim('avalanche')">🏔️ AVALANSE</button>
     <button class="tb-maxim" onclick="openMaxim('flood')">🌊 INUNDATII</button>
@@ -1776,12 +1877,45 @@ header{display:flex;align-items:center;justify-content:space-between;padding:0 2
       <button class="smb-cancel" onclick="cancelSendMode()">✕ Anulează</button>
     </div>
 
-    <!-- VOICE COMMAND PANEL -->
-    <div class="vp" id="vp">
-      <div class="vp-hdr">
-        <div class="vp-title">🎙 CONTROL VOCAL</div>
-        <div class="vp-st"><div class="mdot" id="mdot"></div><span id="vp-st-txt">Inactiv</span></div>
+    </div>
+  </div>
+
+  <!-- RIGHT -->
+  <div class="rp" id="rp">
+    <div class="nosec"><div class="ni">🛸</div><p>Selectează o dronă<br>pentru detalii complete<br>+ meteo live</p></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     BOTTOM DOCK
+══════════════════════════════════════════════ -->
+<div id="bottom-dock">
+
+  <!-- Card 1: Meteo Live -->
+  <div class="dock-card">
+    <div class="dock-card-hdr">
+      <div class="dock-card-title">☁️ METEO LIVE</div>
+      <button class="mbtn" onclick="openMaxim('weather')" style="padding:3px 8px;font-size:8px;">↗ DETALII</button>
+    </div>
+    <div id="dock-wx-card">
+      <div class="dw-label">Condiții curente</div>
+      <div class="dw-idle" id="dock-wx-idle">Deschide o dronă sau apasă DETALII</div>
+      <div id="dock-wx-data" style="display:none">
+        <div class="dw-temp" id="dock-ww-temp">--°C</div>
+        <div class="dw-desc" id="dock-ww-desc">--</div>
+        <div class="dw-wind" id="dock-ww-wind">💨 -- m/s</div>
+        <div class="dw-loc" id="dock-ww-loc">--</div>
       </div>
+    </div>
+  </div>
+
+  <!-- Card 2: Control Vocal -->
+  <div class="dock-card">
+    <div class="dock-card-hdr">
+      <div class="dock-card-title"><div class="mdot" id="mdot"></div>🎙 CONTROL VOCAL</div>
+      <span id="vp-st-txt" style="font-size:8px;color:var(--muted);">Inactiv</span>
+    </div>
+    <div class="vp" id="vp">
       <div class="vp-body">
         <div class="vp-tx" id="vp-tx">Apasă microfon și spune o comandă...</div>
         <div class="vp-waves" id="vp-waves">
@@ -1795,30 +1929,99 @@ header{display:flex;align-items:center;justify-content:space-between;padding:0 2
         <div class="vp-res idle" id="vp-res">— aștept comandă —</div>
         <div class="vp-btns">
           <button class="vpb rec-btn" id="mic-btn" onclick="toggleVoice()">🎙 MICROFON</button>
-          <button class="vpb" onclick="activateSendMode()">🎯 TRIMITE PE HARTĂ</button>
-          <button class="vpb" onclick="voiceRTHAll()">🏠 RTH TOATE</button>
-        </div>
-        <div class="vp-cmds">
-          <div class="vcmd-t">Comenzi vocale recunoscute</div>
-          <div class="vcmd"><code>trimite [nume] la coordonate</code>Trimite dronă la punct GPS</div>
-          <div class="vcmd"><code>trimite [nume] pe hartă</code>Click pe hartă pentru destinație</div>
-          <div class="vcmd"><code>întoarce [nume] la bază</code>Return to Home</div>
-          <div class="vcmd"><code>decolare [nume]</code>Pornire zbor</div>
-          <div class="vcmd"><code>aterizare [nume]</code>Aterizare imediată</div>
-          <div class="vcmd"><code>status [nume]</code>Selectează drona</div>
-          <div class="vcmd"><code>întoarce toate la bază</code>RTH flotă</div>
-          <div class="vcmd"><code>oprire urgență</code>Land ALL imediat</div>
+          <button class="vpb" onclick="activateSendMode()">🎯 HARTĂ</button>
+          <button class="vpb" onclick="voiceRTHAll()">🏠 RTH ALL</button>
         </div>
       </div>
     </div>
+  </div>
 
+  <!-- Card 3: AI Vision -->
+  <div class="dock-card" style="flex:2;">
+    <div class="ai-vision-panel" id="ai-vision-panel">
+      <div class="aiv-hdr">
+        <div class="aiv-title">
+          <div class="aiv-ai-dot" id="aiv-dot"></div>
+          🤖 AI VISION — ANALIZĂ VIDEO
+        </div>
+        <div class="aiv-controls">
+          <button class="aiv-scan-btn" id="aiv-scan-btn" onclick="toggleAIScan()" style="padding:4px 10px;font-size:8px;">🔍 SCANARE</button>
+          <div class="aiv-interval" style="font-size:8px;">
+            <select id="aiv-interval-sel" style="font-size:8px;background:var(--panel2);border:1px solid var(--border);color:var(--text);border-radius:3px;padding:2px;">
+              <option value="8000">8s</option>
+              <option value="15000" selected>15s</option>
+              <option value="30000">30s</option>
+              <option value="60000">1min</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="aiv-body">
+        <div style="display:flex;gap:6px;height:100%;">
+          <!-- Video feed -->
+          <div class="aiv-feed" id="aiv-feed" style="flex:1.4;margin-bottom:0;">
+            <svg width="100%" height="100%" viewBox="0 0 340 160" xmlns="http://www.w3.org/2000/svg" id="aiv-svg">
+              <defs>
+                <linearGradient id="skyG" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#010508"/>
+                  <stop offset="100%" stop-color="#020a14"/>
+                </linearGradient>
+                <linearGradient id="groundG" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#0a1a0a"/>
+                  <stop offset="100%" stop-color="#050a05"/>
+                </linearGradient>
+              </defs>
+              <rect width="340" height="160" fill="url(#skyG)"/>
+              <rect y="100" width="340" height="60" fill="url(#groundG)"/>
+              <line x1="0" y1="100" x2="340" y2="100" stroke="#00ff9d" stroke-width=".5" stroke-dasharray="4 8" opacity=".3"/>
+              <rect x="20" y="105" width="40" height="25" fill="#0d2010" opacity=".8"/>
+              <rect x="80" y="110" width="30" height="20" fill="#0d2010" opacity=".7"/>
+              <rect x="200" y="108" width="50" height="22" fill="#0d2010" opacity=".8"/>
+              <rect x="270" y="112" width="25" height="18" fill="#0d2010" opacity=".6"/>
+              <path d="M 100 160 L 140 100 L 200 100 L 240 160 Z" fill="#0a1208" opacity=".5"/>
+              <circle cx="60" cy="102" r="8" fill="#0a2008" opacity=".8"/>
+              <circle cx="280" cy="103" r="7" fill="#0a2008" opacity=".8"/>
+              <circle cx="50" cy="20" r=".8" fill="#ffffff" opacity=".3"/>
+              <circle cx="150" cy="35" r=".6" fill="#ffffff" opacity=".2"/>
+              <g id="aiv-moving-objs"></g>
+              <g id="aiv-detections"></g>
+            </svg>
+            <div class="aiv-feed-overlay"></div>
+            <div class="aiv-feed-hud">
+              <div class="aiv-hud-tl">
+                <div id="aiv-hud-drone">— FĂRĂ DRONĂ —</div>
+                <div id="aiv-hud-pos">LAT — · LNG —</div>
+              </div>
+              <div class="aiv-hud-tr">
+                <div id="aiv-hud-time">--:--:--</div>
+                <div id="aiv-hud-alt">ALT: — m</div>
+              </div>
+              <div class="aiv-hud-bl" id="aiv-hud-status">■ FEED OFFLINE</div>
+              <div class="aiv-hud-br" id="aiv-hud-scan">AI: STANDBY</div>
+              <div class="aiv-reticle"><div class="aiv-reticle-r"></div><div class="aiv-reticle-bl"></div></div>
+            </div>
+            <div class="aiv-scanbar paused" id="aiv-scanbar"></div>
+          </div>
+          <!-- Info panel -->
+          <div style="flex:1;display:flex;flex-direction:column;gap:5px;overflow:hidden;">
+            <div class="aiv-drone-row" id="aiv-drone-row" style="margin-bottom:0;"></div>
+            <div class="aiv-status">
+              <div class="aiv-status-dot" id="aiv-status-dot"></div>
+              <span id="aiv-status-txt">Selectează o dronă</span>
+            </div>
+            <div class="aiv-result loading" id="aiv-result" style="flex:1;overflow-y:auto;">
+              <div class="aiv-result-hdr">🤖 AI VISION <span class="aiv-result-time" id="aiv-result-time">—</span></div>
+              <div id="aiv-result-body">Nicio analiză efectuată.</div>
+            </div>
+            <div class="aiv-alarms" id="aiv-alarms" style="max-height:35px;">
+              <div style="color:#2a4a60;text-align:center;padding:4px;font-size:8px;">— Nicio alarmă —</div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- RIGHT -->
-  <div class="rp" id="rp">
-    <div class="nosec"><div class="ni">🛸</div><p>Selectează o dronă<br>pentru detalii complete<br>+ meteo live</p></div>
-  </div>
 </div>
 
 <!-- MODAL MISIUNE AUTONOMĂ -->
@@ -2780,120 +2983,6 @@ header{display:flex;align-items:center;justify-content:space-between;padding:0 2
   </div><!-- end sp-body -->
 </div><!-- end sensor-overlay -->
 
-<!-- ══════════ AI VISION PANEL ══════════ -->
-<div class="ai-vision-panel" id="ai-vision-panel">
-  <div class="aiv-hdr" onclick="toggleAIVision()">
-    <div class="aiv-title">
-      <div class="aiv-ai-dot" id="aiv-dot"></div>
-      🤖 AI VISION — ANALIZĂ VIDEO
-    </div>
-    <div class="aiv-controls">
-      <button class="aiv-ctrl-btn" onclick="event.stopPropagation();toggleAIVision()" id="aiv-min-btn">▼</button>
-    </div>
-  </div>
-  <div class="aiv-body">
-    <!-- Drone selector -->
-    <div class="aiv-drone-row" id="aiv-drone-row">
-      <!-- populated by JS -->
-    </div>
-
-    <!-- Video feed simulat -->
-    <div class="aiv-feed" id="aiv-feed">
-      <!-- SVG landscape simulat ca "video feed" -->
-      <svg width="100%" height="100%" viewBox="0 0 340 160" xmlns="http://www.w3.org/2000/svg" id="aiv-svg">
-        <!-- Sky gradient -->
-        <defs>
-          <linearGradient id="skyG" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="#010508"/>
-            <stop offset="100%" stop-color="#020a14"/>
-          </linearGradient>
-          <linearGradient id="groundG" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="#0a1a0a"/>
-            <stop offset="100%" stop-color="#050a05"/>
-          </linearGradient>
-        </defs>
-        <rect width="340" height="160" fill="url(#skyG)"/>
-        <rect y="100" width="340" height="60" fill="url(#groundG)"/>
-        <!-- Horizon line -->
-        <line x1="0" y1="100" x2="340" y2="100" stroke="#00ff9d" stroke-width=".5" stroke-dasharray="4 8" opacity=".3"/>
-        <!-- Ground features -->
-        <rect x="20" y="105" width="40" height="25" fill="#0d2010" opacity=".8"/>
-        <rect x="80" y="110" width="30" height="20" fill="#0d2010" opacity=".7"/>
-        <rect x="200" y="108" width="50" height="22" fill="#0d2010" opacity=".8"/>
-        <rect x="270" y="112" width="25" height="18" fill="#0d2010" opacity=".6"/>
-        <!-- Road -->
-        <path d="M 100 160 L 140 100 L 200 100 L 240 160 Z" fill="#0a1208" opacity=".5"/>
-        <line x1="170" y1="160" x2="170" y2="100" stroke="#1a2a10" stroke-width="1" stroke-dasharray="8 6"/>
-        <!-- Trees -->
-        <circle cx="60" cy="102" r="8" fill="#0a2008" opacity=".8"/>
-        <circle cx="75" cy="104" r="6" fill="#0a2008" opacity=".7"/>
-        <circle cx="280" cy="103" r="7" fill="#0a2008" opacity=".8"/>
-        <!-- Stars/sky dots -->
-        <circle cx="50" cy="20" r=".8" fill="#ffffff" opacity=".3"/>
-        <circle cx="150" cy="35" r=".6" fill="#ffffff" opacity=".2"/>
-        <circle cx="280" cy="15" r=".8" fill="#ffffff" opacity=".3"/>
-        <circle cx="310" cy="50" r=".5" fill="#ffffff" opacity=".2"/>
-        <!-- Animated "moving" objects placeholder -->
-        <g id="aiv-moving-objs"></g>
-        <!-- Detection overlays placeholder -->
-        <g id="aiv-detections"></g>
-      </svg>
-      <div class="aiv-feed-overlay"></div>
-      <!-- HUD overlay -->
-      <div class="aiv-feed-hud">
-        <div class="aiv-hud-tl">
-          <div id="aiv-hud-drone">— FĂRĂ DRONĂ —</div>
-          <div id="aiv-hud-pos">LAT — · LNG —</div>
-        </div>
-        <div class="aiv-hud-tr">
-          <div id="aiv-hud-time">--:--:--</div>
-          <div id="aiv-hud-alt">ALT: — m</div>
-        </div>
-        <div class="aiv-hud-bl" id="aiv-hud-status">■ FEED OFFLINE</div>
-        <div class="aiv-hud-br" id="aiv-hud-scan">AI: STANDBY</div>
-        <!-- Reticle -->
-        <div class="aiv-reticle">
-          <div class="aiv-reticle-r"></div>
-          <div class="aiv-reticle-bl"></div>
-        </div>
-      </div>
-      <!-- Scan bar -->
-      <div class="aiv-scanbar paused" id="aiv-scanbar"></div>
-    </div>
-
-    <!-- Status -->
-    <div class="aiv-status">
-      <div class="aiv-status-dot" id="aiv-status-dot"></div>
-      <span id="aiv-status-txt">Selectează o dronă pentru analiză</span>
-    </div>
-
-    <!-- AI result -->
-    <div class="aiv-result loading" id="aiv-result">
-      <div class="aiv-result-hdr">🤖 AI VISION SYSTEM <span class="aiv-result-time" id="aiv-result-time">—</span></div>
-      <div id="aiv-result-body">Nicio analiză efectuată încă. Pornește scanarea pentru raport live.</div>
-    </div>
-
-    <!-- Alarm log -->
-    <div style="font-size:7px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:5px;">📋 Jurnal alarme misiune</div>
-    <div class="aiv-alarms" id="aiv-alarms">
-      <div style="color:#2a4a60;text-align:center;padding:8px;font-size:8px;">— Nicio alarmă —</div>
-    </div>
-
-    <!-- Footer controls -->
-    <div class="aiv-footer">
-      <button class="aiv-scan-btn" id="aiv-scan-btn" onclick="toggleAIScan()">🔍 START SCANARE</button>
-      <div class="aiv-interval">
-        Interval:
-        <select id="aiv-interval-sel">
-          <option value="8000">8s</option>
-          <option value="15000" selected>15s</option>
-          <option value="30000">30s</option>
-          <option value="60000">1min</option>
-        </select>
-      </div>
-    </div>
-  </div>
-</div>
 
 <!-- Big Alert Overlay -->
 <div class="aiv-big-alert" id="aiv-big-alert">
@@ -9275,9 +9364,9 @@ function demoStop(){
 <div id="weather-widget">
   <div class="w-label">Meteo Live</div>
   <span class="w-temp" id="ww-temp">--°C</span>
-  <div id="ww-desc" style="color:#9bf; margin:2px 0;">--</div>
-  <div id="ww-wind" style="opacity:.8; font-size:.8rem;">💨 -- m/s</div>
-  <div style="margin-top:6px; font-size:.75rem; opacity:.6;" id="ww-loc">--</div>
+  <div id="ww-desc" style="color:#aadcff; margin:4px 0; font-size:.9rem; font-weight:600;">--</div>
+  <div id="ww-wind" style="color:#88ccee; font-size:.82rem; margin-top:2px;">💨 -- m/s</div>
+  <div style="margin-top:8px; font-size:.75rem; color:#4a7a9a; letter-spacing:.5px;" id="ww-loc">--</div>
 </div>
 
 
@@ -9808,7 +9897,7 @@ function fetchWeather() {
         ? `<span class="alert-badge badge-red">🌩️ FENOMENE SEVERE ACTIVE — ${wmo.label}</span>`
         : `<span class="alert-badge badge-green">✅ Fără fenomene severe</span>`;
 
-      // Update floating widget
+      // Update floating widget (top-right)
       const ww = document.getElementById('weather-widget');
       if (ww) {
         ww.style.display = 'block';
@@ -9816,6 +9905,17 @@ function fetchWeather() {
         document.getElementById('ww-desc').textContent = wmo.icon + ' ' + wmo.label;
         document.getElementById('ww-wind').textContent = '💨 ' + c.wind_speed_10m + ' m/s';
         document.getElementById('ww-loc').textContent  = `${lat.toFixed(3)}, ${lng.toFixed(3)}`;
+      }
+      // Update bottom dock weather card
+      const dockIdle = document.getElementById('dock-wx-idle');
+      const dockData = document.getElementById('dock-wx-data');
+      if (dockIdle && dockData) {
+        dockIdle.style.display = 'none';
+        dockData.style.display = 'block';
+        document.getElementById('dock-ww-temp').textContent = c.temperature_2m + '°C';
+        document.getElementById('dock-ww-desc').textContent = wmo.icon + ' ' + wmo.label;
+        document.getElementById('dock-ww-wind').textContent = '💨 ' + c.wind_speed_10m + ' m/s';
+        document.getElementById('dock-ww-loc').textContent  = `${lat.toFixed(3)}, ${lng.toFixed(3)}`;
       }
     })
     .catch(() => {
@@ -9929,24 +10029,20 @@ function exportData() {
 ${waypoints.map(w => `<Placemark><name>${w.id}</name>
 <description>${w.type} | ${w.status}</description>
 <Point><coordinates>${w.lng},${w.lat},${w.alt}</coordinates></Point>
-</Placemark>`).join('
-')}
+</Placemark>`).join('\n')}
 </Document></kml>`;
   } else if (format === 'gpx') {
     mime = 'application/gpx+xml';
     content = `<?xml version="1.0" encoding="UTF-8"?>
 <gpx version="1.1" xmlns="http://www.topografix.com/GPX/1/1">
 <trk><name>DroZon MAXIM — ${mission}</name><trkseg>
-${waypoints.map(w => `<trkpt lat="${w.lat}" lon="${w.lng}"><ele>${w.alt}</ele><name>${w.id}</name></trkpt>`).join('
-')}
+${waypoints.map(w => `<trkpt lat="${w.lat}" lon="${w.lng}"><ele>${w.alt}</ele><name>${w.id}</name></trkpt>`).join('\n')}
 </trkseg></trk></gpx>`;
-  } else if (format === 'csv') {
-    mime = 'text/csv';
-    content = 'ID,Tip,Lat,Lng,Alt,Status,Baterie
-' +
-      waypoints.map((w,i) => `${w.id},${w.type},${w.lat},${w.lng},${w.alt},${w.status},${DRONE_FLEET[i].battery}%`).join('
-');
-    ext = 'csv';
+  }  else if (format === 'csv') {
+  mime = 'text/csv';
+  content = 'ID,Tip,Lat,Lng,Alt,Status,Baterie\n' +
+    waypoints.map((w,i) => `${w.id},${w.type},${w.lat},${w.lng},${w.alt},${w.status},${DRONE_FLEET[i].battery}%`).join('\n');
+  ext = 'csv';
   } else if (format === 'geojson') {
     mime = 'application/geo+json';
     content = JSON.stringify({
