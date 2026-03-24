@@ -10180,6 +10180,290 @@ window.addEventListener('load', () => {
       .catch(() => {});
   }, 2000);
 });
+
+/* ══════════════════════════════════════════════
+   SISTEM DRAG / RESIZE / MINIMIZE CARDURI
+══════════════════════════════════════════════ */
+
+(function() {
+
+  /* ─── CSS injectat ─── */
+  const style = document.createElement('style');
+  style.textContent = `
+    .fp-wrap {
+      position: fixed;
+      z-index: 800;
+      min-width: 180px;
+      min-height: 60px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--panel);
+      box-shadow: 0 6px 24px rgba(0,0,0,.8);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      transition: box-shadow .2s;
+    }
+    .fp-wrap:hover { box-shadow: 0 8px 32px rgba(0,0,0,.9); }
+    .fp-wrap.fp-dragging { box-shadow: 0 12px 40px rgba(0,0,0,.95); opacity: .92; transition: none; }
+
+    .fp-titlebar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 10px;
+      background: var(--panel2);
+      border-bottom: 1px solid var(--border);
+      cursor: grab;
+      user-select: none;
+      flex-shrink: 0;
+    }
+    .fp-titlebar:active { cursor: grabbing; }
+    .fp-titlebar-label {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 3px;
+      color: var(--accent);
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .fp-btns { display: flex; gap: 4px; }
+    .fp-btn {
+      width: 20px; height: 20px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+      border-radius: 3px;
+      cursor: pointer;
+      font-size: 10px;
+      display: flex; align-items: center; justify-content: center;
+      transition: all .15s;
+      flex-shrink: 0;
+    }
+    .fp-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .fp-btn.fp-close-btn:hover { border-color: var(--danger); color: var(--danger); }
+
+    .fp-body {
+      flex: 1;
+      overflow: auto;
+      transition: all .2s;
+    }
+    .fp-body::-webkit-scrollbar { width: 3px; }
+    .fp-body::-webkit-scrollbar-thumb { background: var(--border); }
+
+    .fp-wrap.fp-minimized .fp-body { display: none; }
+    .fp-wrap.fp-minimized { min-height: 0; }
+
+    .fp-resize {
+      position: absolute;
+      bottom: 0; right: 0;
+      width: 16px; height: 16px;
+      cursor: se-resize;
+      z-index: 10;
+    }
+    .fp-resize::after {
+      content: '';
+      position: absolute;
+      bottom: 3px; right: 3px;
+      width: 8px; height: 8px;
+      border-right: 2px solid var(--border);
+      border-bottom: 2px solid var(--border);
+    }
+    .fp-resize:hover::after { border-color: var(--accent); }
+
+    /* Buton din dock-card-hdr pentru pop-out */
+    .dock-popout-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      border-radius: 3px;
+      padding: 2px 6px;
+      font-size: 9px;
+      cursor: pointer;
+      font-family: 'JetBrains Mono', monospace;
+      letter-spacing: 1px;
+      transition: all .15s;
+    }
+    .dock-popout-btn:hover { border-color: var(--accent); color: var(--accent); }
+  `;
+  document.head.appendChild(style);
+
+  /* ─── Stare salvata ─── */
+  function savePos(id, left, top, w, h) {
+    try { localStorage.setItem('fp_' + id, JSON.stringify({left, top, w, h})); } catch(e){}
+  }
+  function loadPos(id) {
+    try { return JSON.parse(localStorage.getItem('fp_' + id)); } catch(e){ return null; }
+  }
+
+  /* ─── Creare panel flotant ─── */
+  function createFloatPanel(id, title, icon, contentEl, defaultPos) {
+    const wrap = document.createElement('div');
+    wrap.className = 'fp-wrap';
+    wrap.id = 'fp_' + id;
+
+    const saved = loadPos(id);
+    const pos = saved || defaultPos;
+    wrap.style.left   = pos.left + 'px';
+    wrap.style.top    = pos.top  + 'px';
+    if (pos.w) wrap.style.width  = pos.w + 'px';
+    if (pos.h) wrap.style.height = pos.h + 'px';
+
+    wrap.innerHTML = `
+      <div class="fp-titlebar" id="fp_handle_${id}">
+        <div class="fp-titlebar-label">${icon} ${title}</div>
+        <div class="fp-btns">
+          <button class="fp-btn fp-min-btn" title="Minimizează">—</button>
+          <button class="fp-btn fp-close-btn" title="Închide">✕</button>
+        </div>
+      </div>
+      <div class="fp-body" id="fp_body_${id}"></div>
+      <div class="fp-resize" id="fp_resize_${id}"></div>
+    `;
+
+    document.body.appendChild(wrap);
+    document.getElementById('fp_body_' + id).appendChild(contentEl);
+
+    /* Minimize */
+    wrap.querySelector('.fp-min-btn').addEventListener('click', e => {
+      e.stopPropagation();
+      wrap.classList.toggle('fp-minimized');
+      e.currentTarget.textContent = wrap.classList.contains('fp-minimized') ? '▢' : '—';
+    });
+
+    /* Close → readaugă în dock */
+    wrap.querySelector('.fp-close-btn').addEventListener('click', e => {
+      e.stopPropagation();
+      wrap.style.display = 'none';
+      const dockCard = document.getElementById('dockslot_' + id);
+      if (dockCard) { dockCard.style.display = ''; }
+    });
+
+    /* Drag */
+    initDrag(wrap, document.getElementById('fp_handle_' + id));
+
+    /* Resize */
+    initResize(wrap, document.getElementById('fp_resize_' + id), id);
+
+    return wrap;
+  }
+
+  /* ─── Drag ─── */
+  function initDrag(el, handle) {
+    let dragging = false, ox, oy;
+
+    handle.addEventListener('mousedown', e => {
+      if (e.target.tagName === 'BUTTON') return;
+      dragging = true;
+      ox = e.clientX - el.getBoundingClientRect().left;
+      oy = e.clientY - el.getBoundingClientRect().top;
+      el.classList.add('fp-dragging');
+      e.preventDefault();
+    });
+
+    document.addEventListener('mousemove', e => {
+      if (!dragging) return;
+      let nx = e.clientX - ox;
+      let ny = e.clientY - oy;
+      nx = Math.max(0, Math.min(window.innerWidth  - el.offsetWidth,  nx));
+      ny = Math.max(0, Math.min(window.innerHeight - el.offsetHeight, ny));
+      el.style.left   = nx + 'px';
+      el.style.top    = ny + 'px';
+      el.style.right  = 'auto';
+      el.style.bottom = 'auto';
+    });
+
+    document.addEventListener('mouseup', () => {
+      if (!dragging) return;
+      dragging = false;
+      el.classList.remove('fp-dragging');
+      const id = el.id.replace('fp_', '');
+      savePos(id, parseInt(el.style.left), parseInt(el.style.top),
+              el.offsetWidth, el.offsetHeight);
+    });
+  }
+
+  /* ─── Resize ─── */
+  function initResize(el, handle, id) {
+    let resizing = false, startX, startY, startW, startH;
+
+    handle.addEventListener('mousedown', e => {
+      resizing = true;
+      startX = e.clientX; startY = e.clientY;
+      startW = el.offsetWidth; startH = el.offsetHeight;
+      e.preventDefault(); e.stopPropagation();
+    });
+
+    document.addEventListener('mousemove', e => {
+      if (!resizing) return;
+      const nw = Math.max(180, startW + (e.clientX - startX));
+      const nh = Math.max(80,  startH + (e.clientY - startY));
+      el.style.width  = nw + 'px';
+      el.style.height = nh + 'px';
+    });
+
+    document.addEventListener('mouseup', () => {
+      if (!resizing) return;
+      resizing = false;
+      savePos(id, parseInt(el.style.left), parseInt(el.style.top),
+              el.offsetWidth, el.offsetHeight);
+    });
+  }
+
+  /* ─── Pop-out carduri din dock ─── */
+  function addPopoutBtn(dockCardEl, id, title, icon, defaultPos) {
+    const hdr = dockCardEl.querySelector('.dock-card-hdr');
+    if (!hdr) return;
+
+    /* Slot placeholder în dock */
+    dockCardEl.id = 'dockslot_' + id;
+
+    const btn = document.createElement('button');
+    btn.className = 'dock-popout-btn';
+    btn.textContent = '⊞ FLOAT';
+    btn.title = 'Desprinde cardul — drag & resize';
+
+    btn.addEventListener('click', () => {
+      const existing = document.getElementById('fp_' + id);
+      if (existing) {
+        existing.style.display = '';
+        dockCardEl.style.display = 'none';
+        return;
+      }
+      /* Ia conținutul cardului (tot ce e sub header) */
+      const body = document.createElement('div');
+      body.style.cssText = 'padding:10px 12px;height:100%;box-sizing:border-box;';
+      Array.from(dockCardEl.children).forEach(ch => {
+        if (!ch.classList.contains('dock-card-hdr')) body.appendChild(ch);
+      });
+      createFloatPanel(id, title, icon, body, defaultPos);
+      dockCardEl.style.display = 'none';
+    });
+
+    hdr.appendChild(btn);
+  }
+
+  /* ─── Inițializare după load ─── */
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      const dockCards = document.querySelectorAll('#bottom-dock .dock-card');
+
+      const cfg = [
+        { idx: 0, id: 'meteo',   title: 'METEO LIVE',      icon: '☁️',  pos: { left: 20,  top: window.innerHeight - 260 } },
+        { idx: 1, id: 'vocal',   title: 'CONTROL VOCAL',   icon: '🎙',  pos: { left: 300, top: window.innerHeight - 260 } },
+        { idx: 2, id: 'aivision',title: 'AI VISION',       icon: '🤖',  pos: { left: 600, top: window.innerHeight - 320 } },
+      ];
+
+      cfg.forEach(c => {
+        if (dockCards[c.idx]) addPopoutBtn(dockCards[c.idx], c.id, c.title, c.icon, c.pos);
+      });
+    }, 500);
+  });
+
+})();
 </script>
 
 </body>
