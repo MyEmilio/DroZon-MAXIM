@@ -11,9 +11,9 @@
 <style>
 :root{
   --bg:#080b10;--panel:#0c1018;--panel2:#10161f;--panel3:#141c26;
-  --border:#253040;--accent:#2e7fc4;--accent2:#267a50;
-  --warn:#b87218;--danger:#b02020;--text:#a8bdd0;--muted:#4a6478;
-  --glow:0 0 6px rgba(46,127,196,.15);--glow2:0 0 6px rgba(38,122,80,.12);
+  --border:#2e4862;--accent:#2e7fc4;--accent2:#267a50;
+  --warn:#b87218;--danger:#b02020;--text:#cce0f5;--muted:#8aaccc;
+  --glow:0 0 8px rgba(46,127,196,.3);--glow2:0 0 8px rgba(38,122,80,.2);
 }
 *{margin:0;padding:0;box-sizing:border-box;}
 body{font-family:'JetBrains Mono',monospace;background:var(--bg);color:var(--text);height:100vh;overflow:hidden;display:flex;flex-direction:column;}
@@ -48,7 +48,7 @@ header{
 .logo{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:22px;color:var(--accent);letter-spacing:8px;text-shadow:none;}
 .logo span{color:var(--accent2);}
 .hstats{display:flex;gap:20px;}
-.hs{font-size:9px;letter-spacing:2px;color:#6080a0;text-transform:uppercase;text-align:center;}
+.hs{font-size:9px;letter-spacing:2px;color:#90aac8;text-transform:uppercase;text-align:center;}
 .hs strong{display:block;font-size:16px;font-weight:700;letter-spacing:2px;color:var(--accent);}
 .hs.g strong{color:var(--accent2);} .hs.w strong{color:var(--warn);} .hs.d strong{color:var(--danger);}
 #clock{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--accent);letter-spacing:3px;}
@@ -58,7 +58,7 @@ header{
 
 /* ── LEFT PANEL ── */
 .lp{width:305px;flex-shrink:0;background:var(--panel);border-right:1px solid #122230;display:flex;flex-direction:column;overflow:hidden;}
-.ptitle{font-family:'Rajdhani',sans-serif;font-size:9px;letter-spacing:3px;color:var(--muted);text-transform:uppercase;padding:10px 14px 8px;border-bottom:1px solid var(--border);}
+.ptitle{font-family:'Rajdhani',sans-serif;font-size:9px;letter-spacing:3px;color:var(--text);text-transform:uppercase;padding:10px 14px 8px;border-bottom:1px solid var(--border);}
 .dlist{overflow-y:auto;flex:1;padding:6px;}
 .dlist::-webkit-scrollbar{width:3px;} .dlist::-webkit-scrollbar-thumb{background:var(--border);}
 
@@ -77,13 +77,13 @@ header{
 .s-misiune .sbadge{background:rgba(184,114,24,.15);color:#b87218;border:1px solid rgba(184,114,24,.4);}
 .s-standby .sbadge{background:rgba(74,112,144,.15);color:#7090a8;border:1px solid rgba(74,112,144,.35);}
 .s-pericol .sbadge{background:rgba(176,32,32,.15);color:#e04444;border:1px solid rgba(176,32,32,.45);}
-.dc-model{font-size:9px;color:#6a8fa8;margin-bottom:4px;}
+.dc-model{font-size:9px;color:#90b5cc;margin-bottom:4px;}
 .dc-mis{font-size:9px;color:#aac8e0;margin-bottom:4px;}
 .brow{display:flex;align-items:center;gap:6px;}
 .bbar{flex:1;height:4px;background:#0f2030;border-radius:2px;overflow:hidden;}
 .bfill{height:100%;border-radius:2px;transition:width .5s;}
 .bpct{font-size:9px;color:#7a9ab8;min-width:28px;text-align:right;}
-.dc-sub{font-size:8px;color:#5a7888;margin-top:3px;}
+.dc-sub{font-size:8px;color:#7a9ab0;margin-top:3px;}
 
 /* mini payload in card */
 .dc-payload{display:flex;align-items:center;gap:6px;margin-top:5px;padding-top:5px;border-top:1px solid var(--border);}
@@ -102,8 +102,8 @@ header{
 .addbtn:hover{border-color:var(--accent);color:var(--accent);box-shadow:var(--glow);}
 
 /* ── MAP ── */
-.mc{flex:1;position:relative;background:#020810;}
-#map{width:100%;height:100%;}
+.mc{flex:1;position:relative;background:#020810;min-height:0;overflow:hidden;}
+#map{position:absolute;inset:0;}
 .mc::after{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.025) 2px,rgba(0,0,0,.025) 4px);pointer-events:none;z-index:499;}
 .movl{position:absolute;top:10px;right:10px;z-index:500;display:flex;flex-direction:column;gap:6px;}
 .mbtn{background:#0d1828;border:1px solid #243a52;color:#90b0cc;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1px;padding:6px 11px;border-radius:3px;cursor:pointer;transition:all .2s;text-transform:uppercase;}
@@ -232,7 +232,7 @@ header{
 .nosec p{font-size:10px;letter-spacing:1px;line-height:1.8;}
 
 /* TOAST */
-.toast{position:fixed;top:62px;right:14px;background:var(--panel);border:1px solid var(--danger);border-radius:5px;padding:10px 14px;font-size:10px;color:var(--danger);z-index:999;max-width:265px;box-shadow:0 0 18px rgba(176,32,32,.25);transform:translateX(300px);transition:transform .3s;}
+.toast{position:fixed;top:108px;right:14px;background:var(--panel);border:1px solid var(--danger);border-radius:5px;padding:10px 14px;font-size:10px;color:var(--danger);z-index:999;max-width:265px;box-shadow:0 0 18px rgba(176,32,32,.25);transform:translateX(300px);transition:transform .3s;}
 .toast.show{transform:translateX(0);}
 .toast.info{border-color:var(--accent2);color:var(--accent2);box-shadow:0 0 18px rgba(38,122,80,.18);}
 .toast-t{font-family:'Rajdhani',sans-serif;font-size:9px;letter-spacing:2px;margin-bottom:3px;}
@@ -262,11 +262,11 @@ header{
 .vp-res.err{background:rgba(176,32,32,.07);border:1px solid rgba(176,32,32,.22);color:var(--danger);}
 .vp-res.info{background:rgba(46,127,196,.07);border:1px solid rgba(46,127,196,.2);color:var(--accent);}
 .vp-btns{display:flex;gap:5px;margin-bottom:8px;}
-.vpb{flex:1;padding:7px 5px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:1px;cursor:pointer;transition:all .2s;text-transform:uppercase;border:1px solid var(--border);background:transparent;color:var(--muted);}
-.vpb:hover{border-color:var(--accent);color:var(--accent);}
-.vpb.rec-btn{border-color:var(--danger);color:var(--danger);}
-.vpb.rec-btn.active{background:rgba(176,32,32,.12);animation:pulse-b .8s infinite;}
-.vpb.rec-btn:hover{background:rgba(176,32,32,.1);}
+.vpb{flex:1;padding:7px 5px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:1px;cursor:pointer;transition:all .2s;text-transform:uppercase;border:1px solid var(--border);background:rgba(46,127,196,.08);color:var(--text);}
+.vpb:hover{border-color:var(--accent);color:var(--accent);background:rgba(46,127,196,.15);}
+.vpb.rec-btn{border-color:var(--danger);color:var(--danger);background:rgba(176,32,32,.08);}
+.vpb.rec-btn.active{background:rgba(176,32,32,.18);animation:pulse-b .8s infinite;}
+.vpb.rec-btn:hover{background:rgba(176,32,32,.15);}
 @keyframes pulse-b{0%,100%{box-shadow:none;}50%{box-shadow:0 0 14px rgba(176,32,32,.5);}}
 .vp-waves{display:flex;align-items:center;gap:2px;height:18px;margin:3px 0 7px;}
 .vwave{width:3px;background:var(--danger);border-radius:2px;height:4px;transition:height .08s;}
@@ -421,12 +421,12 @@ header{
 
 /* Big alert overlay */
 .aiv-big-alert{
-  position:fixed;top:70px;left:50%;transform:translateX(-50%);
-  z-index:9998;width:420px;max-width:95vw;
+  position:fixed;bottom:230px;right:14px;
+  z-index:2500;width:340px;max-width:95vw;
   background:linear-gradient(135deg,rgba(10,5,5,.98),rgba(20,5,5,.98));
   border:2px solid var(--danger);border-radius:10px;
-  box-shadow:0 0 60px rgba(176,32,32,.5),0 0 120px rgba(176,32,32,.2);
-  padding:18px 22px;display:none;
+  box-shadow:0 0 40px rgba(176,32,32,.5);
+  padding:14px 18px;display:none;
   animation:alert-pulse-bg 1s infinite alternate;
 }
 @keyframes alert-pulse-bg{from{box-shadow:0 0 40px rgba(176,32,32,.4)}to{box-shadow:0 0 80px rgba(176,32,32,.7)}}
@@ -1192,7 +1192,7 @@ header{
 /* ══════════════════════════════════════
    V8 — THREAT / ENEMY DRONE DETECTION
 ══════════════════════════════════════ */
-.threat-badge{position:fixed;top:62px;left:50%;transform:translateX(-50%);z-index:800;
+.threat-badge{position:fixed;top:115px;right:320px;z-index:800;
   background:rgba(10,0,0,.95);border:2px solid var(--danger);border-radius:6px;
   padding:8px 18px;display:none;align-items:center;gap:10px;
   box-shadow:0 0 30px rgba(176,32,32,.4);animation:alert-pulse-bg .8s infinite alternate;}
@@ -1533,7 +1533,7 @@ header{
 /* ══════════════════════════════════════
    RESCUE SYSTEM — Dronă Mamă & SOS
 ══════════════════════════════════════ */
-.sos-alert{position:fixed;top:70px;left:14px;z-index:2000;background:linear-gradient(135deg,rgba(10,0,0,.98),rgba(20,0,5,.98));border:2px solid var(--danger);border-radius:9px;padding:12px 16px;width:310px;box-shadow:0 0 50px rgba(176,32,32,.5);display:none;animation:sos-pulse-border 1s infinite alternate;}
+.sos-alert{position:fixed;top:115px;right:14px;z-index:2000;background:linear-gradient(135deg,rgba(10,0,0,.98),rgba(20,0,5,.98));border:2px solid var(--danger);border-radius:9px;padding:12px 16px;width:300px;max-width:calc(100vw - 340px);box-shadow:0 0 40px rgba(176,32,32,.4);display:none;animation:sos-pulse-border 1s infinite alternate;}
 .sos-alert.show{display:block;}
 @keyframes sos-pulse-border{from{box-shadow:0 0 30px rgba(176,32,32,.4);}to{box-shadow:0 0 70px rgba(176,32,32,.8);}}
 .sos-hdr{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
@@ -1550,7 +1550,7 @@ header{
 .sos-btn{flex:1;padding:8px;border-radius:4px;font-family:'Rajdhani',sans-serif;font-size:7px;font-weight:900;letter-spacing:2px;cursor:pointer;transition:all .2s;border:1px solid;}
 .sos-btn.dispatch{border-color:var(--accent2);color:var(--accent2);background:rgba(38,122,80,.08);}
 .sos-btn.dispatch:hover{background:rgba(38,122,80,.18);}
-.sos-btn.dismiss{border-color:var(--muted);color:var(--muted);background:transparent;}
+.sos-btn.dismiss{border-color:#6090b0;color:#90b8d0;background:rgba(255,255,255,.04);}
 .rescue-overlay{position:fixed;inset:0;z-index:3800;background:rgba(0,0,0,.97);backdrop-filter:blur(14px);display:none;flex-direction:column;}
 .rescue-overlay.open{display:flex;}
 .rsc-hdr{display:flex;align-items:center;justify-content:space-between;padding:12px 20px;border-bottom:1px solid #0f2a40;flex-shrink:0;background:linear-gradient(90deg,rgba(176,32,32,.07),transparent,rgba(184,114,24,.04));}
@@ -1678,15 +1678,22 @@ header{
 
 /* ── Weather widget ── */
 #weather-widget {
-  position:fixed; top:8px; right:18px; z-index:8000;
+  position:fixed; bottom:228px; left:6px; z-index:510;
   background:linear-gradient(160deg,rgba(5,12,25,.97),rgba(8,18,35,.97));
   border:1px solid #2a6090;
-  border-radius:14px; padding:14px 20px; color:#cde; font-size:.85rem;
-  min-width:215px; display:none;
-  box-shadow:0 0 24px rgba(0,180,255,.22),0 4px 24px rgba(0,0,0,.7),inset 0 1px 0 rgba(0,200,255,.1);
+  border-radius:12px; padding:10px 14px 10px 14px; color:#cde; font-size:.85rem;
+  width:291px; display:none;
+  box-shadow:0 0 20px rgba(0,180,255,.18),0 4px 16px rgba(0,0,0,.7);
+  pointer-events:none;
 }
-#weather-widget .w-temp { font-size:1.85rem; font-weight:700; color:#7ecfff; text-shadow:0 0 12px rgba(126,207,255,.5); }
-#weather-widget .w-label { font-size:.8rem; color:#6ab0d8; margin-bottom:5px; letter-spacing:1px; text-transform:uppercase; }
+#weather-widget .w-close {
+  position:absolute; top:5px; right:7px; background:none; border:none;
+  color:#4a8aaa; font-size:14px; cursor:pointer; line-height:1; padding:2px 4px;
+  pointer-events:auto;
+}
+#weather-widget .w-close:hover { color:#cde; }
+#weather-widget .w-temp { font-size:1.7rem; font-weight:700; color:#7ecfff; text-shadow:0 0 10px rgba(126,207,255,.4); }
+#weather-widget .w-label { font-size:.78rem; color:#6ab0d8; margin-bottom:4px; letter-spacing:1px; text-transform:uppercase; }
 
 /* ── Simulator canvas ── */
 #sim-canvas { width:100%; height:340px; background:#0a0a14; border-radius:12px;
@@ -1735,7 +1742,7 @@ header{
 ══════════════════════════════════════ */
 #bottom-dock{
   display:flex;flex-direction:row;flex-shrink:0;
-  height:195px;
+  height:220px;
   background:linear-gradient(180deg,#060d16,#040b12);
   border-top:2px solid #1e4a6a;
   overflow:hidden;
@@ -1767,7 +1774,7 @@ header{
   background:transparent!important;display:flex;flex-direction:column;
 }
 #bottom-dock .vp-hdr{display:none!important;}
-#bottom-dock .vp-body{padding:8px 12px;flex:1;overflow:hidden;display:flex;flex-direction:column;gap:5px;}
+#bottom-dock .vp-body{padding:6px 12px;flex:1;overflow:hidden;display:flex;flex-direction:column;gap:4px;}
 #bottom-dock .vp-tx{font-size:9px;min-height:24px;padding:4px 8px;}
 #bottom-dock .vp-waves{height:14px;margin:0;}
 #bottom-dock .vwave{width:3px;}
@@ -1784,7 +1791,7 @@ header{
   overflow:hidden;display:flex;flex-direction:column;
 }
 #bottom-dock .aiv-hdr{padding:7px 12px;background:transparent;}
-#bottom-dock .aiv-body{padding:6px 10px;flex:1;overflow:hidden;display:flex;flex-direction:column;gap:5px;}
+#bottom-dock .aiv-body{padding:6px 10px;flex:1;overflow:hidden;display:flex;flex-direction:column;gap:4px;}
 #bottom-dock .aiv-feed{height:90px;margin-bottom:5px;}
 #bottom-dock .aiv-drone-row{margin-bottom:0;}
 #bottom-dock .aiv-result{padding:5px 8px;font-size:8px;margin-bottom:0;}
@@ -1797,9 +1804,9 @@ header{
 #dock-wx-card .dw-temp{font-size:2rem;font-weight:700;color:#7ab8e0;line-height:1;}
 #dock-wx-card .dw-desc{color:#90c0d8;font-size:.9rem;font-weight:600;margin:5px 0 3px;}
 #dock-wx-card .dw-wind{color:#7aacc0;font-size:.8rem;}
-#dock-wx-card .dw-loc{font-size:.72rem;color:#4a7090;margin-top:6px;}
-#dock-wx-card .dw-label{font-size:.72rem;color:#5a90b0;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;}
-#dock-wx-card .dw-idle{color:#3a5870;font-size:.82rem;font-style:italic;}
+#dock-wx-card .dw-loc{font-size:.72rem;color:#7aaccc;margin-top:6px;}
+#dock-wx-card .dw-label{font-size:.72rem;color:#8ac8e8;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;}
+#dock-wx-card .dw-idle{color:#7090b0;font-size:.82rem;font-style:italic;}
 
 /* ── PROFESSIONAL COMMAND CENTER OVERRIDES ── */
 /* Reduce all neon glows globally */
@@ -1809,8 +1816,8 @@ body { font-size:13px; }
 .di{background:#0e1a28;}
 .lp{background:#090e18;border-right:2px solid #1e3248;}
 .rp{background:#090e18;border-left:2px solid #1e3248;}
-.ptitle{font-family:'Rajdhani',sans-serif;font-size:10px;font-weight:600;letter-spacing:4px;color:#4a7090;border-bottom:1px solid #1e3248;background:#0a1220;}
-.dsec-t{font-family:'Rajdhani',sans-serif;font-size:9px;letter-spacing:4px;color:#4a7090;}
+.ptitle{font-family:'Rajdhani',sans-serif;font-size:10px;font-weight:600;letter-spacing:4px;color:#90bcd8;border-bottom:1px solid #1e3248;background:#0a1220;}
+.dsec-t{font-family:'Rajdhani',sans-serif;font-size:9px;letter-spacing:4px;color:#90bcd8;}
 .mbox{background:#0c1420;border:1px solid #243a54;border-radius:6px;box-shadow:0 8px 40px rgba(0,0,0,.9);}
 .mhdr{background:#0e1828;border-bottom:2px solid #1e3248;}
 .mtitle{font-family:'Rajdhani',sans-serif;font-size:14px;letter-spacing:5px;color:var(--accent);}
@@ -1840,7 +1847,7 @@ body { font-size:13px; }
   <div class="hrow1">
     <div style="display:flex;flex-direction:column;gap:1px;">
       <div class="logo">DRO<span>ZON</span></div>
-      <div style="font-family:'JetBrains Mono',monospace;font-size:7px;letter-spacing:3px;color:#4a6880;text-transform:uppercase;">SISTEM OPERAȚIONAL · URGENȚE &amp; CALAMITĂȚI</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:7px;letter-spacing:3px;color:#7a9ab8;text-transform:uppercase;">SISTEM OPERAȚIONAL · URGENȚE &amp; CALAMITĂȚI</div>
     </div>
     <div class="hstats">
       <div class="hs g"><strong id="s1">0</strong>Active</div>
@@ -3497,6 +3504,8 @@ if(typeof L === 'undefined') {
 const satL=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19});
 const osmL=L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{maxZoom:19});
 const map=L.map('map',{center:[44.40,26.15],zoom:10,layers:[satL],zoomControl:true});
+requestAnimationFrame(()=>{ try{ map.invalidateSize(); }catch(e){} });
+setTimeout(()=>{ try{ map.invalidateSize(); }catch(e){} }, 500);
 
 function toggleLayer(t){
   if(t==='sat'){map.removeLayer(osmL);map.addLayer(satL);document.getElementById('b-sat').classList.add('on');document.getElementById('b-osm').classList.remove('on');}
@@ -3650,7 +3659,8 @@ function renderList(){
   drones.forEach(d=>{
     const b=d.battery;
     const bc=b>50?'var(--accent2)':b>20?'var(--warn)':'var(--danger)';
-    const ml=d.activeMission?`${MISSIONS[d.activeMission].i} ${MISSIONS[d.activeMission].l}`:'— Standby —';
+    const _am=d.activeMission&&MISSIONS[d.activeMission];
+    const ml=_am?`${_am.i} ${_am.l}`:'— Standby —';
     const lt=LIQUID_TYPES[d.liquidType]||LIQUID_TYPES.none;
     const tankPct=d.tankCap>0?Math.min(100,(d.tankLvl/d.tankCap*100)):0;
     const tankC=tankPct<25?'var(--danger)':tankPct<50?'var(--warn)':'var(--accent2)';
@@ -4225,7 +4235,7 @@ function showMissionNotif(d, title, body, type='info') {
   // Crează element notificare
   const el = document.createElement('div');
   el.style.cssText = `
-    position:fixed;top:64px;right:14px;z-index:9999;
+    position:fixed;top:112px;right:14px;z-index:9999;
     background:var(--panel);border:1px solid ${col};border-radius:7px;
     padding:12px 16px;width:290px;
     box-shadow:0 0 30px ${col}44;
@@ -7596,14 +7606,7 @@ function startSOSMonitoring() {
     });
   }, 12000);
 
-  // Simulate a first SOS after 5 seconds for demo impact
-  setTimeout(() => {
-    const candidate = drones.find(d => d.status === 'pericol') || drones.find(d=>d.battery<20);
-    if (candidate && !RSC.downdedDrones.find(x=>x.droneId===candidate.id)) {
-      candidate.status = 'pericol';
-      candidate.battery = Math.min(candidate.battery, 7);
-    }
-  }, 5000);
+  // Demo SOS trigger disabled — SOS activates only on real drone failure
 }
 
 function triggerSOSAlert(sos, d) {
@@ -9395,6 +9398,7 @@ function demoStop(){
      WEATHER WIDGET (floating)
 ══════════════════════════════════════════════════════ -->
 <div id="weather-widget">
+  <button class="w-close" onclick="document.getElementById('weather-widget').style.display='none'" title="Închide">✕</button>
   <div class="w-label">Meteo Live</div>
   <span class="w-temp" id="ww-temp">--°C</span>
   <div id="ww-desc" style="color:#aadcff; margin:4px 0; font-size:.9rem; font-weight:600;">--</div>
@@ -10464,6 +10468,18 @@ window.addEventListener('load', () => {
   });
 
 })();
+
+/* ── MAP CLICK DEBUG: apasa Shift+Click pe hartă să vezi ce blochează ── */
+document.addEventListener('click', function(e) {
+  if (!e.shiftKey) return;
+  const els = document.elementsFromPoint(e.clientX, e.clientY);
+  console.log('=== SHIFT+CLICK DEBUG @ ' + e.clientX + ',' + e.clientY + ' ===');
+  els.slice(0,6).forEach((el,i) => {
+    const s = window.getComputedStyle(el);
+    console.log(i+': '+el.tagName+(el.id?'#'+el.id:'')+(el.className?' .'+[...el.classList].join('.'):'') +
+      ' | z:'+s.zIndex+' pos:'+s.position+' pe:'+s.pointerEvents+' display:'+s.display);
+  });
+}, true);
 </script>
 
 </body>
