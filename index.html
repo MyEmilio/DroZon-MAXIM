@@ -232,6 +232,10 @@ header{
 .nosec p{font-size:10px;letter-spacing:1px;line-height:1.8;}
 
 /* TOAST */
+/* Autonomy range circle tooltip */
+.range-tip{background:rgba(8,14,26,.92)!important;border:1px solid rgba(100,160,220,.35)!important;color:#cce0f5!important;font-size:11px!important;padding:7px 11px!important;border-radius:6px!important;box-shadow:0 4px 16px rgba(0,0,0,.6)!important;line-height:1.5!important;pointer-events:none!important;}
+.range-tip::before{display:none!important;}
+.leaflet-tooltip.range-tip{white-space:nowrap;}
 .toast{position:fixed;top:108px;right:14px;background:var(--panel);border:1px solid var(--danger);border-radius:5px;padding:10px 14px;font-size:10px;color:var(--danger);z-index:999;max-width:265px;box-shadow:0 0 18px rgba(176,32,32,.25);transform:translateX(300px);transition:transform .3s;}
 .toast.show{transform:translateX(0);}
 .toast.info{border-color:var(--accent2);color:var(--accent2);box-shadow:0 0 18px rgba(38,122,80,.18);}
@@ -3473,7 +3477,31 @@ let drones = [
 // ════════════════════════════════════════════
 let selId=null, showRoutes=true, showZones=true;
 let markers={}, routeLines={}, zoneCircles={};
+let rangeCircle=null;
 let wxCache={};
+
+// ════════════════════════════════════════════
+// AUTONOMY RANGE CIRCLE
+// ════════════════════════════════════════════
+function showRangeCircle(d){
+  if(rangeCircle){ try{ map.removeLayer(rangeCircle); }catch(e){} rangeCircle=null; }
+  if(!d) return;
+  const remainMin=(d.battery/100)*d.autonomy;
+  const radiusKm=remainMin*d.speed/60;
+  const radiusM=Math.round(radiusKm*1000);
+  if(radiusM<200) return;
+  const col=SC[d.status]||'#4a7090';
+  rangeCircle=L.circle([d.lat,d.lng],{
+    radius:radiusM,
+    color:col, weight:2, opacity:0.65, dashArray:'10 7',
+    fillColor:col, fillOpacity:0.07,
+    interactive:false
+  }).addTo(map);
+  rangeCircle.bindTooltip(
+    `<b>${d.name}</b><br>🔋 ${d.battery}% · ⏱ ${remainMin.toFixed(0)} min rămase<br>📏 Rază max: ${radiusKm.toFixed(1)} km`,
+    {sticky:true,className:'range-tip',direction:'top'}
+  );
+}
 
 // ════════════════════════════════════════════
 // CLOCK
@@ -3727,6 +3755,7 @@ async function selectDrone(id){
   const d=drones.find(x=>x.id===id);
   if(d){
     map.panTo([d.lat,d.lng],{animate:true});
+    showRangeCircle(d);
     if(!d.weather){
       const w=await getWx(d.lat,d.lng); d.weather=w;
       if(w){
