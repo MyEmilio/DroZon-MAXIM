@@ -54,7 +54,7 @@ header{
 #clock{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--accent);letter-spacing:3px;}
 
 /* ── LAYOUT ── */
-.main{display:flex;flex:1;overflow:hidden;}
+.main{display:flex;flex:1;overflow:hidden;min-height:0;}
 
 /* ── LEFT PANEL ── */
 .lp{width:305px;flex-shrink:0;background:var(--panel);border-right:1px solid #122230;display:flex;flex-direction:column;overflow:hidden;}
@@ -3505,7 +3505,10 @@ const satL=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Wor
 const osmL=L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{maxZoom:19});
 const map=L.map('map',{center:[44.40,26.15],zoom:10,layers:[satL],zoomControl:true});
 requestAnimationFrame(()=>{ try{ map.invalidateSize(); }catch(e){} });
-setTimeout(()=>{ try{ map.invalidateSize(); }catch(e){} }, 500);
+setTimeout(()=>{ try{ map.invalidateSize(); }catch(e){} }, 300);
+setTimeout(()=>{ try{ map.invalidateSize(); }catch(e){} }, 1000);
+setTimeout(()=>{ try{ map.invalidateSize(); }catch(e){} }, 2500);
+window.addEventListener('resize',()=>{ try{ map.invalidateSize(); }catch(e){} });
 
 function toggleLayer(t){
   if(t==='sat'){map.removeLayer(osmL);map.addLayer(satL);document.getElementById('b-sat').classList.add('on');document.getElementById('b-osm').classList.remove('on');}
@@ -9019,6 +9022,28 @@ function demoStop(){
   ['fin-overlay','legal-overlay','sec-overlay','biz-overlay','swarm-overlay'].forEach(id=>document.getElementById(id)?.classList.remove('open'));
 }
 
+
+// ── Expune functiile pe window pentru accesul din onclick HTML ──
+[ackBigAlert,ackThreat,activateSendMode,addDrone,broadcastMessage,broadcastViaSpk,
+cancelSendMode,centerAll,chargeAll,ckFillTank,ckHover,ckKillSwitch,ckLand,ckOrbit,
+ckRTH,ckSendMap,ckTakeoff,ckToggleArm,ckToggleFlow,ckToggleFollow,
+closeAutoModal,closeBiodrone,closeCockpit,closeHumanitarian,closeKmkConfirm,
+closeModal,closeRescue,closeSensorPanel,closeStats,closeSwarm,closeWaypoints,
+confirmAutoMission,demoNext,demoPause,demoStop,dismissBigAlert,dismissSOS,
+doLand,doRTH,doTakeoff,drainTank,exportReport,
+openAutoModal,openBiodrone,openBusiness,openCockpit,openFinancial,openHumanitarian,
+openLegal,openModal,openPitch,openRescue,openRescueFromSOS,openSecurity,
+openSensorPanel,openStats,openSwarm,openWaypoints,
+pickOnMap,pitchNext,pitchPrev,quickCmd,
+relayEmergency,relayToBase,removeDrone,rscDispatchMother,rscDropBeacon,
+rscDropLight,rscSelfDestruct,rscSendMsg,rtbLowBat,
+selectAIVDrone,selectDownedDrone,selectKmkDrone,selectMotherDrone,
+setQuickDest,setSpkLang,startDemo,swLaunch,swSetFormation,
+toggleAIScan,toggleBatPanel,toggleCharge,toggleFlow,toggleHPMic,
+toggleLayer,toggleOperatorMode,toggleRoutes,toggleSensorVoice,toggleVoice,toggleZones,
+voiceRTHAll,wpClear,wpImportCoords,wpLaunchMission,
+renderReports,renderStats,generateLocalReport,exportReport
+].forEach(fn=>{ if(typeof fn==='function') window[fn.name]=fn; });
 
 }); // end DOMContentLoaded
 </script>
