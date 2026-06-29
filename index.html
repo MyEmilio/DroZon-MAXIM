@@ -84,6 +84,9 @@ header{
 .bfill{height:100%;border-radius:2px;transition:width .5s;}
 .bpct{font-size:9px;color:#7a9ab8;min-width:28px;text-align:right;}
 .dc-sub{font-size:8px;color:#7a9ab0;margin-top:3px;}
+.dc-float-btn{display:none;margin-top:5px;background:rgba(46,127,196,.12);border:1px solid rgba(46,127,196,.3);color:#4a8ac4;font-size:8px;letter-spacing:1px;padding:3px 8px;border-radius:4px;cursor:pointer;width:100%;}
+.dc-float-btn:hover{background:rgba(46,127,196,.22);color:#7eb8f0;}
+.dc:hover .dc-float-btn{display:block;}
 
 /* mini payload in card */
 .dc-payload{display:flex;align-items:center;gap:6px;margin-top:5px;padding-top:5px;border-top:1px solid var(--border);}
@@ -1685,19 +1688,44 @@ header{
   position:fixed; bottom:228px; left:6px; z-index:510;
   background:linear-gradient(160deg,rgba(5,12,25,.97),rgba(8,18,35,.97));
   border:1px solid #2a6090;
-  border-radius:12px; padding:10px 14px 10px 14px; color:#cde; font-size:.85rem;
+  border-radius:12px; padding:4px 14px 10px 14px; color:#cde; font-size:.85rem;
   width:291px; display:none;
   box-shadow:0 0 20px rgba(0,180,255,.18),0 4px 16px rgba(0,0,0,.7);
-  pointer-events:none;
+  pointer-events:auto; user-select:none;
 }
+#weather-widget .w-drag-handle {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:5px 0 4px; cursor:grab; border-bottom:1px solid rgba(42,96,144,.4);
+  margin-bottom:6px;
+}
+#weather-widget .w-drag-handle:active { cursor:grabbing; }
+#weather-widget .w-drag-label { font-size:8px; letter-spacing:3px; color:#4a7aaa; text-transform:uppercase; }
+#weather-widget .w-drag-dots { color:#2a5070; font-size:14px; letter-spacing:2px; }
 #weather-widget .w-close {
-  position:absolute; top:5px; right:7px; background:none; border:none;
-  color:#4a8aaa; font-size:14px; cursor:pointer; line-height:1; padding:2px 4px;
-  pointer-events:auto;
+  background:none; border:none; color:#4a8aaa; font-size:14px;
+  cursor:pointer; line-height:1; padding:2px 4px; pointer-events:auto;
 }
 #weather-widget .w-close:hover { color:#cde; }
 #weather-widget .w-temp { font-size:1.7rem; font-weight:700; color:#7ecfff; text-shadow:0 0 10px rgba(126,207,255,.4); }
 #weather-widget .w-label { font-size:.78rem; color:#6ab0d8; margin-bottom:4px; letter-spacing:1px; text-transform:uppercase; }
+
+/* ── Float card (drone detail detachable) ── */
+.float-card {
+  position:fixed; z-index:600; background:var(--panel);
+  border:1px solid var(--border); border-radius:10px;
+  box-shadow:0 8px 32px rgba(0,0,0,.7); min-width:300px; max-width:380px;
+  overflow:hidden; user-select:none;
+}
+.float-card-hdr {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:7px 10px 6px; background:var(--panel2);
+  border-bottom:1px solid var(--border); cursor:grab;
+}
+.float-card-hdr:active { cursor:grabbing; }
+.float-card-title { font-family:'Rajdhani',sans-serif; font-size:11px; letter-spacing:3px; color:var(--text); }
+.float-card-close { background:none; border:none; color:var(--muted); font-size:14px; cursor:pointer; padding:0 4px; }
+.float-card-close:hover { color:var(--danger); }
+.float-card-body { padding:10px; max-height:60vh; overflow-y:auto; }
 
 /* ── Simulator canvas ── */
 #sim-canvas { width:100%; height:340px; background:#0a0a14; border-radius:12px;
@@ -1908,6 +1936,7 @@ body { font-size:13px; }
       <button class="mbtn on" onclick="toggleZones()" id="b-zn">🔶 Zone</button>
       <button class="mbtn" onclick="centerAll()">⊕ Centrare</button>
       <button class="mbtn" onclick="refreshAllWx()" id="b-wx">🌤️ Meteo All</button>
+      <button class="mbtn" onclick="toggleWeatherWidget()" id="b-ww" title="Widget temperatură">🌡️ Temp</button>
     </div>
     <div class="sigbox">
       <div class="sigrow"><div class="sigdot g"></div><span style="font-size:8px;color:var(--muted)">GPS LOCK</span></div>
@@ -3733,7 +3762,8 @@ function renderList(){
       <div class="dc-mis">${ml}</div>
       <div class="brow"><div class="bbar"><div class="bfill" style="background:${bc};width:${b}%"></div></div><div class="bpct">${b.toFixed(0)}%</div></div>
       <div class="dc-sub">⏱ ${d.autonomy}min · 📡 ${d.range}km · ✈️ ${d.speed}km/h</div>
-      ${plHTML}${wxHTML}`;
+      ${plHTML}${wxHTML}
+      <button class="dc-float-btn" title="Card flotant" onclick="event.stopPropagation();floatDroneCard('${d.id}')">⊞ FLOAT</button>`;
     card.onclick=()=>selectDrone(d.id);
     el.appendChild(card);
   });
@@ -9052,6 +9082,140 @@ function demoStop(){
 }
 
 
+// ════════════════════════════════════════════
+// FIX MAP HEIGHT — Leaflet trebuie px explicit
+// ════════════════════════════════════════════
+function fixMapHeight(){
+  const mc=document.querySelector('.mc');
+  const hdr=document.querySelector('header');
+  const dock=document.getElementById('bottom-dock');
+  if(!mc||!hdr||!dock) return;
+  const h=Math.max(120, window.innerHeight - hdr.getBoundingClientRect().height - dock.getBoundingClientRect().height);
+  mc.style.height=h+'px';
+  try{ if(map&&map.invalidateSize) map.invalidateSize({reset:false}); }catch(e){}
+}
+fixMapHeight();
+[300,600,1200,2500].forEach(t=>setTimeout(fixMapHeight,t));
+window.addEventListener('resize',fixMapHeight);
+
+// ════════════════════════════════════════════
+// DRAG UTILITY — face orice element draggable
+// ════════════════════════════════════════════
+function makeDraggable(el,handle){
+  handle=handle||el;
+  handle.style.cursor='grab';
+  let ox=0,oy=0;
+  handle.addEventListener('mousedown',function(e){
+    if(e.button!==0) return;
+    e.preventDefault();
+    // Switch to fixed if not already
+    if(getComputedStyle(el).position!=='fixed'){
+      const r=el.getBoundingClientRect();
+      el.style.position='fixed';
+      el.style.left=r.left+'px';
+      el.style.top=r.top+'px';
+      el.style.right='auto';
+      el.style.bottom='auto';
+    }
+    ox=e.clientX-el.getBoundingClientRect().left;
+    oy=e.clientY-el.getBoundingClientRect().top;
+    handle.style.cursor='grabbing';
+    function onMove(e){
+      el.style.left=Math.max(0,Math.min(window.innerWidth-50,e.clientX-ox))+'px';
+      el.style.top=Math.max(0,Math.min(window.innerHeight-30,e.clientY-oy))+'px';
+    }
+    function onUp(){
+      handle.style.cursor='grab';
+      document.removeEventListener('mousemove',onMove);
+      document.removeEventListener('mouseup',onUp);
+    }
+    document.addEventListener('mousemove',onMove);
+    document.addEventListener('mouseup',onUp);
+  });
+}
+// Aplica drag pe weather widget
+const _wwEl=document.getElementById('weather-widget');
+const _wwHandle=document.getElementById('ww-handle');
+if(_wwEl&&_wwHandle) makeDraggable(_wwEl,_wwHandle);
+
+// ════════════════════════════════════════════
+// WEATHER WIDGET TOGGLE
+// ════════════════════════════════════════════
+function toggleWeatherWidget(){
+  const w=document.getElementById('weather-widget');
+  const btn=document.getElementById('b-ww');
+  if(!w) return;
+  const visible=w.style.display==='block';
+  w.style.display=visible?'none':'block';
+  if(btn) btn.classList.toggle('on',!visible);
+  if(!visible && selId){
+    const d=drones.find(x=>x.id===selId);
+    if(d) getWx(d.lat,d.lng).then(wx=>{
+      if(!wx) return;
+      document.getElementById('ww-temp').textContent=wx.temp.toFixed(1)+'°C';
+      document.getElementById('ww-desc').textContent=wxDesc(wx.code);
+      document.getElementById('ww-wind').textContent='💨 '+wx.wSpd.toFixed(1)+' m/s';
+      document.getElementById('ww-loc').textContent=d.name+' · '+d.lat.toFixed(3)+', '+d.lng.toFixed(3);
+    }).catch(()=>{});
+  }
+}
+
+// ════════════════════════════════════════════
+// FLOAT CARD — detaseaza card drona pe ecran
+// ════════════════════════════════════════════
+function floatDroneCard(id){
+  const d=drones.find(x=>x.id===id); if(!d) return;
+  const existId='float-'+id;
+  if(document.getElementById(existId)) return; // deja flotat
+  const col=SC[d.status]||'#4a7090';
+  const fc=document.createElement('div');
+  fc.className='float-card'; fc.id=existId;
+  fc.style.cssText='top:120px;left:320px;';
+  const _am=d.activeMission&&MISSIONS[d.activeMission];
+  const mLabel=_am?`${_am.i} ${_am.l}`:'Standby';
+  fc.innerHTML=`
+    <div class="float-card-hdr" id="${existId}-hdr">
+      <span class="float-card-title" style="color:${col}">🛸 ${d.name}</span>
+      <button class="float-card-close" onclick="document.getElementById('${existId}').remove()">✕</button>
+    </div>
+    <div class="float-card-body">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:11px;">
+        <div style="background:#0a1420;border:1px solid #1e3248;border-radius:5px;padding:7px;">
+          <div style="color:#4a7090;font-size:8px;letter-spacing:2px;margin-bottom:3px">BATERIE</div>
+          <div style="color:${d.battery<20?'#b02020':d.battery<40?'#b87218':'#267a50'};font-size:16px;font-weight:700">${d.battery}%</div>
+        </div>
+        <div style="background:#0a1420;border:1px solid #1e3248;border-radius:5px;padding:7px;">
+          <div style="color:#4a7090;font-size:8px;letter-spacing:2px;margin-bottom:3px">STATUS</div>
+          <div style="color:${col};font-size:12px;font-weight:700;text-transform:uppercase">${d.status}</div>
+        </div>
+        <div style="background:#0a1420;border:1px solid #1e3248;border-radius:5px;padding:7px;">
+          <div style="color:#4a7090;font-size:8px;letter-spacing:2px;margin-bottom:3px">AUTONOMIE</div>
+          <div style="color:#cce0f5;font-size:13px;font-weight:600">${d.autonomy} min</div>
+        </div>
+        <div style="background:#0a1420;border:1px solid #1e3248;border-radius:5px;padding:7px;">
+          <div style="color:#4a7090;font-size:8px;letter-spacing:2px;margin-bottom:3px">ALTITUDINE</div>
+          <div style="color:#cce0f5;font-size:13px;font-weight:600">${d.alt} m</div>
+        </div>
+        <div style="background:#0a1420;border:1px solid #1e3248;border-radius:5px;padding:7px;">
+          <div style="color:#4a7090;font-size:8px;letter-spacing:2px;margin-bottom:3px">SEMNAL</div>
+          <div style="color:${d.signal<40?'#b02020':d.signal<70?'#b87218':'#267a50'};font-size:13px;font-weight:600">${d.signal}%</div>
+        </div>
+        <div style="background:#0a1420;border:1px solid #1e3248;border-radius:5px;padding:7px;">
+          <div style="color:#4a7090;font-size:8px;letter-spacing:2px;margin-bottom:3px">MISIUNE</div>
+          <div style="color:#b87218;font-size:11px;font-weight:600">${mLabel}</div>
+        </div>
+      </div>
+      <div style="margin-top:8px;background:#0a1420;border:1px solid #1e3248;border-radius:5px;padding:7px;">
+        <div style="color:#4a7090;font-size:8px;letter-spacing:2px;margin-bottom:4px">RAZA AUTONOMIE</div>
+        <div style="color:#7ecfff;font-size:11px">
+          ${((d.battery/100)*d.autonomy*d.speed/60).toFixed(1)} km max one-way
+        </div>
+      </div>
+    </div>`;
+  document.body.appendChild(fc);
+  makeDraggable(fc, fc.querySelector('.float-card-hdr'));
+}
+
 // ── Expune functiile pe window pentru accesul din onclick HTML ──
 [ackBigAlert,ackThreat,activateSendMode,addDrone,broadcastMessage,broadcastViaSpk,
 cancelSendMode,centerAll,chargeAll,ckFillTank,ckHover,ckKillSwitch,ckLand,ckOrbit,
@@ -9071,7 +9235,8 @@ setQuickDest,setSpkLang,startDemo,swLaunch,swSetFormation,
 toggleAIScan,toggleBatPanel,toggleCharge,toggleFlow,toggleHPMic,
 toggleLayer,toggleOperatorMode,toggleRoutes,toggleSensorVoice,toggleVoice,toggleZones,
 voiceRTHAll,wpClear,wpImportCoords,wpLaunchMission,
-renderReports,renderStats,generateLocalReport,exportReport
+renderReports,renderStats,generateLocalReport,exportReport,
+toggleWeatherWidget,floatDroneCard,fixMapHeight
 ].forEach(fn=>{ if(typeof fn==='function') window[fn.name]=fn; });
 
 }); // end DOMContentLoaded
@@ -9454,8 +9619,14 @@ renderReports,renderStats,generateLocalReport,exportReport
      WEATHER WIDGET (floating)
 ══════════════════════════════════════════════════════ -->
 <div id="weather-widget">
-  <button class="w-close" onclick="document.getElementById('weather-widget').style.display='none'" title="Închide">✕</button>
-  <div class="w-label">Meteo Live</div>
+  <div class="w-drag-handle" id="ww-handle">
+    <span class="w-drag-label">⠿ METEO LIVE</span>
+    <div style="display:flex;align-items:center;gap:6px">
+      <span class="w-drag-dots">⋮⋮</span>
+      <button class="w-close" onclick="document.getElementById('weather-widget').style.display='none';document.getElementById('b-ww')&&document.getElementById('b-ww').classList.remove('on')" title="Închide">✕</button>
+    </div>
+  </div>
+  <div class="w-label">Temperatură</div>
   <span class="w-temp" id="ww-temp">--°C</span>
   <div id="ww-desc" style="color:#aadcff; margin:4px 0; font-size:.9rem; font-weight:600;">--</div>
   <div id="ww-wind" style="color:#88ccee; font-size:.82rem; margin-top:2px;">💨 -- m/s</div>
