@@ -7631,6 +7631,8 @@ function triggerSOSAlert(sos, d) {
 
 function dismissSOS() { document.getElementById('sos-alert').classList.remove('show'); }
 function openRescueFromSOS() { dismissSOS(); openRescue(); }
+window.dismissSOS = dismissSOS;
+window.openRescueFromSOS = openRescueFromSOS;
 
 // ════════════════════════════════════════════
 // Open / Close Rescue Panel
