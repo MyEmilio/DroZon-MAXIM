@@ -33,15 +33,15 @@ header{
   display:flex;
   align-items:center;
   justify-content:space-between;
-  padding:5px 16px;
-  min-height:44px;
+  padding:4px 16px;
+  min-height:40px;
   border-bottom:1px solid #152535;
 }
 .hrow2{
   display:flex;
   align-items:center;
   gap:4px;
-  padding:3px 12px;
+  padding:2px 12px;
   flex-wrap:wrap;
   background:rgba(0,0,0,.25);
 }
@@ -1774,7 +1774,7 @@ header{
 ══════════════════════════════════════ */
 #bottom-dock{
   display:flex;flex-direction:row;flex-shrink:0;
-  height:178px;
+  height:218px;
   background:linear-gradient(180deg,#060d16,#040b12);
   border-top:2px solid #1e4a6a;
   overflow:hidden;
@@ -9083,19 +9083,16 @@ function demoStop(){
 
 
 // ════════════════════════════════════════════
-// FIX MAP HEIGHT — Leaflet trebuie px explicit
+// FIX MAP HEIGHT — lasăm CSS flex să calculeze,
+// doar spunem Leaflet să re-măsoare
 // ════════════════════════════════════════════
 function fixMapHeight(){
   const mc=document.querySelector('.mc');
-  const hdr=document.querySelector('header');
-  const dock=document.getElementById('bottom-dock');
-  if(!mc||!hdr||!dock) return;
-  const h=Math.max(120, window.innerHeight - hdr.getBoundingClientRect().height - dock.getBoundingClientRect().height);
-  mc.style.height=h+'px';
-  try{ if(map&&map.invalidateSize) map.invalidateSize({reset:false}); }catch(e){}
+  if(mc) mc.style.height=''; // elimină orice override explicit — CSS flex face sizing
+  try{ if(map&&map.invalidateSize) map.invalidateSize({reset:true}); }catch(e){}
 }
 fixMapHeight();
-[300,600,1200,2500].forEach(t=>setTimeout(fixMapHeight,t));
+[100,300,700,1500,3000].forEach(t=>setTimeout(fixMapHeight,t));
 window.addEventListener('resize',fixMapHeight);
 
 // ════════════════════════════════════════════
