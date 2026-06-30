@@ -1228,9 +1228,9 @@ header{
 ══════════════════════════════════════ */
 @media (max-width:768px){
   .main{flex-direction:column;}
-  .lp{width:100%;height:200px;border-right:none;border-bottom:1px solid var(--border);}
-  .mc{height:300px;}
-  .rp{width:100%;border-left:none;border-top:1px solid var(--border);}
+  .lp{width:100%;height:160px;flex-shrink:0;border-right:none;border-bottom:1px solid var(--border);}
+  /* .mc height gestionată de JS (fixMapHeight) — fără override rigid */
+  .rp{display:none;}  /* ascuns în viewport îngust, nu e loc */
   .dlist{display:flex;flex-direction:row;overflow-x:auto;padding:4px;}
   .dc{min-width:180px;margin-right:6px;margin-bottom:0;}
   .vp{width:100%;right:0;bottom:0;left:0;border-radius:0;}
@@ -9083,17 +9083,32 @@ function demoStop(){
 
 
 // ════════════════════════════════════════════
-// FIX MAP HEIGHT — lasăm CSS flex să calculeze,
-// doar spunem Leaflet să re-măsoare
+// FIX MAP HEIGHT
+// Citim înălțimea REALĂ a .main (calculată de
+// browser prin flex) și o punem explicit pe .mc,
+// astfel Leaflet măsoară exact dimensiunea corectă.
 // ════════════════════════════════════════════
 function fixMapHeight(){
-  const mc=document.querySelector('.mc');
-  if(mc) mc.style.height=''; // elimină orice override explicit — CSS flex face sizing
-  try{ if(map&&map.invalidateSize) map.invalidateSize({reset:true}); }catch(e){}
+  const mc   = document.querySelector('.mc');
+  const main = document.querySelector('.main');
+  if(!mc || !main) return;
+
+  const mainH = Math.round(main.getBoundingClientRect().height);
+  if(mainH < 60) return; // layout nefinalizat, sărind
+
+  // Setăm explicit înălțimea — suprascrie orice regulă CSS/media-query
+  mc.style.height    = mainH + 'px';
+  mc.style.minHeight = mainH + 'px';
+
+  // Două RAF: primul lasă browser-ul să picteze, al doilea pornește
+  // Leaflet să re-măsoare containerul deja pictat
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    try{ if(map && map.invalidateSize) map.invalidateSize(); }catch(e){}
+  }));
 }
 fixMapHeight();
-[100,300,700,1500,3000].forEach(t=>setTimeout(fixMapHeight,t));
-window.addEventListener('resize',fixMapHeight);
+[80, 250, 600, 1400, 3000].forEach(t => setTimeout(fixMapHeight, t));
+window.addEventListener('resize', fixMapHeight);
 
 // ════════════════════════════════════════════
 // DRAG UTILITY — face orice element draggable
