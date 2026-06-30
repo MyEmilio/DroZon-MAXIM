@@ -9100,14 +9100,11 @@ function fixMapHeight(){
     - dock.getBoundingClientRect().height
   ));
 
-  mc.style.minHeight = h + 'px';
-
   requestAnimationFrame(() => {
-    // Pas 1: h-2 → invalidate (Leaflet cachează h-2)
-    mc.style.height = (h - 2) + 'px';
+    mc.style.minHeight = '';          // fără override — altfel min-height>height anulează trick-ul
+    mc.style.height = (h - 2) + 'px';  // pas 1: h-2 → Leaflet cachează h-2
     try{ if(map && map.invalidateSize) map.invalidateSize(); }catch(e){}
-    // Pas 2: h → invalidate (Leaflet vede h-2→h, actualizează tiles)
-    mc.style.height = h + 'px';
+    mc.style.height = h + 'px';         // pas 2: h   → Leaflet vede h-2→h, forțează re-render
     try{ if(map && map.invalidateSize) map.invalidateSize(); }catch(e){}
   });
 }
