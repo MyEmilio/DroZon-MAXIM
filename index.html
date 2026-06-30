@@ -3561,11 +3561,7 @@ if(typeof L === 'undefined') {
 const satL=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19});
 const osmL=L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{maxZoom:19});
 const map=L.map('map',{center:[44.40,26.15],zoom:10,layers:[satL],zoomControl:true});
-requestAnimationFrame(()=>{ try{ map.invalidateSize(); }catch(e){} });
-setTimeout(()=>{ try{ map.invalidateSize(); }catch(e){} }, 300);
-setTimeout(()=>{ try{ map.invalidateSize(); }catch(e){} }, 1000);
-setTimeout(()=>{ try{ map.invalidateSize(); }catch(e){} }, 2500);
-window.addEventListener('resize',()=>{ try{ map.invalidateSize(); }catch(e){} });
+// fixMapHeight (definit mai jos) gestionează sizing + invalidateSize
 
 function toggleLayer(t){
   if(t==='sat'){map.removeLayer(osmL);map.addLayer(satL);document.getElementById('b-sat').classList.add('on');document.getElementById('b-osm').classList.remove('on');}
@@ -9084,27 +9080,36 @@ function demoStop(){
 
 // ════════════════════════════════════════════
 // FIX MAP HEIGHT
-// Citim înălțimea REALĂ a .main (calculată de
-// browser prin flex) și o punem explicit pe .mc,
-// astfel Leaflet măsoară exact dimensiunea corectă.
+// invalidateSize() este no-op dacă Leaflet a
+// cached deja dimensiunea corectă (old==new).
+// Trick: setăm (h-2)px → invalidate (Leaflet
+// cachează h-2) → setăm h → invalidate din nou
+// (Leaflet vede h-2→h, forțează re-render tiles).
+// Ambele se petrec în același RAF, browserul
+// pictează o singură dată la h px final.
 // ════════════════════════════════════════════
 function fixMapHeight(){
   const mc   = document.querySelector('.mc');
-  const main = document.querySelector('.main');
-  if(!mc || !main) return;
+  const hdr  = document.querySelector('header');
+  const dock = document.getElementById('bottom-dock');
+  if(!mc || !hdr || !dock) return;
 
-  const mainH = Math.round(main.getBoundingClientRect().height);
-  if(mainH < 60) return; // layout nefinalizat, sărind
+  const h = Math.max(80, Math.round(
+    window.innerHeight
+    - hdr.getBoundingClientRect().height
+    - dock.getBoundingClientRect().height
+  ));
 
-  // Setăm explicit înălțimea — suprascrie orice regulă CSS/media-query
-  mc.style.height    = mainH + 'px';
-  mc.style.minHeight = mainH + 'px';
+  mc.style.minHeight = h + 'px';
 
-  // Două RAF: primul lasă browser-ul să picteze, al doilea pornește
-  // Leaflet să re-măsoare containerul deja pictat
-  requestAnimationFrame(() => requestAnimationFrame(() => {
+  requestAnimationFrame(() => {
+    // Pas 1: h-2 → invalidate (Leaflet cachează h-2)
+    mc.style.height = (h - 2) + 'px';
     try{ if(map && map.invalidateSize) map.invalidateSize(); }catch(e){}
-  }));
+    // Pas 2: h → invalidate (Leaflet vede h-2→h, actualizează tiles)
+    mc.style.height = h + 'px';
+    try{ if(map && map.invalidateSize) map.invalidateSize(); }catch(e){}
+  });
 }
 fixMapHeight();
 [80, 250, 600, 1400, 3000].forEach(t => setTimeout(fixMapHeight, t));
