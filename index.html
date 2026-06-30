@@ -12,7 +12,7 @@
 :root{
   --bg:#080b10;--panel:#0c1018;--panel2:#10161f;--panel3:#141c26;
   --border:#2e4862;--accent:#2e7fc4;--accent2:#267a50;
-  --warn:#b87218;--danger:#b02020;--text:#cce0f5;--muted:#8aaccc;
+  --warn:#b87218;--danger:#b02020;--text:#e2f0ff;--muted:#aac8e4;
   --glow:0 0 8px rgba(46,127,196,.3);--glow2:0 0 8px rgba(38,122,80,.2);
 }
 *{margin:0;padding:0;box-sizing:border-box;}
@@ -57,7 +57,7 @@ header{
 .main{display:flex;flex:1;overflow:hidden;min-height:0;}
 
 /* ── LEFT PANEL ── */
-.lp{width:278px;flex-shrink:0;background:var(--panel);border-right:1px solid #122230;display:flex;flex-direction:column;overflow:hidden;}
+.lp{width:255px;flex-shrink:0;background:var(--panel);border-right:1px solid #122230;display:flex;flex-direction:column;overflow:hidden;}
 .ptitle{font-family:'Rajdhani',sans-serif;font-size:9px;letter-spacing:3px;color:var(--text);text-transform:uppercase;padding:10px 14px 8px;border-bottom:1px solid var(--border);}
 .dlist{overflow-y:auto;flex:1;padding:6px;}
 .dlist::-webkit-scrollbar{width:3px;} .dlist::-webkit-scrollbar-thumb{background:var(--border);}
@@ -121,7 +121,7 @@ header{
 .leaflet-container{background:#020810!important;}
 
 /* ── RIGHT PANEL ── */
-.rp{width:295px;flex-shrink:0;background:var(--panel);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;}
+.rp{width:268px;flex-shrink:0;background:var(--panel);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;}
 .dhead{padding:12px 14px;border-bottom:1px solid var(--border);background:var(--panel2);}
 .dhead-name{font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:800;letter-spacing:3px;margin-bottom:3px;}
 .dhead-sub{font-size:10px;color:var(--muted);}
@@ -1774,7 +1774,7 @@ header{
 ══════════════════════════════════════ */
 #bottom-dock{
   display:flex;flex-direction:row;flex-shrink:0;
-  height:195px;
+  height:178px;
   background:linear-gradient(180deg,#060d16,#040b12);
   border-top:2px solid #1e4a6a;
   overflow:hidden;
@@ -10645,35 +10645,77 @@ window.addEventListener('load', () => {
   }
 
   /* ─── Pop-out carduri din dock ─── */
-  function addPopoutBtn(dockCardEl, id, title, icon, defaultPos) {
-    const hdr = dockCardEl.querySelector('.dock-card-hdr');
+  function addPopoutBtn(dockCardEl, id, title, icon, _unused, hdrSelector) {
+    const hdr = dockCardEl.querySelector(hdrSelector || '.dock-card-hdr');
     if (!hdr) return;
 
-    /* Slot placeholder în dock */
     dockCardEl.id = 'dockslot_' + id;
+
+    let floated = false;
+    let placeholder = null;
+    let dockParent = null;
+    let dockNextSib = null;
+    let dragInited = false;
+    const origInlineStyle = dockCardEl.getAttribute('style') || '';
+    const origFlex = window.getComputedStyle(dockCardEl).flexGrow || '1';
 
     const btn = document.createElement('button');
     btn.className = 'dock-popout-btn';
     btn.textContent = '⊞ FLOAT';
-    btn.title = 'Desprinde cardul — drag & resize';
+    btn.title = 'Desprinde — drag liber pe ecran';
 
-    btn.addEventListener('click', () => {
-      const existing = document.getElementById('fp_' + id);
-      if (existing) {
-        existing.style.display = '';
-        dockCardEl.style.display = 'none';
-        return;
+    function popOut() {
+      floated = true;
+      const rect = dockCardEl.getBoundingClientRect();
+      dockParent = dockCardEl.parentNode;
+      dockNextSib = dockCardEl.nextSibling;
+
+      placeholder = document.createElement('div');
+      placeholder.style.cssText = 'display:flex;align-items:center;justify-content:center;' +
+        'color:rgba(100,160,210,.2);font-size:8px;letter-spacing:2px;' +
+        'border-right:1px solid #0f2535;flex:' + origFlex + ';min-width:0;';
+      placeholder.textContent = '⬌ ' + title;
+      dockParent.insertBefore(placeholder, dockNextSib);
+
+      document.body.appendChild(dockCardEl);
+      dockCardEl.style.cssText = [
+        'position:fixed',
+        'left:' + Math.max(4, rect.left) + 'px',
+        'top:' + Math.max(44, rect.top - 90) + 'px',
+        'width:' + Math.max(240, rect.width) + 'px',
+        'height:' + Math.min(Math.round(window.innerHeight * 0.48), rect.height + 90) + 'px',
+        'z-index:820',
+        'border-radius:8px',
+        'border:1px solid var(--border)',
+        'box-shadow:0 8px 36px rgba(0,0,0,.9)',
+        'background:var(--panel)',
+        'overflow:auto',
+        'display:flex',
+        'flex-direction:column',
+      ].join(';');
+      hdr.style.cursor = 'grab';
+
+      btn.textContent = '⬌ DOCK';
+
+      if (!dragInited) {
+        dragInited = true;
+        initDrag(dockCardEl, hdr);
       }
-      /* Ia conținutul cardului (tot ce e sub header) */
-      const body = document.createElement('div');
-      body.style.cssText = 'padding:10px 12px;height:100%;box-sizing:border-box;';
-      Array.from(dockCardEl.children).forEach(ch => {
-        if (!ch.classList.contains('dock-card-hdr')) body.appendChild(ch);
-      });
-      createFloatPanel(id, title, icon, body, defaultPos);
-      dockCardEl.style.display = 'none';
-    });
+    }
 
+    function dockBack() {
+      floated = false;
+      if (placeholder && placeholder.parentNode) {
+        placeholder.parentNode.insertBefore(dockCardEl, placeholder);
+        placeholder.remove();
+        placeholder = null;
+      }
+      dockCardEl.setAttribute('style', origInlineStyle);
+      hdr.style.cursor = '';
+      btn.textContent = '⊞ FLOAT';
+    }
+
+    btn.addEventListener('click', () => floated ? dockBack() : popOut());
     hdr.appendChild(btn);
   }
 
@@ -10683,13 +10725,13 @@ window.addEventListener('load', () => {
       const dockCards = document.querySelectorAll('#bottom-dock .dock-card');
 
       const cfg = [
-        { idx: 0, id: 'meteo',   title: 'METEO LIVE',      icon: '☁️',  pos: { left: 20,  top: window.innerHeight - 260 } },
-        { idx: 1, id: 'vocal',   title: 'CONTROL VOCAL',   icon: '🎙',  pos: { left: 300, top: window.innerHeight - 260 } },
-        { idx: 2, id: 'aivision',title: 'AI VISION',       icon: '🤖',  pos: { left: 600, top: window.innerHeight - 320 } },
+        { idx: 0, id: 'meteo',    title: 'METEO LIVE',    icon: '☁️', hdrSelector: '.dock-card-hdr' },
+        { idx: 1, id: 'vocal',    title: 'CONTROL VOCAL', icon: '🎙', hdrSelector: '.dock-card-hdr' },
+        { idx: 2, id: 'aivision', title: 'AI VISION',     icon: '🤖', hdrSelector: '.aiv-hdr'      },
       ];
 
       cfg.forEach(c => {
-        if (dockCards[c.idx]) addPopoutBtn(dockCards[c.idx], c.id, c.title, c.icon, c.pos);
+        if (dockCards[c.idx]) addPopoutBtn(dockCards[c.idx], c.id, c.title, c.icon, null, c.hdrSelector);
       });
     }, 500);
   });
