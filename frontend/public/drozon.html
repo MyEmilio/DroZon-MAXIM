@@ -139,6 +139,32 @@ header{
 .ml-3d-btn{position:absolute;bottom:10px;right:10px;z-index:500;background:rgba(12,16,24,.9);border:1px solid var(--border);color:var(--muted);padding:6px 10px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:2px;cursor:pointer;transition:all .2s;text-transform:uppercase;}
 .ml-3d-btn:hover,.ml-3d-btn.active{border-color:var(--accent);color:var(--accent);box-shadow:0 0 8px rgba(46,127,196,.3);}
 
+/* AUTH MODAL */
+.auth-backdrop{position:fixed;inset:0;background:rgba(4,8,14,.85);backdrop-filter:blur(4px);z-index:9998;display:none;align-items:center;justify-content:center;}
+.auth-backdrop.open{display:flex;}
+.auth-modal{background:linear-gradient(160deg,#0e1520,#0a0f18);border:1px solid rgba(46,127,196,.4);border-radius:6px;padding:28px 32px;width:380px;box-shadow:0 20px 60px rgba(0,0,0,.75),0 0 40px rgba(46,127,196,.15);font-family:'JetBrains Mono',monospace;}
+.auth-modal h2{color:var(--accent);font-size:14px;letter-spacing:4px;margin:0 0 4px;text-transform:uppercase;}
+.auth-modal p.sub{color:var(--muted);font-size:10px;letter-spacing:2px;margin:0 0 20px;text-transform:uppercase;}
+.auth-modal label{display:block;color:#8ea8c4;font-size:9px;letter-spacing:2px;margin:12px 0 4px;text-transform:uppercase;}
+.auth-modal input{width:100%;background:#050a12;border:1px solid #1e3248;color:#dceaf8;padding:10px 12px;border-radius:3px;font-family:'JetBrains Mono',monospace;font-size:12px;box-sizing:border-box;}
+.auth-modal input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 8px rgba(46,127,196,.3);}
+.auth-modal .row{display:flex;gap:10px;margin-top:20px;}
+.auth-modal button{flex:1;background:var(--accent);border:none;color:#fff;padding:11px;border-radius:3px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;transition:all .2s;}
+.auth-modal button:hover{background:#3b9ce0;box-shadow:0 0 12px rgba(46,127,196,.5);}
+.auth-modal button.ghost{background:transparent;border:1px solid #2a4260;color:var(--muted);}
+.auth-modal button.ghost:hover{border-color:var(--accent);color:var(--accent);background:transparent;}
+.auth-err{color:#e35a5a;background:rgba(227,90,90,.1);border:1px solid rgba(227,90,90,.3);padding:8px 12px;border-radius:3px;font-size:10px;margin-top:12px;letter-spacing:1px;display:none;}
+.auth-err.show{display:block;}
+.auth-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(46,127,196,.12);border:1px solid rgba(46,127,196,.35);color:#aac8e4;padding:4px 10px;border-radius:3px;font-size:10px;letter-spacing:2px;margin-left:10px;text-transform:uppercase;cursor:pointer;transition:all .18s;}
+.auth-badge:hover{border-color:var(--accent);color:#fff;}
+.auth-badge.anon{color:var(--muted);}
+.ws-badge{display:inline-flex;align-items:center;gap:6px;font-size:10px;letter-spacing:2px;padding:4px 10px;border-radius:3px;margin-left:8px;text-transform:uppercase;}
+.ws-badge .dot{width:6px;height:6px;border-radius:50%;background:#e35a5a;}
+.ws-badge.on{background:rgba(90,220,140,.1);border:1px solid rgba(90,220,140,.35);color:#7ee0a5;}
+.ws-badge.on .dot{background:#7ee0a5;box-shadow:0 0 6px #7ee0a5;animation:pulseDot 1.4s infinite;}
+.ws-badge.off{background:rgba(227,90,90,.1);border:1px solid rgba(227,90,90,.35);color:#e35a5a;}
+@keyframes pulseDot{0%,100%{opacity:1;}50%{opacity:.4;}}
+
 /* ── RIGHT PANEL ── */
 .rp{width:268px;flex-shrink:0;background:var(--panel);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;}
 .dhead{padding:12px 14px;border-bottom:1px solid var(--border);background:var(--panel2);}
@@ -1898,7 +1924,11 @@ body { font-size:13px; }
   <div class="hrow1">
     <div style="display:flex;flex-direction:column;gap:1px;">
       <div class="logo">DRO<span>ZON</span></div>
-      <div style="font-family:'JetBrains Mono',monospace;font-size:7px;letter-spacing:3px;color:#7a9ab8;text-transform:uppercase;">SISTEM OPERAȚIONAL · URGENȚE &amp; CALAMITĂȚI</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:7px;letter-spacing:3px;color:#7a9ab8;text-transform:uppercase;">
+        SISTEM OPERAȚIONAL · URGENȚE &amp; CALAMITĂȚI
+        <span id="auth-badge" class="auth-badge anon" onclick="openAuthModal()" title="Autentificare">🔓 ANONIM · LOGIN</span>
+        <span id="ws-badge" class="ws-badge off"><span class="dot"></span> OFFLINE</span>
+      </div>
     </div>
     <div class="hstats">
       <div class="hs g"><strong id="s1">0</strong>Active</div>
@@ -1936,6 +1966,28 @@ body { font-size:13px; }
     <button class="tb-maxim" onclick="openMaxim('export')">📤 EXPORT</button>
   </div>
 </header>
+
+<!-- ═══════════ AUTH LOGIN MODAL ═══════════ -->
+<div class="auth-backdrop" id="auth-backdrop">
+  <div class="auth-modal">
+    <h2 id="auth-title">🔐 Autentificare</h2>
+    <p class="sub">Acces sistem DroZon</p>
+    <div id="auth-form-login">
+      <label>Email</label>
+      <input type="email" id="auth-email" placeholder="admin@drozon.ro" autocomplete="email"/>
+      <label>Parolă</label>
+      <input type="password" id="auth-pass" placeholder="••••••••" autocomplete="current-password"/>
+      <div class="auth-err" id="auth-err"></div>
+      <div class="row">
+        <button class="ghost" onclick="closeAuthModal()">Anulează</button>
+        <button onclick="submitLogin()" id="auth-submit-btn">Login</button>
+      </div>
+      <div style="text-align:center;margin-top:14px;font-size:9px;color:#5e7a94;letter-spacing:1px;">
+        Cont demo: <b style="color:#8ea8c4">admin@drozon.ro</b> / <b style="color:#8ea8c4">Drozon2026!</b>
+      </div>
+    </div>
+  </div>
+</div>
 
 <div class="main">
   <!-- LEFT -->
@@ -4517,11 +4569,10 @@ function addDrone(){
     logs:[{t:new Date().toTimeString().slice(0,5),m:'Înregistrată în sistem DROZON'}]
   };
   drones.push(nd); closeModal();
-  // Persistență în backend (fire-and-forget)
-  if(window.DROZON_API){
-    fetch(window.DROZON_API + '/api/drones', {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body:JSON.stringify(nd)
+  // Persistență în backend (cu auth)
+  if(window.apiFetch){
+    apiFetch('/api/drones', {
+      method:'POST', body:JSON.stringify(nd)
     }).catch(e=>console.warn('Backend sync fail:', e));
   }
   document.querySelectorAll('.mbox input,#fn,#fm').forEach(el=>{if(el.type==='checkbox')el.checked=false;else el.value='';});
@@ -7020,20 +7071,121 @@ initVoice();
 refresh();
 setInterval(simTick,3000);
 
-// ════════════════════════════════════════════
-// BACKEND SYNC — Persistență flotă în MongoDB via FastAPI
-// ════════════════════════════════════════════
+// ════════════════════════════════════════════════════════════
+// DROZON API CLIENT — Auth (JWT) + WebSocket + Bulk-Sync
+// ════════════════════════════════════════════════════════════
 window.DROZON_API = window.location.origin;
-(async function syncFleetWithBackend(){
+window.DROZON_TOKEN = localStorage.getItem('drozon_token') || null;
+window.DROZON_USER = null;
+
+function _authHeaders(){
+  const h = {'Content-Type':'application/json'};
+  if(window.DROZON_TOKEN) h['Authorization'] = 'Bearer ' + window.DROZON_TOKEN;
+  return h;
+}
+
+async function apiFetch(path, opts){
+  opts = opts || {};
+  opts.headers = Object.assign({}, _authHeaders(), opts.headers||{});
+  opts.credentials = 'include';
+  const res = await fetch(window.DROZON_API + path, opts);
+  if(res.status === 401){
+    window.DROZON_TOKEN = null;
+    localStorage.removeItem('drozon_token');
+    setAuthBadge(null);
+  }
+  return res;
+}
+window.apiFetch = apiFetch;
+
+// ── AUTH UI ──
+function openAuthModal(){
+  if(window.DROZON_USER){
+    if(confirm('Deconectezi utilizatorul ' + window.DROZON_USER.email + '?')){
+      logoutUser();
+    }
+    return;
+  }
+  document.getElementById('auth-backdrop').classList.add('open');
+  document.getElementById('auth-err').classList.remove('show');
+  setTimeout(()=>document.getElementById('auth-email').focus(), 100);
+}
+function closeAuthModal(){ document.getElementById('auth-backdrop').classList.remove('open'); }
+async function submitLogin(){
+  const email = document.getElementById('auth-email').value.trim();
+  const pass = document.getElementById('auth-pass').value;
+  const err = document.getElementById('auth-err');
+  const btn = document.getElementById('auth-submit-btn');
+  if(!email || !pass){ err.textContent='Completează email și parolă'; err.classList.add('show'); return; }
+  btn.disabled = true; btn.textContent = 'Autentificare...';
+  try{
+    const res = await fetch(window.DROZON_API + '/api/auth/login', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      credentials:'include',
+      body: JSON.stringify({email, password: pass})
+    });
+    const data = await res.json();
+    if(!res.ok){ throw new Error(data.detail || 'Login eșuat'); }
+    window.DROZON_TOKEN = data.access_token;
+    localStorage.setItem('drozon_token', data.access_token);
+    window.DROZON_USER = data;
+    setAuthBadge(data);
+    closeAuthModal();
+    showToast('AUTH', `✅ Bine ai venit, ${data.name} (${data.role})`);
+  } catch(e){
+    err.textContent = '⚠️ ' + (e.message || 'Eroare autentificare');
+    err.classList.add('show');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Login';
+  }
+}
+async function logoutUser(){
+  try{ await apiFetch('/api/auth/logout', {method:'POST'}); }catch(e){}
+  window.DROZON_TOKEN = null;
+  window.DROZON_USER = null;
+  localStorage.removeItem('drozon_token');
+  setAuthBadge(null);
+  showToast('AUTH', '🔓 Deconectat');
+}
+function setAuthBadge(user){
+  const b = document.getElementById('auth-badge');
+  if(!b) return;
+  if(user){
+    b.classList.remove('anon');
+    b.innerHTML = `🔐 ${user.name.toUpperCase()} · ${user.role.toUpperCase()}`;
+    b.title = 'Click pentru logout';
+  } else {
+    b.classList.add('anon');
+    b.innerHTML = '🔓 ANONIM · LOGIN';
+    b.title = 'Autentificare';
+  }
+}
+window.openAuthModal = openAuthModal;
+window.closeAuthModal = closeAuthModal;
+window.submitLogin = submitLogin;
+window.logoutUser = logoutUser;
+
+// Try restore session
+(async ()=>{
+  if(!window.DROZON_TOKEN) return;
+  try{
+    const res = await apiFetch('/api/auth/me');
+    if(res.ok){
+      window.DROZON_USER = await res.json();
+      setAuthBadge(window.DROZON_USER);
+    }
+  } catch(e){}
+})();
+
+// ── BULK SYNC — persistă starea în MongoDB la un interval ──
+async function syncFleetWithBackend(){
   try {
-    const res = await fetch(window.DROZON_API + '/api/drones');
+    const res = await apiFetch('/api/drones');
     if(!res.ok) throw new Error('HTTP ' + res.status);
     const remote = await res.json();
     if(Array.isArray(remote) && remote.length > 0){
-      // Backend has drones — replace local array & re-render
       drones.length = 0;
       remote.forEach(d => {
-        // Asigură câmpuri esențiale pentru render
         d.logs = d.logs || [];
         d.weather = d.weather || null;
         d.speed = d.speed || 60;
@@ -7044,13 +7196,10 @@ window.DROZON_API = window.location.origin;
       console.log(`[DroZon] Flotă încărcată din backend: ${remote.length} drone`);
       showToast('BACKEND', `☁️ ${remote.length} drone sincronizate din MongoDB`);
     } else {
-      // Backend empty — seed with current in-memory drones
-      const seedRes = await fetch(window.DROZON_API + '/api/drones/bulk-seed', {
-        method: 'POST', headers: {'Content-Type':'application/json'},
-        body: JSON.stringify(drones)
+      const seedRes = await apiFetch('/api/drones/bulk-seed', {
+        method:'POST', body: JSON.stringify(drones)
       });
       const seedData = await seedRes.json();
-      console.log(`[DroZon] Seed backend:`, seedData);
       if(seedData.seeded > 0){
         showToast('BACKEND', `☁️ ${seedData.seeded} drone salvate în MongoDB`);
       }
@@ -7058,7 +7207,98 @@ window.DROZON_API = window.location.origin;
   } catch(e){
     console.warn('[DroZon] Backend sync fail (offline mode):', e.message);
   }
-})();
+}
+syncFleetWithBackend();
+
+// Persistență periodică: la 30s, sync poziție/baterie/status pentru toată flota
+setInterval(async ()=>{
+  if(!drones.length) return;
+  try {
+    const payload = drones.map(d => ({
+      id: d.id, lat: d.lat, lng: d.lng, alt: d.alt || 0,
+      battery: d.battery, speed: d.speed || 0, signal: d.signal || 100,
+      status: d.status, motorTemp: d.motorTemp || 40, tankLvl: d.tankLvl || 0
+    }));
+    await apiFetch('/api/telemetry/bulk-sync', {
+      method: 'POST', body: JSON.stringify(payload)
+    });
+  } catch(e){ console.warn('bulk-sync fail:', e.message); }
+}, 30000);
+
+// ── WebSocket telemetrie live ──
+let _wsConn = null, _wsReconnectTimer = null;
+function setWsBadge(state){
+  const b = document.getElementById('ws-badge');
+  if(!b) return;
+  b.classList.toggle('on', state === 'connected');
+  b.classList.toggle('off', state !== 'connected');
+  b.innerHTML = `<span class="dot"></span> ${state === 'connected' ? 'LIVE' : 'OFFLINE'}`;
+}
+function connectWebSocket(){
+  try{
+    const wsUrl = window.DROZON_API.replace(/^http/, 'ws') + '/api/ws/telemetry';
+    _wsConn = new WebSocket(wsUrl);
+    _wsConn.onopen = ()=>{ setWsBadge('connected'); console.log('[WS] Connected'); };
+    _wsConn.onclose = ()=>{
+      setWsBadge('disconnected');
+      if(_wsReconnectTimer) clearTimeout(_wsReconnectTimer);
+      _wsReconnectTimer = setTimeout(connectWebSocket, 4000);
+    };
+    _wsConn.onerror = (e)=>{ console.warn('[WS] Error', e); };
+    _wsConn.onmessage = (ev)=>{
+      try{
+        const msg = JSON.parse(ev.data);
+        handleWsMessage(msg);
+      } catch(e){}
+    };
+    // Ping keepalive
+    setInterval(()=>{
+      if(_wsConn && _wsConn.readyState === 1){
+        try{ _wsConn.send(JSON.stringify({type:'ping'})); }catch(e){}
+      }
+    }, 25000);
+  } catch(e){ console.warn('WS connect fail:', e); setWsBadge('disconnected'); }
+}
+function handleWsMessage(msg){
+  if(!msg || !msg.type) return;
+  if(msg.type === 'snapshot'){
+    console.log('[WS] Snapshot:', msg.drones?.length, 'drones');
+    return;
+  }
+  if(msg.type === 'telemetry' && msg.droneId){
+    const d = drones.find(x => x.id === msg.droneId);
+    if(d && msg.data){
+      Object.assign(d, msg.data);
+      // Update marker position on map
+      if(markers && markers[d.id] && markers[d.id].setLatLng){
+        markers[d.id].setLatLng([d.lat, d.lng]);
+      }
+      if(selId === d.id) renderDetail(d.id);
+    }
+  }
+  if(msg.type === 'drone_updated' && msg.drone){
+    const idx = drones.findIndex(x => x.id === msg.drone.id);
+    if(idx >= 0){
+      Object.assign(drones[idx], msg.drone);
+      if(selId === msg.drone.id) renderDetail(msg.drone.id);
+    }
+  }
+  if(msg.type === 'drone_created' && msg.drone){
+    if(!drones.find(x => x.id === msg.drone.id)){
+      drones.push(msg.drone);
+      refresh();
+      showToast('LIVE', `➕ ${msg.drone.name} adăugată de alt operator`);
+    }
+  }
+  if(msg.type === 'drone_deleted' && msg.id){
+    const idx = drones.findIndex(x => x.id === msg.id);
+    if(idx >= 0){ drones.splice(idx, 1); refresh(); }
+  }
+  if(msg.type === 'alert' && msg.alert){
+    showToast('ALERTĂ', `⚠️ ${msg.alert.message}`, msg.alert.severity === 'critical');
+  }
+}
+connectWebSocket();
 
 
 // ════════════════════════════════════════════
