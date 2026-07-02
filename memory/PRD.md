@@ -5,10 +5,18 @@
 
 Aplicație complexă de tip dispatch pentru flote de drone în misiuni umanitare (incendii, avalanșe, inundații, seismic, salvare supraviețuitori, evacuare). Cod inițial primit ca arhivă `.rar` cu **5 aplicații HTML monolitice** (~600KB fiecare, vanilla JS + Leaflet) + backend TypeScript-Supabase scaffolding + firmware embedded.
 
-## Architecture
-- **Frontend principal**: `/app/frontend/public/drozon.html` (aplicație standalone vanilla JS, 10.8K linii, servită prin React redirect)
+## Architecture Actual
+- **Frontend principal**: `/app/frontend/public/drozon.html` (~11K linii vanilla JS servit prin React redirect)
 - **Redirect wrapper**: `/app/frontend/src/App.js` → `window.location.replace('/drozon.html')`
-- **Backend Python/FastAPI**: nefolosit deocamdată (aplicația e client-only cu API-uri externe: open-meteo, Esri, OSM)
+- **Backend FastAPI**: `/app/backend/server.py` — REST API pe `/api/*` cu MongoDB (`test_database`)
+- **Endpoints active**:
+  - `GET|POST /api/drones` — list & create
+  - `GET|PUT|DELETE /api/drones/{id}` — read/update/delete
+  - `POST /api/drones/bulk-seed` — seed inițial dacă DB gol (idempotent)
+  - `GET|POST /api/missions` — misiuni
+  - `PUT /api/missions/{id}` — update
+  - `GET|POST /api/alerts` + `POST /api/alerts/{id}/ack`
+  - `GET /api/stats` — dashboard live
 - **Fișiere adiacente păstrate**: `/app/drozon_original/` conține variantele HTML alternative (PRO, kamikaze, rescue-FINAL, drone-schematic)
 
 ## User Personas
@@ -27,71 +35,58 @@ Aplicație complexă de tip dispatch pentru flote de drone în misiuni umanitare
 ## Session Log
 
 ### 2026-01 · Iterația 1 — Migrare Hartă la MapLibre GL
-**Motivație**: harta principală era limitată (Leaflet zoom 19, container sizing bugs, debug elements vizibile pe pagină).
+- ✅ Arhiva RAR extrasă, servită prin React redirect
+- ✅ **Adăugat MapLibre GL JS 4.7.1** — zoom 22, pitch/bearing 3D, ResizeObserver
+- ✅ **Shim compatibil Leaflet-API** (`DroZonMLMap`) — 11K linii cod existent rămân neatinse
+- ✅ 4 base layers: Esri Satellite / CartoDB Dark / OpenTopoMap Terrain / Esri Labels
+- ✅ Butoane noi: `⛰️ Teren`, `🎮 3D View`
+- ✅ Eliminat debug elements (bar `innerH=...`, cutia lime "MC AREA", outline-uri cyan)
+- ✅ Fixed `<div>` extra la linia 1974 → `.rp` sibling → dispărut "bandă neagră"
 
-**Făcut**:
-- ✅ Arhiva RAR primită de la user, extrasă, `index.html` copiată în `/app/frontend/public/drozon.html`
-- ✅ React `App.js` transformat în redirect wrapper cu loader → `/drozon.html`
-- ✅ Convertit line endings CRLF → LF pentru compatibilitate cu search_replace
-- ✅ **Adăugat MapLibre GL JS 4.7.1** (CDN unpkg) lângă Leaflet (păstrat pentru hărțile secundare din modale)
-- ✅ **Scris shim compatibil Leaflet-API** (`DroZonMLMap`) — permite ca `L.marker/L.circle/L.polyline/L.divIcon` existente să funcționeze fără să atingem restul codului (11K linii)
-- ✅ Style MapLibre custom cu 4 surse raster: **Esri World Imagery** (sat), **CartoDB dark_all** (dark), **OpenTopoMap** (terrain), **Esri Boundaries and Places** (labels satelit)
-- ✅ Eliminat debug elements (bar verde "innerH=... leafletH=...", cutia lime "MC AREA la y=260", outline-uri cyan/orange)
-- ✅ Simplificat `fixMapHeight` — CSS flex face treaba, doar propagăm `resize()` la MapLibre
-- ✅ `ResizeObserver` pe container pentru auto-adapt
-- ✅ Adăugat butoane noi în meniul hartă: **⛰️ Teren** + **🎮 3D View** (pitch 55° / bearing -25°)
-- ✅ CSS custom pentru MapLibre popups/controls în tema DroZon dark
-- ✅ Queue de operații până la `map.on('load')` — evită "Style is not done loading"
-- ✅ Expunere `window.map, window.toggleLayer, window.toggle3D, ...` pentru testare
+### 2026-01 · Iterația 2 — Backend + Live Data + UX
+- ✅ **P0.1**: SOS monitoring & threat detection nu mai pornesc automat — doar în DEMO mode (`startDemo()` pornește `startSOSMonitoring()` + `startThreatDetection()`)
+- ✅ **P0.2**: `.movl` reformat în grid 2×N cu backdrop-blur — 11 butoane compacte, nu se mai suprapun cu right panel
+- ✅ **P1.2 RainViewer Radar**: buton `🌧️ Radar` — layer raster live cu precipitații ultimele 2h (fără API key, `api.rainviewer.com`)
+- ✅ **P1.2 NASA EONET Fires**: buton `🔥 FIRMS` — 198 incendii forestiere active globale ca markere MapLibre pulsante (fără API key, `eonet.gsfc.nasa.gov`) + popup detalii + link sursă
+- ✅ **P2 Backend**: FastAPI cu 12 endpoint-uri (`/api/drones`, `/api/missions`, `/api/alerts`, `/api/stats`) + MongoDB models (Drone, Mission, Alert)
+- ✅ **P2 Frontend sync**: la load fetch `/api/drones`, dacă e gol → bulk-seed cu drone hardcodate; dacă are date → înlocuiește array local + toast "☁️ N drone sincronizate din MongoDB"
+- ✅ **P2 addDrone persistență**: POST `/api/drones` fire-and-forget la crearea unei drone noi din UI
 
-**Rezultate confirmate prin screenshot**:
-- Zoom 20 → mașini + drone vizibile pe pista (nivel sub-metru)
-- Zoom 15 → blocuri, parcuri, "Cimitirul Izvorul Nou", "Sala Sport"
-- 3D pitch 55° funcțional cu perspectivă tip Google Earth
-- Toate 8 drone + zone + traiectorii + alerte SOS render corect
-- 3 base layers switching funcțional (sat/dark/terrain)
+### Confirmări prin curl
+```
+POST /api/drones → 201 + drone JSON cu UUID
+GET /api/drones → 8 drone (seedul funcționează)
+PUT /api/drones/{id} → update battery/status funcționează
+DELETE /api/drones/{id} → success
+GET /api/stats → {"drones":{"total":8,"activ":2,"misiune":2,"standby":3,"pericol":1},...}
+```
 
-**Fișiere modificate**:
-- `/app/frontend/public/drozon.html` (~500 linii schimbate: shim MapLibre + CSS + butoane UI)
-- `/app/frontend/src/App.js` (rewrite total: redirect wrapper)
+## Backlog Rămas
 
-**Fișiere adiacente create**:
-- `/app/frontend/public/6c1282db-*.jpg` (asset original)
-- `/app/frontend/public/.well-known/assetlinks.json`
+### P1 · Feature-uri hartă avansate
+- [ ] Migrarea hărților secundare (Waypoint editor `WP.map`, Rescue `RSC.map`, Kamikaze `KMK.map`, Swarm `SW.map`) la MapLibre — funcționează în Leaflet acum, refactor amânat (risc vs. valoare)
+- [ ] **Rază autonomie 3D** — cilindru volumetric (nu doar cerc plat)
+- [ ] **Traiectorie 3D** cu altitudine reală — line-gradient / extrusion
+- [ ] **MapTiler DEM terrain 3D real** (necesită API key)
 
-## Backlog (P0 = următoarea sesiune)
+### P2 · Backend extins
+- [ ] Autentificare — JWT sau Emergent Google OAuth (necesită decizie utilizator)
+- [ ] WebSocket telemetrie live (real-time drone position streaming)
+- [ ] Persistență periodică (auto-sync PUT la fiecare N secunde pentru drone activate)
+- [ ] Persistență DELETE la ștergere dronă din UI
+- [ ] Endpoints rapoarte + export CSV
 
-### P0 · Fixuri UX rapide
-- [ ] SOS alert popup apare automat prea repede la load — să nu se declanșeze pe demo până user nu apasă "🎬 DEMO"
-- [ ] Overflow butoane în panoul dreapta la viewport-uri sub 900px — reduce padding sau fă grid 2×4
-- [ ] Widget "METEO LIVE" bottom-left se suprapune cu scale control MapLibre — reposition
+### P3 · Integrări externe (viitor)
+- [ ] **MAVLink parser** pentru drone reale (backend WebSocket bridge)
+- [ ] **Twilio SMS** pentru notificări SOS la operatori
+- [ ] **Telegram bot** pentru alerte în teren
+- [ ] **NASA FIRMS API key** (mai multe date decât EONET, VIIRS + MODIS 375m rezoluție)
+- [ ] Consolidare variante HTML (`DroZon-PRO`, `kamikaze`, `rescue-FINAL`) într-o singură app cu tab-uri
 
-### P1 · Migrare completă la MapLibre
-- [ ] Migrarea hărților secundare (Waypoint editor `WP.map`, Rescue `RSC.map`, Kamikaze `KMK.map`, Swarm `SW.map`) la MapLibre → un singur engine, mai puțin bundle
-- [ ] Elimină dependința Leaflet complet dacă toate hărțile migrează
+### P3 · Growth / Monetizare
+- [ ] Public read-only dashboard (`live.drozon.ro`) pentru vizibilitate publică misiuni umanitare
+- [ ] Modul rapoarte PDF cu export → contracte guvernamentale
 
-### P1 · Feature-uri hartă upgraded
-- [ ] **NASA FIRMS** — hotspot-uri incendii live pe hartă (esențial pentru misiuni umanitare reale)
-- [ ] **RainViewer radar** overlay — precipitații live
-- [ ] **Rază autonomie 3D** — cilindru volumetric (nu doar cerc plat) pentru evidențierea altitudinii
-- [ ] Traiectorie dronă cu **altitudine 3D** — line-gradient / extrusion după alt
-- [ ] **Terrain 3D real** (via MapTiler DEM) — nu doar raster OpenTopoMap
-
-### P2 · Backend real
-- [ ] FastAPI backend: `/api/drones` CRUD, `/api/telemetry` WebSocket ingest, `/api/missions`, `/api/alerts`
-- [ ] MongoDB models: `Drone`, `Mission`, `Alert`, `TelemetryPoint`, `FlightReport`
-- [ ] Persistență drone (acum e hardcodat în JS)
-- [ ] Autentificare (JWT sau Emergent Google OAuth) — decizie utilizator
-
-### P2 · Integrări externe
-- [ ] MAVLink parser pentru drone reale (backend WebSocket bridge)
-- [ ] Twilio SMS pentru notificări SOS la operatori
-- [ ] Telegram bot pentru alerte în teren
-- [ ] Google Drive / Dropbox export automat rapoarte flight
-
-### P2 · Consolidare variante HTML
-- [ ] Merge `DroZon-PRO.html` + `drozon-kamikaze.html` + `drozon-rescue-FINAL.html` + `drone-schematic.html` într-o singură app cu tab-uri per modul
-
-## Next Actions (immediate)
-1. Așteptăm feedback user pe hartă (funcționează cum voia?)
-2. La confirmare, atacăm P0 (fixuri UX rapide) sau trecem la P1 (feature-uri hartă)
+## Next Actions
+1. Confirmă că totul funcționează după rescan
+2. La approve → orice item din backlog P1/P2/P3

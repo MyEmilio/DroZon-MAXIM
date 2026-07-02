@@ -111,8 +111,8 @@ header{
 .mc{flex:1;position:relative;background:#020810;min-height:0;overflow:hidden;}
 #map{position:absolute;inset:0;}
 .mc::after{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.025) 2px,rgba(0,0,0,.025) 4px);pointer-events:none;z-index:499;}
-.movl{position:absolute;top:10px;right:10px;z-index:500;display:flex;flex-direction:column;gap:6px;}
-.mbtn{background:#0d1828;border:1px solid #243a52;color:#90b0cc;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1px;padding:6px 11px;border-radius:3px;cursor:pointer;transition:all .2s;text-transform:uppercase;}
+.movl{position:absolute;top:10px;right:10px;z-index:500;display:grid;grid-template-columns:auto auto;gap:5px;background:rgba(10,16,26,.72);padding:6px;border:1px solid rgba(46,127,196,.22);border-radius:6px;backdrop-filter:blur(6px);}
+.mbtn{background:#0d1828;border:1px solid #243a52;color:#90b0cc;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1px;padding:6px 9px;border-radius:3px;cursor:pointer;transition:all .18s;text-transform:uppercase;white-space:nowrap;}
 .mbtn:hover,.mbtn.on{border-color:var(--accent);color:var(--accent);background:#101e30;}
 .sigbox{position:absolute;bottom:10px;left:10px;z-index:500;background:var(--panel);border:1px solid var(--border);border-radius:5px;padding:8px 12px;}
 .sigrow{display:flex;align-items:center;gap:6px;margin-bottom:3px;}
@@ -1955,6 +1955,8 @@ body { font-size:13px; }
       <button class="mbtn" onclick="toggle3D()" id="b-3d">🎮 3D View</button>
       <button class="mbtn on" onclick="toggleRoutes()" id="b-rt">📡 Trasee</button>
       <button class="mbtn on" onclick="toggleZones()" id="b-zn">🔶 Zone</button>
+      <button class="mbtn" onclick="toggleRainRadar()" id="b-rain" title="RainViewer radar precipitații live (ultimele 2h)">🌧️ Radar</button>
+      <button class="mbtn" onclick="toggleFiresLayer()" id="b-fires" title="NASA EONET incendii forestiere active">🔥 FIRMS</button>
       <button class="mbtn" onclick="centerAll()">⊕ Centrare</button>
       <button class="mbtn" onclick="refreshAllWx()" id="b-wx">🌤️ Meteo All</button>
       <button class="mbtn" onclick="toggleWeatherWidget()" id="b-ww" title="Widget temperatură">🌡️ Temp</button>
@@ -3917,6 +3919,102 @@ function toggle3D(){
     btn.classList.toggle('on', active);
   }
 }
+
+// ════════════════════════════════════════════
+// RainViewer — Radar precipitații live (fără API key)
+// https://www.rainviewer.com/api.html
+// ════════════════════════════════════════════
+let _rainSourceId = null, _rainLayerId = null;
+async function toggleRainRadar(){
+  const btn = document.getElementById('b-rain');
+  const ml = map.ml;
+  const doRemove = ()=>{
+    try{ if(_rainLayerId && ml.getLayer(_rainLayerId)) ml.removeLayer(_rainLayerId); }catch(e){}
+    try{ if(_rainSourceId && ml.getSource(_rainSourceId)) ml.removeSource(_rainSourceId); }catch(e){}
+    _rainSourceId = _rainLayerId = null;
+    if(btn) btn.classList.remove('on');
+  };
+  if(_rainLayerId){ doRemove(); return; }
+  try{
+    const res = await fetch('https://api.rainviewer.com/public/weather-maps.json');
+    const data = await res.json();
+    const frames = (data.radar && data.radar.past) || [];
+    if(!frames.length){ showToast('Radar','⚠️ Nu sunt frame-uri disponibile'); return; }
+    const latest = frames[frames.length-1];
+    const host = data.host || 'https://tilecache.rainviewer.com';
+    const url = `${host}${latest.path}/256/{z}/{x}/{y}/2/1_1.png`;
+    const sid = 'rain-radar';
+    const apply = ()=>{
+      if(ml.getSource(sid)) return;
+      ml.addSource(sid, {type:'raster', tiles:[url], tileSize:256, attribution:'© RainViewer'});
+      ml.addLayer({id: sid+'-layer', type:'raster', source:sid, paint:{'raster-opacity':0.7}});
+      _rainSourceId = sid;
+      _rainLayerId = sid+'-layer';
+      if(btn) btn.classList.add('on');
+      showToast('Radar','🌧 Radar precipitații LIVE activat');
+    };
+    if(map._loaded) apply(); else map._pendingOps.push(apply);
+  } catch(e){
+    console.error('RainViewer fail:', e);
+    showToast('Radar','⚠️ Eroare la încărcarea radar-ului');
+  }
+}
+
+// ════════════════════════════════════════════
+// NASA EONET — Incendii forestiere active globale (fără API key)
+// https://eonet.gsfc.nasa.gov/api/v3/events
+// ════════════════════════════════════════════
+let _firesMarkers = [];
+async function toggleFiresLayer(){
+  const btn = document.getElementById('b-fires');
+  if(_firesMarkers.length){
+    _firesMarkers.forEach(m=>{ try{ m.remove(); }catch(e){} });
+    _firesMarkers = [];
+    if(btn) btn.classList.remove('on');
+    return;
+  }
+  try{
+    const res = await fetch('https://eonet.gsfc.nasa.gov/api/v3/events?category=wildfires&status=open&limit=200');
+    const data = await res.json();
+    const events = data.events || [];
+    if(!events.length){ showToast('FIRMS','ℹ️ Nu sunt incendii active în EONET acum'); return; }
+    let count = 0;
+    events.forEach(ev=>{
+      const geo = ev.geometry && ev.geometry[ev.geometry.length-1];
+      if(!geo || !geo.coordinates) return;
+      // EONET geometry poate fi Point [lng,lat] sau Polygon [[[lng,lat],...]]
+      let lng, lat;
+      if(geo.type === 'Point' || (typeof geo.coordinates[0] === 'number')){
+        [lng, lat] = geo.coordinates;
+      } else if(geo.type === 'Polygon' && geo.coordinates[0] && geo.coordinates[0][0]){
+        // Centroid simplu — primul punct
+        [lng, lat] = geo.coordinates[0][0];
+      } else return;
+      if(typeof lng !== 'number' || typeof lat !== 'number') return;
+      if(lat < -90 || lat > 90 || lng < -180 || lng > 180) return;
+      const wrap = document.createElement('div');
+      wrap.className = 'ml-marker-wrap';
+      wrap.style.cssText = 'width:22px;height:22px;';
+      wrap.innerHTML = '<div style="width:20px;height:20px;border-radius:50%;background:radial-gradient(circle,#ff6b1a 0%,#c02010 70%);border:2px solid #ffd6ad;box-shadow:0 0 10px rgba(255,80,20,.7),0 0 20px rgba(255,80,20,.3);display:flex;align-items:center;justify-content:center;font-size:11px;animation:pulse 1.4s infinite">🔥</div>';
+      const mk = new maplibregl.Marker({element:wrap, anchor:'center'})
+        .setLngLat([lng,lat])
+        .addTo(map.ml);
+      const pop = new maplibregl.Popup({closeButton:false, offset:14, className:'ml-tip'})
+        .setHTML(`<b>🔥 ${ev.title||'Incendiu'}</b><br><span style="color:#aac8e4">Sursă: NASA EONET</span><br>Data: ${new Date(geo.date).toLocaleString('ro-RO')}${ev.sources && ev.sources[0]?`<br><a href="${ev.sources[0].url}" target="_blank" style="color:var(--accent)">Detalii ${ev.sources[0].id}</a>`:''}`);
+      wrap.addEventListener('mouseenter',()=>{ pop.setLngLat([lng,lat]).addTo(map.ml); });
+      wrap.addEventListener('mouseleave',()=>{ pop.remove(); });
+      _firesMarkers.push(mk);
+      count++;
+    });
+    if(btn) btn.classList.add('on');
+    showToast('FIRMS',`🔥 ${count} incendii active încărcate (NASA EONET)`);
+  } catch(e){
+    console.error('EONET fail:', e);
+    showToast('FIRMS','⚠️ Eroare la încărcarea datelor NASA EONET');
+  }
+}
+window.toggleRainRadar = toggleRainRadar;
+window.toggleFiresLayer = toggleFiresLayer;
 function toggleRoutes(){showRoutes=!showRoutes;document.getElementById('b-rt').classList.toggle('on',showRoutes);Object.values(routeLines).forEach(l=>showRoutes?l.addTo(map):map.removeLayer(l));}
 function toggleZones(){showZones=!showZones;document.getElementById('b-zn').classList.toggle('on',showZones);Object.values(zoneCircles).forEach(z=>showZones?z.addTo(map):map.removeLayer(z));}
 function centerAll(){if(drones.length)map.fitBounds(drones.map(d=>[d.lat,d.lng]),{padding:[60,60]});}
@@ -4419,6 +4517,13 @@ function addDrone(){
     logs:[{t:new Date().toTimeString().slice(0,5),m:'Înregistrată în sistem DROZON'}]
   };
   drones.push(nd); closeModal();
+  // Persistență în backend (fire-and-forget)
+  if(window.DROZON_API){
+    fetch(window.DROZON_API + '/api/drones', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(nd)
+    }).catch(e=>console.warn('Backend sync fail:', e));
+  }
   document.querySelectorAll('.mbox input,#fn,#fm').forEach(el=>{if(el.type==='checkbox')el.checked=false;else el.value='';});
   document.getElementById('liq-fields').style.display='none';
   refresh(); selectDrone(nd.id);
@@ -6915,6 +7020,46 @@ initVoice();
 refresh();
 setInterval(simTick,3000);
 
+// ════════════════════════════════════════════
+// BACKEND SYNC — Persistență flotă în MongoDB via FastAPI
+// ════════════════════════════════════════════
+window.DROZON_API = window.location.origin;
+(async function syncFleetWithBackend(){
+  try {
+    const res = await fetch(window.DROZON_API + '/api/drones');
+    if(!res.ok) throw new Error('HTTP ' + res.status);
+    const remote = await res.json();
+    if(Array.isArray(remote) && remote.length > 0){
+      // Backend has drones — replace local array & re-render
+      drones.length = 0;
+      remote.forEach(d => {
+        // Asigură câmpuri esențiale pentru render
+        d.logs = d.logs || [];
+        d.weather = d.weather || null;
+        d.speed = d.speed || 60;
+        d.missions = d.missions || ['supraveghere'];
+        drones.push(d);
+      });
+      refresh();
+      console.log(`[DroZon] Flotă încărcată din backend: ${remote.length} drone`);
+      showToast('BACKEND', `☁️ ${remote.length} drone sincronizate din MongoDB`);
+    } else {
+      // Backend empty — seed with current in-memory drones
+      const seedRes = await fetch(window.DROZON_API + '/api/drones/bulk-seed', {
+        method: 'POST', headers: {'Content-Type':'application/json'},
+        body: JSON.stringify(drones)
+      });
+      const seedData = await seedRes.json();
+      console.log(`[DroZon] Seed backend:`, seedData);
+      if(seedData.seeded > 0){
+        showToast('BACKEND', `☁️ ${seedData.seeded} drone salvate în MongoDB`);
+      }
+    }
+  } catch(e){
+    console.warn('[DroZon] Backend sync fail (offline mode):', e.message);
+  }
+})();
+
 
 // ════════════════════════════════════════════
 // REFRESH + INIT
@@ -8946,11 +9091,12 @@ function processVoiceCommand(text) {
   _kmkOrigVoice && _kmkOrigVoice(text);
 }
 
-// Start SOS monitoring
-startSOSMonitoring();
+// Start SOS monitoring — dezactivat la load; se pornește doar când user apasă 🎬 DEMO
+// (evită alerte SOS false pe ecran înainte ca utilizatorul să înceapă un demo)
+// startSOSMonitoring();  // dezactivat intenționat — vezi startDemo()
 
-// Start threat detection on load
-startThreatDetection();
+// Start threat detection on load — dezactivat similar
+// startThreatDetection();  // dezactivat — se pornește tot din startDemo()
 
 // ════════════════════════════════════════════
 // V8 MODULE 6 — MOBILE OPTIMIZATIONS
@@ -9404,9 +9550,15 @@ const DEMO_STEPS=[
   {txt:'📈 Pitch deck complet — Runda Seed €500k pentru 15% equity. Let\'s talk!',fn:()=>{document.getElementById('biz-overlay')?.classList.remove('open');openPitch();}},
 ];
 let demoIdx=0,demoTimer=null,demoPaused=false;
+window.DEMO_ACTIVE = false;
+let _sosStarted = false, _threatStarted = false;
 
 function startDemo(){
   demoIdx=0;demoPaused=false;
+  window.DEMO_ACTIVE = true;
+  // Pornim monitorizări simulate DOAR în demo mode (evită alerte false la load)
+  if(!_sosStarted){ try{ startSOSMonitoring(); _sosStarted = true; }catch(e){} }
+  if(!_threatStarted){ try{ startThreatDetection(); _threatStarted = true; }catch(e){} }
   document.getElementById('demo-overlay').classList.add('open');
   runDemoStep();
 }
