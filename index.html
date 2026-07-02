@@ -7346,11 +7346,20 @@ function wpUpdateStats() {
 
 function wpLaunchMission() {
   const d=drones.find(x=>x.id===WP.droneId); if(!d||!WP.waypoints.length){showToast('WP','Selectează o dronă și adaugă waypoints!');return;}
-  // Convert waypoints to sequential autonomous missions
   d._wpQueue=[...WP.waypoints]; d._wpIndex=0;
   wpExecuteNext(d);
-  closeWaypoints();
-  showMissionNotif(d,'🗺️ MISIUNE MULTI-WAYPOINT',`${d.name} a primit ruta cu ${WP.waypoints.length} waypoints.\nDistanță totală: ${document.getElementById('wp-dist')?.textContent||'—'}.\nDrona execută automat fiecare waypoint în ordine.`,'info');
+  // Feedback vizual în buton înainte de închidere
+  const btn=document.querySelector('.wp-btn.primary');
+  if(btn){
+    btn.textContent='✅ MISIUNE LANSATĂ!';
+    btn.style.cssText='background:rgba(38,122,80,.35);border-color:var(--accent2);color:var(--accent2);padding:9px;border-radius:4px;font-family:\'Rajdhani\',sans-serif;font-size:8px;letter-spacing:3px;width:100%;border:1px solid;';
+    btn.disabled=true;
+  }
+  const dist=document.getElementById('wp-dist')?.textContent||'—';
+  setTimeout(()=>{
+    closeWaypoints();
+    showMissionNotif(d,'🗺️ MISIUNE MULTI-WAYPOINT',`${d.name} a primit ruta cu ${d._wpQueue.length} waypoints.\nDistanță totală: ${dist}.\nDrona execută automat fiecare waypoint în ordine.`,'info');
+  },1800);
 }
 
 function wpExecuteNext(d) {
