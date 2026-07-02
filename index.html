@@ -239,7 +239,7 @@ header{
 .range-tip{background:rgba(8,14,26,.92)!important;border:1px solid rgba(100,160,220,.35)!important;color:#cce0f5!important;font-size:11px!important;padding:7px 11px!important;border-radius:6px!important;box-shadow:0 4px 16px rgba(0,0,0,.6)!important;line-height:1.5!important;pointer-events:none!important;}
 .range-tip::before{display:none!important;}
 .leaflet-tooltip.range-tip{white-space:nowrap;}
-.toast{position:fixed;top:108px;right:14px;background:var(--panel);border:1px solid var(--danger);border-radius:5px;padding:10px 14px;font-size:10px;color:var(--danger);z-index:999;max-width:265px;box-shadow:0 0 18px rgba(176,32,32,.25);transform:translateX(300px);transition:transform .3s;}
+.toast{position:fixed;top:108px;right:14px;background:var(--panel);border:1px solid var(--danger);border-radius:5px;padding:10px 14px;font-size:10px;color:var(--danger);z-index:9700;max-width:265px;box-shadow:0 0 18px rgba(176,32,32,.25);transform:translateX(300px);transition:transform .3s;}
 .toast.show{transform:translateX(0);}
 .toast.info{border-color:var(--accent2);color:var(--accent2);box-shadow:0 0 18px rgba(38,122,80,.18);}
 .toast-t{font-family:'Rajdhani',sans-serif;font-size:9px;letter-spacing:2px;margin-bottom:3px;}
@@ -7345,10 +7345,18 @@ function wpUpdateStats() {
 }
 
 function wpLaunchMission() {
-  const d=drones.find(x=>x.id===WP.droneId); if(!d||!WP.waypoints.length){showToast('WP','Selectează o dronă și adaugă waypoints!');return;}
+  const d=drones.find(x=>x.id===WP.droneId);
+  if(!d||!WP.waypoints.length){
+    showToast('WP','Selectează o dronă și adaugă waypoints!');return;
+  }
+  if(d.battery<15){
+    const btn=document.querySelector('.wp-btn.primary');
+    if(btn){btn.textContent='⛔ BATERIE CRITICĂ!';btn.style.color='var(--danger)';btn.style.borderColor='var(--danger)';setTimeout(()=>{btn.textContent='🚀 LANSEAZĂ MISIUNEA';btn.style.color='';btn.style.borderColor='';},2500);}
+    showToast(d.name,'⛔ Baterie critică ('+d.battery.toFixed(0)+'%) — zbor imposibil!');
+    return;
+  }
   d._wpQueue=[...WP.waypoints]; d._wpIndex=0;
   wpExecuteNext(d);
-  // Feedback vizual în buton înainte de închidere
   const btn=document.querySelector('.wp-btn.primary');
   if(btn){
     btn.textContent='✅ MISIUNE LANSATĂ!';
