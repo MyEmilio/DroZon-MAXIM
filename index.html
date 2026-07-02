@@ -7336,12 +7336,12 @@ function wpUpdateStats() {
   let total=0;
   const pts=[{lat:d.lat,lng:d.lng},...WP.waypoints];
   for(let i=1;i<pts.length;i++){const dx=pts[i].lat-pts[i-1].lat,dy=pts[i].lng-pts[i-1].lng;total+=Math.sqrt(dx*dx+dy*dy)*111;}
-  const eta=Math.ceil(total/d.speed*60);
-  const batEst=Math.max(0,d.battery-(total/d.range*100)).toFixed(0);
+  const eta=d.speed>0?Math.ceil(total/d.speed*60):0;
+  const batEst=(d.range>0)?Math.max(0,d.battery-(total/d.range*100)).toFixed(0):d.battery.toFixed(0);
   const e1=document.getElementById('wp-dist'),e2=document.getElementById('wp-eta'),e3=document.getElementById('wp-bat');
   if(e1)e1.textContent=total.toFixed(1)+' km';
   if(e2)e2.textContent=eta>60?Math.floor(eta/60)+'h '+(eta%60)+'min':eta+' min';
-  if(e3){e3.textContent=batEst+'%';e3.style.color=batEst<20?'var(--danger)':batEst<40?'var(--warn)':'var(--accent2)';}
+  if(e3){e3.textContent=batEst+'%';e3.style.color=Number(batEst)<20?'var(--danger)':Number(batEst)<40?'var(--warn)':'var(--accent2)';}
 }
 
 function wpLaunchMission() {
