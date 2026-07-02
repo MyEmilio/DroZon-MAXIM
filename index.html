@@ -1229,7 +1229,7 @@ header{
 @media (max-width:768px){
   .main{flex-direction:column;}
   .lp{width:100%;height:160px;flex-shrink:0;border-right:none;border-bottom:1px solid var(--border);}
-  /* .mc height gestionată de JS (fixMapHeight) — fără override rigid */
+  .mc{flex:1;min-height:0;}
   .rp{display:none;}  /* ascuns în viewport îngust, nu e loc */
   .dlist{display:flex;flex-direction:row;overflow-x:auto;padding:4px;}
   .dc{min-width:180px;margin-right:6px;margin-bottom:0;}
@@ -1950,7 +1950,6 @@ body { font-size:13px; }
       <button class="smb-cancel" onclick="cancelSendMode()">✕ Anulează</button>
     </div>
 
-    </div>
   </div>
 
   <!-- RIGHT -->
@@ -3558,10 +3557,9 @@ if(typeof L === 'undefined') {
     latLngBounds: () => _mockObj,
   };
 }
-const satL=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19});
+const satL=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,attribution:'© Esri'});
 const osmL=L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{maxZoom:19});
-const map=L.map('map',{center:[44.40,26.15],zoom:10,layers:[satL],zoomControl:true});
-// fixMapHeight (definit mai jos) gestionează sizing + invalidateSize
+const map=L.map('map',{center:[44.40,26.15],zoom:10,layers:[satL],zoomControl:true,maxZoom:19});
 
 function toggleLayer(t){
   if(t==='sat'){map.removeLayer(osmL);map.addLayer(satL);document.getElementById('b-sat').classList.add('on');document.getElementById('b-osm').classList.remove('on');}
@@ -6262,7 +6260,7 @@ function initHPMap(d) {
   const mapEl = document.getElementById('hp-map');
   if (!mapEl) return;
   HP.map = L.map('hp-map', {center:[d.lat, d.lng], zoom:14, zoomControl:true});
-  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19}).addTo(HP.map);
+  L.tileLayer('https://mt{s}.google.com/vt/lyrs=s&hl=ro&x={x}&y={y}&z={z}',{subdomains:'0123',maxZoom:22,attribution:'© Google'}).addTo(HP.map);
   // Drone marker
   const dIco = L.divIcon({className:'',iconSize:[36,36],iconAnchor:[18,18],
     html:`<div style="width:34px;height:34px;border-radius:50%;border:2px solid var(--warn);background:rgba(5,8,15,.9);display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 0 16px rgba(184,114,24,.5)">🛸</div>`});
@@ -7193,7 +7191,7 @@ function initWPMap() {
   if(WP.map){WP.map.remove();WP.map=null;}
   const d=drones.find(x=>x.id===WP.droneId)||drones[0];
   WP.map=L.map('wp-map',{center:[d?d.lat:44.4,d?d.lng:26.1],zoom:12});
-  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19}).addTo(WP.map);
+  L.tileLayer('https://mt{s}.google.com/vt/lyrs=s&hl=ro&x={x}&y={y}&z={z}',{subdomains:'0123',maxZoom:22,attribution:'© Google'}).addTo(WP.map);
   // Show drone position
   if(d){ const ico=L.divIcon({className:'',iconSize:[28,28],iconAnchor:[14,14],html:`<div style="width:26px;height:26px;border-radius:50%;border:2px solid var(--accent);background:rgba(5,8,15,.9);display:flex;align-items:center;justify-content:center;font-size:14px;box-shadow:0 0 12px rgba(46,127,196,.5)">🛸</div>`});
     L.marker([d.lat,d.lng],{icon:ico}).addTo(WP.map).bindTooltip(`<b>${d.name}</b> — START`); }
@@ -7720,7 +7718,7 @@ function initRscMap() {
   if (RSC.map) { RSC.map.remove(); RSC.map = null; }
   const center = RSC.downdedDrones[0] ? {lat:RSC.downdedDrones[0].lat,lng:RSC.downdedDrones[0].lng} : {lat:44.42,lng:26.10};
   RSC.map = L.map('rsc-map', {center:[center.lat,center.lng], zoom:12});
-  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19}).addTo(RSC.map);
+  L.tileLayer('https://mt{s}.google.com/vt/lyrs=s&hl=ro&x={x}&y={y}&z={z}',{subdomains:'0123',maxZoom:22,attribution:'© Google'}).addTo(RSC.map);
   // Show all downed drones on map
   RSC.downdedDrones.forEach(sos => {
     if (sos.status === 'RESCUED') return;
@@ -8258,7 +8256,7 @@ function initKmkMap() {
   if(KMK.map){ KMK.map.remove(); KMK.map = null; }
   const center = drones[0] ? [drones[0].lat, drones[0].lng] : [44.42, 26.10];
   KMK.map = L.map('kmk-map', {center, zoom:11});
-  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19}).addTo(KMK.map);
+  L.tileLayer('https://mt{s}.google.com/vt/lyrs=s&hl=ro&x={x}&y={y}&z={z}',{subdomains:'0123',maxZoom:22,attribution:'© Google'}).addTo(KMK.map);
   // Show main fleet
   drones.forEach(d => {
     const ico = L.divIcon({className:'',iconSize:[20,20],iconAnchor:[10,10],
@@ -8661,7 +8659,7 @@ function closeSwarm(){document.getElementById('swarm-overlay').classList.remove(
 function initSwarmMap(){
   if(SW.map){SW.map.remove();SW.map=null;}
   SW.map=L.map('swarm-map',{center:[44.42,26.10],zoom:11});
-  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19}).addTo(SW.map);
+  L.tileLayer('https://mt{s}.google.com/vt/lyrs=s&hl=ro&x={x}&y={y}&z={z}',{subdomains:'0123',maxZoom:22,attribution:'© Google'}).addTo(SW.map);
   SW.map.on('click',e=>swMoveTo(e.latlng.lat,e.latlng.lng));
 }
 
@@ -9079,37 +9077,9 @@ function demoStop(){
 
 
 // ════════════════════════════════════════════
-// FIX MAP HEIGHT
-// invalidateSize() este no-op dacă Leaflet a
-// cached deja dimensiunea corectă (old==new).
-// Trick: setăm (h-2)px → invalidate (Leaflet
-// cachează h-2) → setăm h → invalidate din nou
-// (Leaflet vede h-2→h, forțează re-render tiles).
-// Ambele se petrec în același RAF, browserul
-// pictează o singură dată la h px final.
-// ════════════════════════════════════════════
 function fixMapHeight(){
-  const mc   = document.querySelector('.mc');
-  const hdr  = document.querySelector('header');
-  const dock = document.getElementById('bottom-dock');
-  if(!mc || !hdr || !dock) return;
-
-  const h = Math.max(80, Math.round(
-    window.innerHeight
-    - hdr.getBoundingClientRect().height
-    - dock.getBoundingClientRect().height
-  ));
-
-  requestAnimationFrame(() => {
-    mc.style.minHeight = '';          // fără override — altfel min-height>height anulează trick-ul
-    mc.style.height = (h - 2) + 'px';  // pas 1: h-2 → Leaflet cachează h-2
-    try{ if(map && map.invalidateSize) map.invalidateSize(); }catch(e){}
-    mc.style.height = h + 'px';         // pas 2: h   → Leaflet vede h-2→h, forțează re-render
-    try{ if(map && map.invalidateSize) map.invalidateSize(); }catch(e){}
-  });
+  try{ if(map&&map.invalidateSize) map.invalidateSize({animate:false}); }catch(e){}
 }
-fixMapHeight();
-[80, 250, 600, 1400, 3000].forEach(t => setTimeout(fixMapHeight, t));
 window.addEventListener('resize', fixMapHeight);
 
 // ════════════════════════════════════════════
