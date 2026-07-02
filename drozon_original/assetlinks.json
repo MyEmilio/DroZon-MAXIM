@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "app.connectjob.twa",
+        "sha256_cert_fingerprints": ["51:43:4C:EB:48:D2:0E:E9:97:54:D5:9F:56:E0:92:7E:6C:42:CD:24:8B:3C:03:D4:EF:57:AD:56:3A:CA:32:61"]
+      }
+    }]

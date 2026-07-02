@@ -1,0 +1,1420 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Schemă Tehnică Dronă Industrială</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@300;400;600;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #060a10;
+    --panel: #0b1220;
+    --panel2: #0f1a2e;
+    --border: #1a3a5c;
+    --accent: #00c8ff;
+    --accent2: #00ff9d;
+    --accent3: #ff6b35;
+    --accent4: #ffd700;
+    --warn: #ff4444;
+    --text: #c8dff0;
+    --text-dim: #5a7a9a;
+    --glow: 0 0 20px rgba(0,200,255,0.3);
+    --glow2: 0 0 20px rgba(0,255,157,0.3);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Rajdhani', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: 
+      radial-gradient(ellipse at 20% 20%, rgba(0,80,160,0.15) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 80%, rgba(0,200,100,0.08) 0%, transparent 60%),
+      repeating-linear-gradient(0deg, transparent, transparent 50px, rgba(0,200,255,0.02) 50px, rgba(0,200,255,0.02) 51px),
+      repeating-linear-gradient(90deg, transparent, transparent 50px, rgba(0,200,255,0.02) 50px, rgba(0,200,255,0.02) 51px);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrapper { position: relative; z-index: 1; max-width: 1400px; margin: 0 auto; padding: 20px; }
+
+  /* HEADER */
+  header {
+    text-align: center;
+    padding: 40px 20px 30px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 30px;
+    position: relative;
+  }
+  header::before {
+    content: '';
+    position: absolute;
+    bottom: -1px; left: 50%; transform: translateX(-50%);
+    width: 200px; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  }
+  .title-sub { font-family: 'Share Tech Mono'; color: var(--accent); font-size: 11px; letter-spacing: 4px; margin-bottom: 10px; }
+  h1 { font-family: 'Orbitron', sans-serif; font-size: clamp(22px, 4vw, 42px); font-weight: 900; 
+       background: linear-gradient(135deg, #fff 30%, var(--accent) 70%, var(--accent2));
+       -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+       letter-spacing: 2px; line-height: 1.2; }
+  .title-badge { display: inline-block; margin-top: 12px; padding: 4px 16px; border: 1px solid var(--accent); 
+                 color: var(--accent); font-family: 'Share Tech Mono'; font-size: 10px; letter-spacing: 3px; }
+
+  /* TABS */
+  .tabs { display: flex; gap: 4px; margin-bottom: 24px; flex-wrap: wrap; }
+  .tab {
+    padding: 10px 20px; border: 1px solid var(--border); background: var(--panel);
+    color: var(--text-dim); cursor: pointer; font-family: 'Rajdhani', sans-serif;
+    font-size: 13px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase;
+    transition: all 0.2s; position: relative; overflow: hidden;
+  }
+  .tab::before { content: ''; position: absolute; inset: 0; background: var(--accent); opacity: 0; transition: opacity 0.2s; }
+  .tab:hover { border-color: var(--accent); color: var(--accent); }
+  .tab.active { border-color: var(--accent); color: #fff; background: rgba(0,200,255,0.1); }
+  .tab.active::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px; background: var(--accent); }
+
+  /* SECTIONS */
+  .section { display: none; }
+  .section.active { display: block; animation: fadeIn 0.3s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* CARDS GRID */
+  .grid { display: grid; gap: 16px; }
+  .grid-2 { grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); }
+  .grid-3 { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.3s, transform 0.2s;
+  }
+  .card:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    opacity: 0; transition: opacity 0.3s;
+  }
+  .card:hover::before { opacity: 1; }
+  .card.green { border-left: 3px solid var(--accent2); }
+  .card.orange { border-left: 3px solid var(--accent3); }
+  .card.yellow { border-left: 3px solid var(--accent4); }
+  .card.red { border-left: 3px solid var(--warn); }
+  .card.blue { border-left: 3px solid var(--accent); }
+
+  .card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+  .card-icon { font-size: 24px; }
+  .card-title { font-family: 'Orbitron', sans-serif; font-size: 13px; font-weight: 700; color: #fff; letter-spacing: 1px; }
+  .card-tag { margin-left: auto; font-family: 'Share Tech Mono'; font-size: 9px; padding: 2px 8px; border: 1px solid currentColor; }
+  .tag-core { color: var(--accent); }
+  .tag-sensor { color: var(--accent2); }
+  .tag-comm { color: var(--accent3); }
+  .tag-power { color: var(--accent4); }
+
+  /* COMPONENT ITEMS */
+  .comp-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+  .comp-item {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 8px 10px; background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.05); font-size: 13px;
+    transition: background 0.2s;
+  }
+  .comp-item:hover { background: rgba(0,200,255,0.05); }
+  .comp-bullet { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
+  .bull-blue { background: var(--accent); box-shadow: 0 0 6px var(--accent); }
+  .bull-green { background: var(--accent2); box-shadow: 0 0 6px var(--accent2); }
+  .bull-orange { background: var(--accent3); box-shadow: 0 0 6px var(--accent3); }
+  .bull-yellow { background: var(--accent4); box-shadow: 0 0 6px var(--accent4); }
+  .bull-red { background: var(--warn); box-shadow: 0 0 6px var(--warn); }
+  .comp-name { color: var(--text); font-weight: 600; }
+  .comp-desc { color: var(--text-dim); font-size: 11px; margin-top: 2px; font-family: 'Share Tech Mono'; }
+
+  /* SCHEMATIC DIAGRAM */
+  .schematic-container {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    padding: 30px;
+    margin-bottom: 20px;
+    position: relative;
+  }
+  .schematic-title {
+    font-family: 'Share Tech Mono';
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 3px;
+    margin-bottom: 24px;
+    text-transform: uppercase;
+  }
+
+  /* FLOW DIAGRAM */
+  .flow { display: flex; flex-direction: column; gap: 0; }
+  .flow-row { display: flex; align-items: center; justify-content: center; gap: 0; flex-wrap: wrap; }
+  .flow-node {
+    background: var(--panel2);
+    border: 1px solid var(--border);
+    padding: 10px 16px;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    text-align: center;
+    min-width: 120px;
+    position: relative;
+    transition: all 0.3s;
+    cursor: default;
+  }
+  .flow-node:hover { border-color: var(--accent); box-shadow: var(--glow); z-index: 2; }
+  .node-label { font-family: 'Share Tech Mono'; font-size: 9px; color: var(--text-dim); display: block; margin-bottom: 3px; }
+  .node-main { color: #fff; font-size: 13px; }
+  .flow-node.primary { border-color: var(--accent); background: rgba(0,200,255,0.08); }
+  .flow-node.secondary { border-color: var(--accent2); }
+  .flow-node.warning { border-color: var(--accent3); }
+  .flow-arrow { color: var(--text-dim); font-size: 18px; padding: 0 6px; }
+  .flow-down { display: flex; justify-content: center; padding: 8px 0; color: var(--text-dim); font-size: 20px; }
+  .flow-group { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+
+  /* BOM TABLE */
+  .bom-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .bom-table th {
+    background: rgba(0,200,255,0.1);
+    color: var(--accent);
+    font-family: 'Share Tech Mono';
+    font-size: 10px;
+    letter-spacing: 2px;
+    padding: 10px 14px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+    text-transform: uppercase;
+  }
+  .bom-table td { padding: 9px 14px; border-bottom: 1px solid rgba(255,255,255,0.04); }
+  .bom-table tr:hover td { background: rgba(0,200,255,0.03); }
+  .bom-table tr:last-child td { border-bottom: none; }
+  .qty-badge { display: inline-block; padding: 1px 8px; border: 1px solid var(--border); font-family: 'Share Tech Mono'; font-size: 10px; color: var(--accent); }
+  .cat-badge { display: inline-block; padding: 1px 8px; font-family: 'Share Tech Mono'; font-size: 9px; border-radius: 0; }
+  .cat-core { background: rgba(0,200,255,0.15); color: var(--accent); }
+  .cat-sensor { background: rgba(0,255,157,0.12); color: var(--accent2); }
+  .cat-comm { background: rgba(255,107,53,0.15); color: var(--accent3); }
+  .cat-power { background: rgba(255,215,0,0.12); color: var(--accent4); }
+  .cat-mec { background: rgba(255,68,68,0.12); color: var(--warn); }
+  .cat-soft { background: rgba(160,100,255,0.15); color: #c084fc; }
+
+  .price-col { color: var(--accent2); font-family: 'Share Tech Mono'; font-size: 11px; }
+  .total-row td { background: rgba(0,200,255,0.08) !important; border-top: 1px solid var(--accent) !important; font-weight: 700; }
+
+  /* SIGNAL FLOW */
+  .signal-block {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 0;
+    margin-bottom: 6px;
+  }
+  .sig-source, .sig-dest {
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    background: var(--panel2);
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .sig-source { text-align: right; border-color: var(--accent2); }
+  .sig-dest { border-color: var(--accent3); }
+  .sig-arrow {
+    padding: 0 10px;
+    text-align: center;
+    font-family: 'Share Tech Mono';
+    font-size: 10px;
+    color: var(--text-dim);
+    white-space: nowrap;
+  }
+
+  /* STATUS PANEL */
+  .status-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
+  .status-item {
+    background: var(--panel2);
+    border: 1px solid var(--border);
+    padding: 14px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .status-item::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 3px;
+  }
+  .status-item.ok::after { background: var(--accent2); }
+  .status-item.warn::after { background: var(--accent4); }
+  .status-item.crit::after { background: var(--warn); }
+  .status-icon { font-size: 28px; margin-bottom: 6px; }
+  .status-label { font-family: 'Share Tech Mono'; font-size: 9px; color: var(--text-dim); letter-spacing: 2px; }
+  .status-val { font-family: 'Orbitron', sans-serif; font-size: 18px; font-weight: 700; color: #fff; margin: 4px 0; }
+  .status-unit { font-size: 10px; color: var(--text-dim); }
+
+  /* SECTION HEADING */
+  .section-heading {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin: 24px 0 14px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-heading::before { content: '//'; color: var(--text-dim); font-family: 'Share Tech Mono'; font-size: 12px; }
+
+  /* ALERT BAND */
+  .alert-band {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 16px;
+    border: 1px solid;
+    margin-bottom: 8px;
+    font-size: 13px;
+  }
+  .alert-band.info { border-color: var(--accent); background: rgba(0,200,255,0.06); color: var(--accent); }
+  .alert-band.ok { border-color: var(--accent2); background: rgba(0,255,157,0.06); color: var(--accent2); }
+  .alert-band.danger { border-color: var(--warn); background: rgba(255,68,68,0.06); color: var(--warn); }
+  .alert-icon { font-size: 16px; flex-shrink: 0; }
+  .alert-text { font-family: 'Rajdhani', sans-serif; font-weight: 600; }
+  .alert-sub { font-family: 'Share Tech Mono'; font-size: 10px; color: var(--text-dim); }
+
+  /* FOOTER */
+  footer {
+    text-align: center;
+    padding: 30px;
+    margin-top: 40px;
+    border-top: 1px solid var(--border);
+    font-family: 'Share Tech Mono';
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 2px;
+  }
+  footer span { color: var(--accent); }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); }
+  ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+  .highlight { color: var(--accent); }
+  .highlight2 { color: var(--accent2); }
+
+  .note-box {
+    background: rgba(0,200,255,0.04);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    padding: 12px 16px;
+    margin-top: 14px;
+    font-size: 12px;
+    color: var(--text-dim);
+    font-family: 'Share Tech Mono';
+    line-height: 1.7;
+  }
+
+  @media (max-width: 600px) {
+    .tabs { flex-direction: column; }
+    .bom-table { font-size: 11px; }
+    .bom-table td, .bom-table th { padding: 6px 8px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrapper">
+
+  <header>
+    <div class="title-sub">// DRONEZO SYSTEMS — DOCUMENT TEHNIC //</div>
+    <h1>SCHEMĂ TEHNICĂ COMPLETĂ<br>DRONĂ INDUSTRIALĂ</h1>
+    <div class="title-badge">REV 1.0 · CLASIFICARE: TEHNIC · INGINERIE SISTEME</div>
+  </header>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <div class="tab active" onclick="showTab('overview')">📐 Arhitectură</div>
+    <div class="tab" onclick="showTab('core')">🖥️ Placă de Bază</div>
+    <div class="tab" onclick="showTab('sensors')">📡 Senzori</div>
+    <div class="tab" onclick="showTab('comm')">📶 Comunicații</div>
+    <div class="tab" onclick="showTab('power')">⚡ Alimentare</div>
+    <div class="tab" onclick="showTab('bom')">📋 Listă Materiale</div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       TAB 1 — ARHITECTURĂ GENERALĂ
+  ══════════════════════════════════════════ -->
+  <div id="tab-overview" class="section active">
+
+    <div class="schematic-container">
+      <div class="schematic-title">// DIAGRAMĂ FLUX SISTEM — NIVEL SUPERIOR</div>
+
+      <!-- Nivel 1: Baza -->
+      <div class="flow">
+        <div class="flow-row">
+          <div class="flow-node primary">
+            <span class="node-label">GROUND STATION</span>
+            <span class="node-main">🖥️ BAZĂ DE CONTROL</span>
+          </div>
+        </div>
+        <div class="flow-down">⇅</div>
+
+        <!-- Nivel 2: Link -->
+        <div class="flow-row">
+          <div class="flow-node" style="border-color:var(--accent3); min-width:300px;">
+            <span class="node-label">DATALINK / RF LINK</span>
+            <span class="node-main">📶 TELEMETRIE BIDIRECȚIONALĂ · CONTROL C2</span>
+          </div>
+        </div>
+        <div class="flow-down">⇅</div>
+
+        <!-- Nivel 3: FCU -->
+        <div class="flow-row">
+          <div class="flow-node primary" style="min-width:280px; padding:14px 20px;">
+            <span class="node-label">FLIGHT COMPUTER UNIT</span>
+            <span class="node-main" style="font-size:15px;">⚙️ PLACĂ DE BAZĂ PRINCIPALĂ</span>
+          </div>
+        </div>
+        <div class="flow-down">⇓</div>
+
+        <!-- Nivel 4: Magistrale -->
+        <div class="flow-row" style="gap:6px;">
+          <div class="flow-node secondary" style="min-width:100px; font-size:11px; padding:8px 10px;">
+            <span class="node-label">BUS</span>
+            <span class="node-main">I²C</span>
+          </div>
+          <div class="flow-node secondary" style="min-width:100px; font-size:11px; padding:8px 10px;">
+            <span class="node-label">BUS</span>
+            <span class="node-main">SPI</span>
+          </div>
+          <div class="flow-node secondary" style="min-width:100px; font-size:11px; padding:8px 10px;">
+            <span class="node-label">BUS</span>
+            <span class="node-main">UART</span>
+          </div>
+          <div class="flow-node secondary" style="min-width:100px; font-size:11px; padding:8px 10px;">
+            <span class="node-label">BUS</span>
+            <span class="node-main">CAN</span>
+          </div>
+          <div class="flow-node secondary" style="min-width:100px; font-size:11px; padding:8px 10px;">
+            <span class="node-label">BUS</span>
+            <span class="node-main">PWM/DSHOT</span>
+          </div>
+        </div>
+        <div class="flow-down">⇓</div>
+
+        <!-- Nivel 5: Subsisteme -->
+        <div class="flow-group">
+          <div class="flow-node" style="border-color:#00ff9d; min-width:140px; text-align:center;">
+            <span class="node-label">SUBSISTEM</span>
+            <span class="node-main">🔋 Baterie &amp;<br>Power Mgmt</span>
+          </div>
+          <div class="flow-node" style="border-color:#00c8ff; min-width:140px; text-align:center;">
+            <span class="node-label">SUBSISTEM</span>
+            <span class="node-main">🧭 Senzori<br>Navigație</span>
+          </div>
+          <div class="flow-node" style="border-color:#ffd700; min-width:140px; text-align:center;">
+            <span class="node-label">SUBSISTEM</span>
+            <span class="node-main">🌡️ Senzori<br>Mediu</span>
+          </div>
+          <div class="flow-node" style="border-color:#ff6b35; min-width:140px; text-align:center;">
+            <span class="node-label">SUBSISTEM</span>
+            <span class="node-main">🔧 Motoare &amp;<br>ESC</span>
+          </div>
+          <div class="flow-node" style="border-color:#c084fc; min-width:140px; text-align:center;">
+            <span class="node-label">SUBSISTEM</span>
+            <span class="node-main">📷 Cameră &amp;<br>Payload</span>
+          </div>
+          <div class="flow-node" style="border-color:#ff4444; min-width:140px; text-align:center;">
+            <span class="node-label">SUBSISTEM</span>
+            <span class="node-main">🚨 Fail-Safe &amp;<br>Avarii</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-heading">Caracteristici Sistem</div>
+    <div class="status-grid">
+      <div class="status-item ok">
+        <div class="status-icon">⚡</div>
+        <div class="status-label">TENSIUNE NOMINALĂ</div>
+        <div class="status-val">22.2V</div>
+        <div class="status-unit">6S LiPo</div>
+      </div>
+      <div class="status-item ok">
+        <div class="status-icon">🔄</div>
+        <div class="status-label">FRECVENȚĂ BUCLĂ</div>
+        <div class="status-val">400Hz</div>
+        <div class="status-unit">PID Loop</div>
+      </div>
+      <div class="status-item ok">
+        <div class="status-icon">📡</div>
+        <div class="status-label">RAZA CONTROL</div>
+        <div class="status-val">15km</div>
+        <div class="status-unit">RF datalink</div>
+      </div>
+      <div class="status-item warn">
+        <div class="status-icon">🛰️</div>
+        <div class="status-label">GPS PRECIZIE</div>
+        <div class="status-val">±1m</div>
+        <div class="status-unit">RTK activat</div>
+      </div>
+      <div class="status-item ok">
+        <div class="status-icon">🕐</div>
+        <div class="status-label">AUTONOMIE</div>
+        <div class="status-val">45min</div>
+        <div class="status-unit">la sarcină normală</div>
+      </div>
+      <div class="status-item ok">
+        <div class="status-icon">⚖️</div>
+        <div class="status-label">SARCINĂ UTILĂ</div>
+        <div class="status-val">2.5kg</div>
+        <div class="status-unit">max payload</div>
+      </div>
+    </div>
+
+    <div class="section-heading">Alertele Sistemului de Monitorizare</div>
+    <div class="alert-band danger">
+      <span class="alert-icon">🚨</span>
+      <div>
+        <div class="alert-text">AVARIE MOTOR — monitorizare continuă curent &amp; rpm</div>
+        <div class="alert-sub">TRIGGER: deviație >15% față de baseline · ACTION: failsafe automat, aterizare de urgență</div>
+      </div>
+    </div>
+    <div class="alert-band danger">
+      <span class="alert-icon">🔋</span>
+      <div>
+        <div class="alert-text">BATERIE CRITICĂ — nivel celulă sub 3.4V</div>
+        <div class="alert-sub">TRIGGER: &lt;20% capacitate · ACTION: RTH (Return to Home) forțat</div>
+      </div>
+    </div>
+    <div class="alert-band ok">
+      <span class="alert-icon">📡</span>
+      <div>
+        <div class="alert-text">PIERDERE SEMNAL — timeout datalink</div>
+        <div class="alert-sub">TRIGGER: &gt;2s fără legătură · ACTION: misiune autonomă predefinită sau RTH</div>
+      </div>
+    </div>
+    <div class="alert-band info">
+      <span class="alert-icon">💧</span>
+      <div>
+        <div class="alert-text">NIVEL LICHIDE — rezervor aplicare (spray agricol / stingere)</div>
+        <div class="alert-sub">TRIGGER: &lt;10% volum · ACTION: avertisment + estimare timp rămas</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       TAB 2 — PLACĂ DE BAZĂ / FCU
+  ══════════════════════════════════════════ -->
+  <div id="tab-core" class="section">
+    <div class="grid grid-2">
+
+      <div class="card blue">
+        <div class="card-header">
+          <span class="card-icon">🖥️</span>
+          <div>
+            <div class="card-title">UNITATE CENTRALĂ DE ZBOR (FCU)</div>
+          </div>
+          <span class="card-tag tag-core">CORE</span>
+        </div>
+        <ul class="comp-list">
+          <li class="comp-item">
+            <span class="comp-bullet bull-blue"></span>
+            <div>
+              <div class="comp-name">Procesor principal — STM32H7 / Pixhawk 6X</div>
+              <div class="comp-desc">ARM Cortex-M7 @ 480MHz · FPU · 2MB Flash · 1MB RAM</div>
+            </div>
+          </li>
+          <li class="comp-item">
+            <span class="comp-bullet bull-blue"></span>
+            <div>
+              <div class="comp-name">Coprocesor — STM32F4 (I/O dedicat)</div>
+              <div class="comp-desc">Gestionare PWM/DSHOT · failsafe hardware independent</div>
+            </div>
+          </li>
+          <li class="comp-item">
+            <span class="comp-bullet bull-blue"></span>
+            <div>
+              <div class="comp-name">Stocare — microSD + NAND Flash intern</div>
+              <div class="comp-desc">Jurnal de zbor · telemetrie offline · black-box date</div>
+            </div>
+          </li>
+          <li class="comp-item">
+            <span class="comp-bullet bull-blue"></span>
+            <div>
+              <div class="comp-name">IMU x2 (redundanță) — ICM-42688-P</div>
+              <div class="comp-desc">Accelerometru + giroscop 6DOF · 32kHz sampling</div>
+            </div>
+          </li>
+          <li class="comp-item">
+            <span class="comp-bullet bull-blue"></span>
+            <div>
+              <div class="comp-name">Busuri I/O</div>
+              <div class="comp-desc">I²C × 2 · SPI × 3 · UART × 8 · CAN-FD × 2 · USB-C · PPM/SBUS</div>
+            </div>
+          </li>
+        </ul>
+      </div>
+
+      <div class="card blue">
+        <div class="card-header">
+          <span class="card-icon">📝</span>
+          <div>
+            <div class="card-title">STACK SOFTWARE CONTROL</div>
+          </div>
+          <span class="card-tag tag-core">FIRMWARE</span>
+        </div>
+        <ul class="comp-list">
+          <li class="comp-item">
+            <span class="comp-bullet bull-green"></span>
+            <div>
+              <div class="comp-name">PX4 Autopilot (open-source, industrial grade)</div>
+              <div class="comp-desc">RTOS · bucle PID multistrat · planificator misiuni</div>
+            </div>
+          </li>
+          <li class="comp-item">
+            <span class="comp-bullet bull-green"></span>
+            <div>
+              <div class="comp-name">Estimator stare — EKF2 (Kalman extins)</div>
+              <div class="comp-desc">Fuzionare GPS + IMU + baro + mag · stare 3D precisă</div>
+            </div>
+          </li>
+          <li class="comp-item">
+            <span class="comp-bullet bull-green"></span>
+            <div>
+              <div class="comp-name">Modulul de telemetrie — MAVLink 2.0</div>
+              <div class="comp-desc">Protocol standard · mesaje heartbeat, senzori, stare</div>
+            </div>
+          </li>
+          <li class="comp-item">
+            <span class="comp-bullet bull-green"></span>
+            <div>
+              <div class="comp-name">Geofencing + planificare traiectorie</div>
+              <div class="comp-desc">Zone interzise · waypoint missions · orbit · grid scan</div>
+            </div>
+          </li>
+          <li class="comp-item">
+            <span class="comp-bullet bull-orange"></span>
+            <div>
+              <div class="comp-name">Companion Computer (Raspberry Pi 5 / Jetson)</div>
+              <div class="comp-desc">Computer vision · procesare payload · AI la bord</div>
+            </div>
+          </li>
+          <li class="comp-item">
+            <span class="comp-bullet bull-red"></span>
+            <div>
+              <div class="comp-name">Watchdog hardware + Failsafe Manager</div>
+              <div class="comp-desc">Reboot automat · detectare stare anormală · RTH forțat</div>
+            </div>
+          </li>
+        </ul>
+      </div>
+
+      <div class="card orange">
+        <div class="card-header">
+          <span class="card-icon">🔧</span>
+          <div>
+            <div class="card-title">MOTOARE + ESC</div>
+          </div>
+          <span class="card-tag tag-comm">ACȚIONARE</span>
+        </div>
+        <ul class="comp-list">
+          <li class="comp-item">
+            <span class="comp-bullet bull-orange"></span>
+            <div>
+              <div class="comp-name">Motoare brushless 4114 / 4006 KV380</div>
+              <div class="comp-desc">4–8 motoare · eficiență >90% · senzori de curent pe fiecare</div>
+            </div>
+          </li>
+          <li class="comp-item">
+            <span class="comp-bullet bull-orange"></span>
+            <div>
+              <div class="comp-name">ESC inteligent cu telemetrie — BLHeli32 / AM32</div>
+              <div class="comp-desc">Protocol DSHOT600 · raportare rpm, curent, temp, avarii</div>
+            </div>
+          </li>
+          <li class="comp-item">
+            <span class="comp-bullet bull-red"></span>
+            <div>
+              <div class="comp-name">Detectare avarie motor</div>
+              <div class="comp-desc">Monitorizare curent + rpm + vibrații · alert dacă deviere >15%</div>
+            </div>
+          </li>
+          <li class="comp-item">
+            <span class="comp-bullet bull-orange"></span>
+            <div>
+              <div class="comp-name">Senzor curent pe magistrala principală (Hall Effect)</div>
+              <div class="comp-desc">Shunt 200A · precizie ±0.5% · integrare mAh consumat</div>
+            </div>
+          </li>
+        </ul>
+      </div>
+
+      <div class="card yellow">
+        <div class="card-header">
+          <span class="card-icon">⚙️</span>
+          <div>
+            <div class="card-title">MANAGEMENT DISTRIBUȚIE PUTERE</div>
+          </div>
+          <span class="card-tag tag-power">POWER</span>
+        </div>
+        <ul class="comp-list">
+          <li class="comp-item">
+            <span class="comp-bullet bull-yellow"></span>
+            <div>
+              <div class="comp-name">PDB (Power Distribution Board) cu eFuse</div>
+              <div class="comp-desc">Protecție scurtcircuit per motor · siguranțe resetabile</div>
+            </div>
+          </li>
+          <li class="comp-item">
+            <span class="comp-bullet bull-yellow"></span>
+            <div>
+              <div class="comp-name">BEC × 3 (regulatoare liniare)</div>
+              <div class="comp-desc">5V/3A pentru avionică · 12V pentru gimbal/cameră · 3.3V digital</div>
+            </div>
+          </li>
+          <li class="comp-item">
+            <span class="comp-bullet bull-yellow"></span>
+            <div>
+              <div class="comp-name">Senzor tensiune per celulă LiPo — BMS integrat</div>
+              <div class="comp-desc">Balansare activă · detectare celulă defectă · alertă critică</div>
+            </div>
+          </li>
+          <li class="comp-item">
+            <span class="comp-bullet bull-yellow"></span>
+            <div>
+              <div class="comp-name">Hot-swap redundanță baterie</div>
+              <div class="comp-desc">Două pachete paralel · comutare automată la defect</div>
+            </div>
+          </li>
+        </ul>
+      </div>
+
+    </div>
+
+    <div class="note-box">
+      💡 NOTĂ ARHITECTURĂ: Sistemul este proiectat cu redundanță dublă pe IMU, GPS și alimentare. Orice componentă critică are un backup care preia automat dacă principalul eșuează. FCU-ul gestionează toate subsistemele prin magistrale CAN-FD (robust la zgomot electromagnetic).
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       TAB 3 — SENZORI
+  ══════════════════════════════════════════ -->
+  <div id="tab-sensors" class="section">
+
+    <div class="section-heading">Senzori de Navigație și Poziție</div>
+    <div class="grid grid-2">
+
+      <div class="card green">
+        <div class="card-header">
+          <span class="card-icon">🛰️</span>
+          <div><div class="card-title">GPS / GNSS + RTK</div></div>
+          <span class="card-tag tag-sensor">NAV</span>
+        </div>
+        <ul class="comp-list">
+          <li class="comp-item"><span class="comp-bullet bull-green"></span>
+            <div><div class="comp-name">u-blox F9P — GPS/GLONASS/Galileo/BeiDou</div>
+            <div class="comp-desc">RTK precizie ±1cm · 10Hz refresh · heading dual-antenna</div></div>
+          </li>
+          <li class="comp-item"><span class="comp-bullet bull-green"></span>
+            <div><div class="comp-name">GPS secundar (redundanță) — u-blox M9N</div>
+            <div class="comp-desc">Backup automat · multi-band L1/L2</div></div>
+          </li>
+          <li class="comp-item"><span class="comp-bullet bull-green"></span>
+            <div><div class="comp-name">Barometru — MS5611 × 2</div>
+            <div class="comp-desc">Altitudine ±0.1m · 24-bit ADC · compensare temperatură</div></div>
+          </li>
+          <li class="comp-item"><span class="comp-bullet bull-green"></span>
+            <div><div class="comp-name">Magnetometru — RM3100 + IST8310</div>
+            <div class="comp-desc">Heading 3D · calibrare automată · rejecție perturbații</div></div>
+          </li>
+        </ul>
+      </div>
+
+      <div class="card green">
+        <div class="card-header">
+          <span class="card-icon">👁️</span>
+          <div><div class="card-title">SENZORI EVITARE OBSTACOLE</div></div>
+          <span class="card-tag tag-sensor">LIDAR/SONAR</span>
+        </div>
+        <ul class="comp-list">
+          <li class="comp-item"><span class="comp-bullet bull-green"></span>
+            <div><div class="comp-name">Lidar ToF — Benewake TF-Luna × 4</div>
+            <div class="comp-desc">Față / spate / stânga / dreapta · 8m range · 100Hz</div></div>
+          </li>
+          <li class="comp-item"><span class="comp-bullet bull-green"></span>
+            <div><div class="comp-name">Senzor optical flow — PMW3901</div>
+            <div class="comp-desc">Poziție fără GPS la zbor jos · indoor navigation</div></div>
+          </li>
+          <li class="comp-item"><span class="comp-bullet bull-green"></span>
+            <div><div class="comp-name">Sonar altitudine sol — MaxSonar EZ4</div>
+            <div class="comp-desc">0-5m · aterizare precisă · detectare teren neuniform</div></div>
+          </li>
+          <li class="comp-item"><span class="comp-bullet bull-yellow"></span>
+            <div><div class="comp-name">Cameră depth (opțional) — Intel RealSense D435</div>
+            <div class="comp-desc">Nuvol de puncte 3D · cartografiere obstacole</div></div>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="section-heading">Senzori Stare și Diagnosticare</div>
+    <div class="grid grid-3">
+
+      <div class="card yellow">
+        <div class="card-header">
+          <span class="card-icon">🔋</span>
+          <div><div class="card-title">BATERIE & ENERGIE</div></div>
+          <span class="card-tag tag-power">POWER</span>
+        </div>
+        <ul class="comp-list">
+          <li class="comp-item"><span class="comp-bullet bull-yellow"></span>
+            <div><div class="comp-name">Voltmetru per celulă — INA226</div>
+            <div class="comp-desc">6S × celulă · 16-bit · I²C · alert sub 3.4V/celulă</div></div>
+          </li>
+          <li class="comp-item"><span class="comp-bullet bull-yellow"></span>
+            <div><div class="comp-name">Ampermetru magistrală — INA3221</div>
+            <div class="comp-desc">3 canale simultanee · curent total + per subsistem</div></div>
+          </li>
+          <li class="comp-item"><span class="comp-bullet bull-yellow"></span>
+            <div><div class="comp-name">Termometru baterie — NTC 10kΩ × 3</div>
+            <div class="comp-desc">Temperaturi 3 puncte · alert >60°C · reducere putere auto</div></div>
+          </li>
+          <li class="comp-item"><span class="comp-bullet bull-yellow"></span>
+            <div><div class="comp-name">Indicator mAh consumat (coulomb counter)</div>
+            <div class="comp-desc">Integrare precisă consum · estimare timp rămas</div></div>
+          </li>
+        </ul>
+      </div>
+
+      <div class="card red">
+        <div class="card-header">
+          <span class="card-icon">🌡️</span>
+          <div><div class="card-title">SENZORI MEDIU AMBIANT</div></div>
+          <span class="card-tag tag-sensor">ENV</span>
+        </div>
+        <ul class="comp-list">
+          <li class="comp-item"><span class="comp-bullet bull-red"></span>
+            <div><div class="comp-name">Temperatură + umiditate — SHT40</div>
+            <div class="comp-desc">±0.1°C · ±1.5%RH · I²C · exterior și interior carcasă</div></div>
+          </li>
+          <li class="comp-item"><span class="comp-bullet bull-red"></span>
+            <div><div class="comp-name">Senzor vânt (anemometru sonic)</div>
+            <div class="comp-desc">Viteza + direcția vântului · compensare drift</div></div>
+          </li>
+          <li class="comp-item"><span class="comp-bullet bull-red"></span>
+            <div><div class="comp-name">Senzor gaze (CO, CO₂, CH₄) — opțional</div>
+            <div class="comp-desc">Inspecție instalații gaz · misiuni HAZMAT</div></div>
+          </li>
+          <li class="comp-item"><span class="comp-bullet bull-red"></span>
+            <div><div class="comp-name">Senzor precipitații / umiditate (rezistiv)</div>
+            <div class="comp-desc">Detectare ploaie · protecție automată carcasă</div></div>
+          </li>
+        </ul>
+      </div>
+
+      <div class="card orange">
+        <div class="card-header">
+          <span class="card-icon">🔧</span>
+          <div><div class="card-title">DIAGNOSTICARE MECANICĂ</div></div>
+          <span class="card-tag tag-comm">MECH</span>
+        </div>
+        <ul class="comp-list">
+          <li class="comp-item"><span class="comp-bullet bull-orange"></span>
+            <div><div class="comp-name">Senzor vibrații — ADXL345 (per braț)</div>
+            <div class="comp-desc">Detectare dezechilibru elice · uzură rulmenți motor</div></div>
+          </li>
+          <li class="comp-item"><span class="comp-bullet bull-orange"></span>
+            <div><div class="comp-name">Curent ESC per motor — monitorizare continuă</div>
+            <div class="comp-desc">Spike curent = blocare motor sau elice ruptă</div></div>
+          </li>
+          <li class="comp-item"><span class="comp-bullet bull-orange"></span>
+            <div><div class="comp-name">Senzor RPM optic / Hall per motor</div>
+            <div class="comp-desc">Turaţie reală vs. comandată · detecție slip</div></div>
+          </li>
+          <li class="comp-item"><span class="comp-bullet bull-orange"></span>
+            <div><div class="comp-name">Senzor nivel lichid rezervor (capacitiv)</div>
+            <div class="comp-desc">Agrar/pompieri · 0-100% · alert golire imminentă</div></div>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="note-box">
+      ⚠️ MONITORIZARE AVARII: Sistemul loghează continuu datele tuturor senzorilor la 10Hz. Algoritmul de anomalie detectează devieri față de valorile de referință (baseline flight). Orice abatere semnificativă declanșează o alertă în timp real transmisă la stația de bază prin MAVLink.
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       TAB 4 — COMUNICAȚII
+  ══════════════════════════════════════════ -->
+  <div id="tab-comm" class="section">
+
+    <div class="section-heading">Arhitectura de Comunicații</div>
+
+    <div class="schematic-container">
+      <div class="schematic-title">// FLUX DATE — DRONĂ ↔ STAȚIE BAZĂ</div>
+
+      <div class="signal-block">
+        <div class="sig-source">📡 Antenă 5.8GHz (video FPV)</div>
+        <div class="sig-arrow">───── VIDEO HD ─────→</div>
+        <div class="sig-dest">📺 Monitor / OSD stație</div>
+      </div>
+      <div class="signal-block">
+        <div class="sig-source">📡 Antenă 2.4GHz / 915MHz</div>
+        <div class="sig-arrow">←─── CONTROL RC ──────</div>
+        <div class="sig-dest">🕹️ Telecomandă pilot</div>
+      </div>
+      <div class="signal-block">
+        <div class="sig-source">📡 Antenă telemetrie 915MHz</div>
+        <div class="sig-arrow">⇆─── MAVLink TELEM ───</div>
+        <div class="sig-dest">🖥️ GCS (QGroundControl)</div>
+      </div>
+      <div class="signal-block">
+        <div class="sig-source">📡 LTE/5G (modem SIM)</div>
+        <div class="sig-arrow">⇆─── DATE CLOUD ──────</div>
+        <div class="sig-dest">☁️ DroneZone Backend</div>
+      </div>
+      <div class="signal-block">
+        <div class="sig-source">📡 ADS-B OUT (transponder)</div>
+        <div class="sig-arrow">──── ADSB BROADCAST ──→</div>
+        <div class="sig-dest">✈️ Trafic aerian / ATM</div>
+      </div>
+    </div>
+
+    <div class="grid grid-2">
+
+      <div class="card orange">
+        <div class="card-header">
+          <span class="card-icon">📶</span>
+          <div><div class="card-title">LINK CONTROL ȘI TELEMETRIE</div></div>
+          <span class="card-tag tag-comm">RF</span>
+        </div>
+        <ul class="comp-list">
+          <li class="comp-item"><span class="comp-bullet bull-orange"></span>
+            <div><div class="comp-name">Sistem radio C2 — ExpressLRS / Crossfire</div>
+            <div class="comp-desc">915MHz/2.4GHz · latență &lt;5ms · range 30+km · criptare AES</div></div>
+          </li>
+          <li class="comp-item"><span class="comp-bullet bull-orange"></span>
+            <div><div class="comp-name">Telemetrie MAVLink — RFD900x / SiK Radio</div>
+            <div class="comp-desc">915MHz · 500kbps · range 15km · FHSS frequency hopping</div></div>
+          </li>
+          <li class="comp-item"><span class="comp-bullet bull-orange"></span>
+            <div><div class="comp-name">Video downlink — Herelink / DJI O3</div>
+            <div class="comp-desc">1080p60 · 2.4/5.8GHz · latență &lt;30ms · criptare end-to-end</div></div>
+          </li>
+          <li class="comp-item"><span class="comp-bullet bull-orange"></span>
+            <div><div class="comp-name">4G/5G modem — Quectel RM520N-GL</div>
+            <div class="comp-desc">LTE failback · conectare cloud · streaming date senzori</div></div>
+          </li>
+        </ul>
+      </div>
+
+      <div class="card orange">
+        <div class="card-header">
+          <span class="card-icon">📡</span>
+          <div><div class="card-title">TRANSPONDERE ȘI IDENTIFICARE</div></div>
+          <span class="card-tag tag-comm">TRANSPONDER</span>
+        </div>
+        <ul class="comp-list">
+          <li class="comp-item"><span class="comp-bullet bull-red"></span>
+            <div><div class="comp-name">ADS-B OUT + IN — uAvionix pingUSB / Sagetech MXS</div>
+            <div class="comp-desc">1090MHz · poziție GPS broadcast · detecție trafic vecin</div></div>
+          </li>
+          <li class="comp-item"><span class="comp-bullet bull-orange"></span>
+            <div><div class="comp-name">Remote ID (EU/US conform) — uAvionix truFYX</div>
+            <div class="comp-desc">Broadcast WiFi + BT · ID operaror · poziție · altitudine</div></div>
+          </li>
+          <li class="comp-item"><span class="comp-bullet bull-orange"></span>
+            <div><div class="comp-name">Beacon anti-coliziune — Strobe LED + IR</div>
+            <div class="comp-desc">Vizibilitate nocturnă · FAR 107 compliant</div></div>
+          </li>
+          <li class="comp-item"><span class="comp-bullet bull-yellow"></span>
+            <div><div class="comp-name">Receptor SBUS / PPM (RC backup)</div>
+            <div class="comp-desc">Canal dedic backup control manual în caz de defect datalink</div></div>
+          </li>
+        </ul>
+      </div>
+
+      <div class="card blue">
+        <div class="card-header">
+          <span class="card-icon">🔗</span>
+          <div><div class="card-title">ANTENE</div></div>
+          <span class="card-tag tag-core">RF</span>
+        </div>
+        <ul class="comp-list">
+          <li class="comp-item"><span class="comp-bullet bull-blue"></span>
+            <div><div class="comp-name">Antenă omnidirecțională 915MHz (telemetrie)</div>
+            <div class="comp-desc">Fiberglass 5dBi · polarizare circulară · IP65</div></div>
+          </li>
+          <li class="comp-item"><span class="comp-bullet bull-blue"></span>
+            <div><div class="comp-name">Antenă dipol 2.4GHz (RC + WiFi RemoteID)</div>
+            <div class="comp-desc">Dual-band · integrat în braț · minimizare masă</div></div>
+          </li>
+          <li class="comp-item"><span class="comp-bullet bull-blue"></span>
+            <div><div class="comp-name">Antenă 5.8GHz (video FPV)</div>
+            <div class="comp-desc">Patch + clover-leaf combo · LHCP polarizare</div></div>
+          </li>
+          <li class="comp-item"><span class="comp-bullet bull-blue"></span>
+            <div><div class="comp-name">Antenă GPS activa ceramică patch</div>
+            <div class="comp-desc">L1/L2/L5 · plan de masă corect · &gt;40dBHz C/N₀</div></div>
+          </li>
+          <li class="comp-item"><span class="comp-bullet bull-blue"></span>
+            <div><div class="comp-name">Antenă 1090MHz (ADS-B)</div>
+            <div class="comp-desc">1/4 undă · SMA · montaj axial superior</div></div>
+          </li>
+        </ul>
+      </div>
+
+      <div class="card blue">
+        <div class="card-header">
+          <span class="card-icon">☁️</span>
+          <div><div class="card-title">INTEGRARE CLOUD — DRONEZONE</div></div>
+          <span class="card-tag tag-core">API</span>
+        </div>
+        <ul class="comp-list">
+          <li class="comp-item"><span class="comp-bullet bull-green"></span>
+            <div><div class="comp-name">Streaming telemetrie real-time → DroneZone</div>
+            <div class="comp-desc">WebSocket · JSON compact · 1Hz date senzori · alertă push</div></div>
+          </li>
+          <li class="comp-item"><span class="comp-bullet bull-green"></span>
+            <div><div class="comp-name">Sincronizare jurnal zbor post-misiune</div>
+            <div class="comp-desc">Upload automat microSD → cloud · analiză istorică</div></div>
+          </li>
+          <li class="comp-item"><span class="comp-bullet bull-yellow"></span>
+            <div><div class="comp-name">MQTT broker pentru senzori IoT</div>
+            <div class="comp-desc">Protocool ușor · QoS guaranteed · retenție mesaje</div></div>
+          </li>
+          <li class="comp-item"><span class="comp-bullet bull-orange"></span>
+            <div><div class="comp-name">Alertă SMS / email la avarie</div>
+            <div class="comp-desc">Webhook → notificare operator în &lt;3s de la eveniment</div></div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       TAB 5 — ALIMENTARE
+  ══════════════════════════════════════════ -->
+  <div id="tab-power" class="section">
+
+    <div class="section-heading">Arhitectura de Alimentare</div>
+    <div class="grid grid-2">
+
+      <div class="card yellow">
+        <div class="card-header">
+          <span class="card-icon">🔋</span>
+          <div><div class="card-title">SURSA PRINCIPALĂ — BATERIE LiPo/Li-Ion</div></div>
+          <span class="card-tag tag-power">BATERIE</span>
+        </div>
+        <ul class="comp-list">
+          <li class="comp-item"><span class="comp-bullet bull-yellow"></span>
+            <div><div class="comp-name">Baterie LiPo 6S 22.2V — 16.000-22.000mAh</div>
+            <div class="comp-desc">Descărcare 30C · conector AS150 · 1.2-1.8kg masă</div></div>
+          </li>
+          <li class="comp-item"><span class="comp-bullet bull-yellow"></span>
+            <div><div class="comp-name">BMS integrat (Battery Management System)</div>
+            <div class="comp-desc">Balansare celule · protecție supraîncălzire · date I²C</div></div>
+          </li>
+          <li class="comp-item"><span class="comp-bullet bull-yellow"></span>
+            <div><div class="comp-name">Conector XT90 anti-spark cu protecție</div>
+            <div class="comp-desc">Surge protecție la conectare · indicator LED stare</div></div>
+          </li>
+          <li class="comp-item"><span class="comp-bullet bull-green"></span>
+            <div><div class="comp-name">Monitorizare per celulă — 6 canale</div>
+            <div class="comp-desc">Alert individual celulă defectă · calibrare la 0.5mV</div></div>
+          </li>
+          <li class="comp-item"><span class="comp-bullet bull-red"></span>
+            <div><div class="comp-name">Kill switch hardware + software</div>
+            <div class="comp-desc">Întrerupere urgență mecanică + comandă digitală</div></div>
+          </li>
+        </ul>
+      </div>
+
+      <div class="card yellow">
+        <div class="card-header">
+          <span class="card-icon">⚡</span>
+          <div><div class="card-title">DISTRIBUȚIE PUTERE ȘI RAIL-URI</div></div>
+          <span class="card-tag tag-power">POWER</span>
+        </div>
+        <ul class="comp-list">
+          <li class="comp-item"><span class="comp-bullet bull-yellow"></span>
+            <div><div class="comp-name">Rail 22.2V → ESC-uri motoare (direct)</div>
+            <div class="comp-desc">Consum 30-120A total · condensatoare 6800μF decupling</div></div>
+          </li>
+          <li class="comp-item"><span class="comp-bullet bull-blue"></span>
+            <div><div class="comp-name">Rail 5V / 5A → Avionică (BEC DC-DC)</div>
+            <div class="comp-desc">FCU · receptori RC · senzori · LED · servo gimbal</div></div>
+          </li>
+          <li class="comp-item"><span class="comp-bullet bull-blue"></span>
+            <div><div class="comp-name">Rail 12V / 3A → Cameră + Gimbal</div>
+            <div class="comp-desc">Izolat galvanic · fără zgomot motor pe video</div></div>
+          </li>
+          <li class="comp-item"><span class="comp-bullet bull-blue"></span>
+            <div><div class="comp-name">Rail 3.3V / 1A → Senzori digitali</div>
+            <div class="comp-desc">LDO liniar · filtru LC · minimizare ripple</div></div>
+          </li>
+          <li class="comp-item"><span class="comp-bullet bull-green"></span>
+            <div><div class="comp-name">UPS mini 3.7V → FCU backup (super-cap)</div>
+            <div class="comp-desc">Menținere 30s la pierdere baterie · salvare jurnal</div></div>
+          </li>
+        </ul>
+      </div>
+
+    </div>
+
+    <div class="section-heading">Profilul de Consum Estimat</div>
+    <div class="grid grid-3">
+      <div class="status-item ok">
+        <div class="status-icon">🔧</div>
+        <div class="status-label">MOTOARE (8×)</div>
+        <div class="status-val">~80A</div>
+        <div class="status-unit">hover nominal</div>
+      </div>
+      <div class="status-item ok">
+        <div class="status-icon">🖥️</div>
+        <div class="status-label">FCU + AVIONICĂ</div>
+        <div class="status-val">~1.5A</div>
+        <div class="status-unit">@5V = 7.5W</div>
+      </div>
+      <div class="status-item ok">
+        <div class="status-icon">📡</div>
+        <div class="status-label">COMUNICAȚII</div>
+        <div class="status-val">~0.8A</div>
+        <div class="status-unit">@5V = 4W</div>
+      </div>
+      <div class="status-item warn">
+        <div class="status-icon">📷</div>
+        <div class="status-label">CAMERĂ + GIMBAL</div>
+        <div class="status-val">~1.2A</div>
+        <div class="status-unit">@12V = 14.4W</div>
+      </div>
+      <div class="status-item ok">
+        <div class="status-icon">🔦</div>
+        <div class="status-label">LED + SENZORI</div>
+        <div class="status-val">~0.3A</div>
+        <div class="status-unit">total auxiliar</div>
+      </div>
+      <div class="status-item crit">
+        <div class="status-icon">📊</div>
+        <div class="status-label">TOTAL MAX</div>
+        <div class="status-val">~120A</div>
+        <div class="status-unit">la accelerație completă</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       TAB 6 — LISTĂ MATERIALE (BOM)
+  ══════════════════════════════════════════ -->
+  <div id="tab-bom" class="section">
+
+    <div class="section-heading">Bill of Materials — Schemă Completă</div>
+
+    <div class="schematic-container" style="padding:0; overflow:auto;">
+      <table class="bom-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Componentă / Denumire</th>
+            <th>Specificații cheie</th>
+            <th>Qty</th>
+            <th>Categorie</th>
+            <th>Preț est. (€)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- CORE -->
+          <tr>
+            <td>01</td>
+            <td>Flight Controller — Pixhawk 6X / Cube Orange+</td>
+            <td>STM32H7 · IMU dual · CAN/UART/SPI</td>
+            <td><span class="qty-badge">×1</span></td>
+            <td><span class="cat-badge cat-core">CORE</span></td>
+            <td class="price-col">280–480</td>
+          </tr>
+          <tr>
+            <td>02</td>
+            <td>Companion Computer — Raspberry Pi 5 / Jetson Nano</td>
+            <td>4-8GB RAM · USB3 · HDMI · WiFi</td>
+            <td><span class="qty-badge">×1</span></td>
+            <td><span class="cat-badge cat-core">CORE</span></td>
+            <td class="price-col">80–250</td>
+          </tr>
+          <tr>
+            <td>03</td>
+            <td>Motoare brushless 4114 KV380</td>
+            <td>18650 / 22" elice · efic. >90%</td>
+            <td><span class="qty-badge">×8</span></td>
+            <td><span class="cat-badge cat-mec">MECANIC</span></td>
+            <td class="price-col">45×8=360</td>
+          </tr>
+          <tr>
+            <td>04</td>
+            <td>ESC 40A cu telemetrie BLHeli32</td>
+            <td>DSHOT600 · rpm/curent/temp raportare</td>
+            <td><span class="qty-badge">×8</span></td>
+            <td><span class="cat-badge cat-core">CORE</span></td>
+            <td class="price-col">25×8=200</td>
+          </tr>
+          <tr>
+            <td>05</td>
+            <td>Baterie LiPo 6S 22000mAh 30C</td>
+            <td>22.2V · conector AS150 · BMS</td>
+            <td><span class="qty-badge">×2</span></td>
+            <td><span class="cat-badge cat-power">POWER</span></td>
+            <td class="price-col">180×2=360</td>
+          </tr>
+          <!-- SENZORI NAVIGATIE -->
+          <tr>
+            <td>06</td>
+            <td>GPS/GNSS RTK — u-blox F9P</td>
+            <td>±1cm · multi-band · heading dual ant.</td>
+            <td><span class="qty-badge">×2</span></td>
+            <td><span class="cat-badge cat-sensor">SENSOR</span></td>
+            <td class="price-col">180×2=360</td>
+          </tr>
+          <tr>
+            <td>07</td>
+            <td>Barometru — MS5611</td>
+            <td>±0.1m · 24-bit · I²C/SPI</td>
+            <td><span class="qty-badge">×2</span></td>
+            <td><span class="cat-badge cat-sensor">SENSOR</span></td>
+            <td class="price-col">8×2=16</td>
+          </tr>
+          <tr>
+            <td>08</td>
+            <td>Magnetometru — RM3100</td>
+            <td>Compass 3D · rezistent interferențe</td>
+            <td><span class="qty-badge">×2</span></td>
+            <td><span class="cat-badge cat-sensor">SENSOR</span></td>
+            <td class="price-col">15×2=30</td>
+          </tr>
+          <tr>
+            <td>09</td>
+            <td>Lidar ToF — Benewake TF-Luna</td>
+            <td>8m · 100Hz · UART/I²C</td>
+            <td><span class="qty-badge">×4</span></td>
+            <td><span class="cat-badge cat-sensor">SENSOR</span></td>
+            <td class="price-col">35×4=140</td>
+          </tr>
+          <tr>
+            <td>10</td>
+            <td>Senzor Optical Flow — PMW3901</td>
+            <td>SPI · indoor/GPS-denied · 50Hz</td>
+            <td><span class="qty-badge">×1</span></td>
+            <td><span class="cat-badge cat-sensor">SENSOR</span></td>
+            <td class="price-col">45</td>
+          </tr>
+          <!-- SENZORI STARE -->
+          <tr>
+            <td>11</td>
+            <td>Senzor curent+tensiune — INA226 / INA3221</td>
+            <td>16-bit · I²C · alert threshold</td>
+            <td><span class="qty-badge">×4</span></td>
+            <td><span class="cat-badge cat-sensor">SENSOR</span></td>
+            <td class="price-col">4×4=16</td>
+          </tr>
+          <tr>
+            <td>12</td>
+            <td>Temperatură + umiditate — SHT40</td>
+            <td>±0.1°C · ±1.5%RH · I²C</td>
+            <td><span class="qty-badge">×3</span></td>
+            <td><span class="cat-badge cat-sensor">SENSOR</span></td>
+            <td class="price-col">6×3=18</td>
+          </tr>
+          <tr>
+            <td>13</td>
+            <td>Senzor vibrații — ADXL345</td>
+            <td>3-axis · 3.2kHz · SPI · per braț</td>
+            <td><span class="qty-badge">×4</span></td>
+            <td><span class="cat-badge cat-sensor">SENSOR</span></td>
+            <td class="price-col">5×4=20</td>
+          </tr>
+          <tr>
+            <td>14</td>
+            <td>Senzor nivel lichid — capacitiv</td>
+            <td>0-5V · 0-100% · IP67</td>
+            <td><span class="qty-badge">×1</span></td>
+            <td><span class="cat-badge cat-sensor">SENSOR</span></td>
+            <td class="price-col">25</td>
+          </tr>
+          <!-- COMUNICATII -->
+          <tr>
+            <td>15</td>
+            <td>Radio control C2 — ExpressLRS 915MHz</td>
+            <td>Range 30km · latență &lt;5ms · FHSS</td>
+            <td><span class="qty-badge">×1</span></td>
+            <td><span class="cat-badge cat-comm">COMM</span></td>
+            <td class="price-col">120</td>
+          </tr>
+          <tr>
+            <td>16</td>
+            <td>Telemetrie MAVLink — RFD900x</td>
+            <td>915MHz · 500kbps · 15km range</td>
+            <td><span class="qty-badge">×1</span></td>
+            <td><span class="cat-badge cat-comm">COMM</span></td>
+            <td class="price-col">180</td>
+          </tr>
+          <tr>
+            <td>17</td>
+            <td>Video downlink — Herelink / DJI O3 Air Unit</td>
+            <td>1080p60 · 2.4GHz · &lt;30ms latentă</td>
+            <td><span class="qty-badge">×1</span></td>
+            <td><span class="cat-badge cat-comm">COMM</span></td>
+            <td class="price-col">250–400</td>
+          </tr>
+          <tr>
+            <td>18</td>
+            <td>Modem 4G/LTE — Quectel RM520N</td>
+            <td>5G ready · dual SIM · M.2</td>
+            <td><span class="qty-badge">×1</span></td>
+            <td><span class="cat-badge cat-comm">COMM</span></td>
+            <td class="price-col">160</td>
+          </tr>
+          <!-- TRANSPONDERE -->
+          <tr>
+            <td>19</td>
+            <td>Transponder ADS-B OUT/IN — uAvionix pingRX</td>
+            <td>1090MHz · GPS position broadcast</td>
+            <td><span class="qty-badge">×1</span></td>
+            <td><span class="cat-badge cat-comm">TRANSPONDER</span></td>
+            <td class="price-col">280</td>
+          </tr>
+          <tr>
+            <td>20</td>
+            <td>Remote ID module — uAvionix truFYX</td>
+            <td>WiFi+BT broadcast · EU/US conform</td>
+            <td><span class="qty-badge">×1</span></td>
+            <td><span class="cat-badge cat-comm">TRANSPONDER</span></td>
+            <td class="price-col">120</td>
+          </tr>
+          <!-- ANTENE -->
+          <tr>
+            <td>21</td>
+            <td>Antenă omnidirecțională 915MHz</td>
+            <td>5dBi fiberglass · SMA · IP65</td>
+            <td><span class="qty-badge">×2</span></td>
+            <td><span class="cat-badge cat-comm">ANTENĂ</span></td>
+            <td class="price-col">18×2=36</td>
+          </tr>
+          <tr>
+            <td>22</td>
+            <td>Antenă GPS ceramică patch</td>
+            <td>L1/L2 · amplificare activă · MMCX</td>
+            <td><span class="qty-badge">×2</span></td>
+            <td><span class="cat-badge cat-comm">ANTENĂ</span></td>
+            <td class="price-col">22×2=44</td>
+          </tr>
+          <tr>
+            <td>23</td>
+            <td>Antenă 5.8GHz (video FPV patch)</td>
+            <td>LHCP · 9dBi · RP-SMA</td>
+            <td><span class="qty-badge">×1</span></td>
+            <td><span class="cat-badge cat-comm">ANTENĂ</span></td>
+            <td class="price-col">35</td>
+          </tr>
+          <tr>
+            <td>24</td>
+            <td>Antenă 1090MHz (ADS-B) — 1/4 undă</td>
+            <td>SMA · montaj superior carcasă</td>
+            <td><span class="qty-badge">×1</span></td>
+            <td><span class="cat-badge cat-comm">ANTENĂ</span></td>
+            <td class="price-col">20</td>
+          </tr>
+          <!-- POWER -->
+          <tr>
+            <td>25</td>
+            <td>PDB cu eFuse și senzor curent</td>
+            <td>200A · shunt hall effect · 6 ieșiri</td>
+            <td><span class="qty-badge">×1</span></td>
+            <td><span class="cat-badge cat-power">POWER</span></td>
+            <td class="price-col">45</td>
+          </tr>
+          <tr>
+            <td>26</td>
+            <td>BEC DC-DC 5V/5A</td>
+            <td>Efic. 95% · izolat · filtru EMI</td>
+            <td><span class="qty-badge">×2</span></td>
+            <td><span class="cat-badge cat-power">POWER</span></td>
+            <td class="price-col">15×2=30</td>
+          </tr>
+          <tr>
+            <td>27</td>
+            <td>BEC DC-DC 12V/3A (cameră+gimbal)</td>
+            <td>Izolat galvanic · low noise</td>
+            <td><span class="qty-badge">×1</span></td>
+            <td><span class="cat-badge cat-power">POWER</span></td>
+            <td class="price-col">18</td>
+          </tr>
+          <!-- SOFTWARE -->
+          <tr>
+            <td>28</td>
+            <td>PX4 Autopilot (firmware)</td>
+            <td>Open-source · RTOS · MAVLink</td>
+            <td><span class="qty-badge">×1</span></td>
+            <td><span class="cat-badge cat-soft">SOFTWARE</span></td>
+            <td class="price-col">GRATUIT</td>
+          </tr>
+          <tr>
+            <td>29</td>
+            <td>QGroundControl (GCS)</td>
+            <td>Misiune planning · telemetrie live</td>
+            <td><span class="qty-badge">×1</span></td>
+            <td><span class="cat-badge cat-soft">SOFTWARE</span></td>
+            <td class="price-col">GRATUIT</td>
+          </tr>
+          <tr>
+            <td>30</td>
+            <td>DroneZone App (backend integrat)</td>
+            <td>Next.js · Prisma · Leaflet maps</td>
+            <td><span class="qty-badge">×1</span></td>
+            <td><span class="cat-badge cat-soft">SOFTWARE</span></td>
+            <td class="price-col">CUSTOM</td>
+          </tr>
+          <!-- TOTAL -->
+          <tr class="total-row">
+            <td colspan="5"><strong>TOTAL ESTIMAT COMPONENTE (fără carcasă, elice, braț, cadru)</strong></td>
+            <td class="price-col"><strong>~3.400–4.200 €</strong></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="note-box">
+      📝 NOTE BOM: Prețurile sunt estimative, bazate pe furnizori europeni (Mouser, DigiKey, TME, Holybro, GetFPV). Cadrul (frame), elicele, gimbal-ul, camera, carcasa IP55+ și cablajul adaugă încă ~800-1500€. Un sistem industrial complet, gata de zbor și certificat, costă 6.000-15.000€ în funcție de payload și certificare EASA.
+    </div>
+  </div>
+
+  <footer>
+    <span>DRONEZO SYSTEMS</span> · SCHEMĂ TEHNICĂ DRONĂ INDUSTRIALĂ · REV 1.0 · 2026<br>
+    DOCUMENT GENERAT: INGINERIE SISTEME AVANSATE · TOATE SPECIFICAȚIILE SUNT ORIENTATIVE
+  </footer>
+
+</div>
+
+<script>
+  function showTab(name) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('tab-' + name).classList.add('active');
+    event.target.classList.add('active');
+  }
+</script>
+</body>
+</html>
