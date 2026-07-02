@@ -2018,6 +2018,7 @@ body { font-size:13px; }
         </div>
         <div class="aiv-controls">
           <button class="aiv-scan-btn" id="aiv-scan-btn" onclick="toggleAIScan()" style="padding:4px 10px;font-size:8px;">🔍 SCANARE</button>
+          <button onclick="openLiveFeed()" style="padding:4px 8px;font-size:8px;background:rgba(176,32,32,.15);border:1px solid var(--danger);color:var(--danger);border-radius:3px;cursor:pointer;font-weight:700;letter-spacing:1px;">⬛ FULLSCREEN</button>
           <div class="aiv-interval" style="font-size:8px;">
             <select id="aiv-interval-sel" style="font-size:8px;background:var(--panel2);border:1px solid var(--border);color:var(--text);border-radius:3px;padding:2px;">
               <option value="8000">8s</option>
@@ -2380,6 +2381,96 @@ body { font-size:13px; }
     </div>
   </div>
 </div>
+
+<!-- ══════════ LIVE FEED FULLSCREEN ══════════ -->
+<div id="livefeed-overlay" style="display:none;position:fixed;inset:0;z-index:9800;background:#000;flex-direction:column;">
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 18px;background:#020810;border-bottom:1px solid #0f2a40;flex-shrink:0;">
+    <div style="display:flex;align-items:center;gap:12px;">
+      <span style="width:9px;height:9px;border-radius:50%;background:#c0392b;box-shadow:0 0 10px #c0392b;animation:pulse .6s infinite;display:inline-block;"></span>
+      <span style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:900;letter-spacing:4px;color:#c0392b;">LIVE</span>
+      <span id="lf-drone-name" style="font-size:11px;color:var(--accent);letter-spacing:2px;">— FĂRĂ DRONĂ —</span>
+    </div>
+    <div style="display:flex;gap:10px;align-items:center;">
+      <span id="lf-time" style="font-size:10px;color:#4a7090;letter-spacing:1px;font-family:monospace;"></span>
+      <button onclick="closeLiveFeed()" style="background:rgba(176,32,32,.15);border:1px solid #c0392b;color:#c0392b;padding:5px 14px;border-radius:3px;cursor:pointer;font-size:11px;letter-spacing:2px;">✕ ÎNCHIDE</button>
+    </div>
+  </div>
+  <div style="flex:1;position:relative;overflow:hidden;">
+    <svg width="100%" height="100%" viewBox="0 0 1200 650" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+      <defs>
+        <linearGradient id="lfSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#010508"/><stop offset="100%" stop-color="#020c18"/></linearGradient>
+        <linearGradient id="lfGround" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#0a1a0a"/><stop offset="100%" stop-color="#040804"/></linearGradient>
+        <filter id="lfNoise"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="4" result="noise"/><feColorMatrix type="saturate" values="0"/><feBlend in="SourceGraphic" in2="noise" mode="screen" result="blend"/><feComposite in="blend" in2="SourceGraphic" operator="in"/></filter>
+      </defs>
+      <rect width="1200" height="650" fill="url(#lfSky)"/>
+      <rect y="420" width="1200" height="230" fill="url(#lfGround)"/>
+      <line x1="0" y1="420" x2="1200" y2="420" stroke="#267a50" stroke-width="1" stroke-dasharray="8 20" opacity=".25"/>
+      <!-- Teren / clădiri -->
+      <rect x="60" y="430" width="120" height="80" fill="#0d2010" opacity=".85"/>
+      <rect x="220" y="445" width="80" height="65" fill="#0d1e10" opacity=".75"/>
+      <rect x="700" y="435" width="160" height="75" fill="#0d2010" opacity=".85"/>
+      <rect x="900" y="450" width="90" height="60" fill="#0d1e10" opacity=".7"/>
+      <rect x="1080" y="440" width="70" height="70" fill="#0d2010" opacity=".8"/>
+      <!-- Copaci -->
+      <path d="M 380 420 L 420 360 L 460 420 Z" fill="#0a1c08" opacity=".6"/>
+      <path d="M 540 420 L 580 350 L 620 420 Z" fill="#0a1c08" opacity=".55"/>
+      <path d="M 820 420 L 855 365 L 890 420 Z" fill="#0a1c08" opacity=".6"/>
+      <!-- Stele -->
+      <circle cx="200" cy="60" r="1.2" fill="#fff" opacity=".35"/>
+      <circle cx="500" cy="40" r="1" fill="#fff" opacity=".25"/>
+      <circle cx="800" cy="80" r="1.5" fill="#fff" opacity=".3"/>
+      <circle cx="1050" cy="55" r="1" fill="#fff" opacity=".2"/>
+      <!-- Scanline overlay -->
+      <rect width="1200" height="650" fill="none" stroke="rgba(46,127,196,.03)" stroke-width="2"/>
+    </svg>
+    <!-- HUD overlay -->
+    <div style="position:absolute;inset:0;pointer-events:none;">
+      <!-- Colț stânga sus -->
+      <div style="position:absolute;top:18px;left:22px;font-family:monospace;font-size:11px;color:#2eb87a;line-height:1.9;letter-spacing:1px;">
+        <div id="lf-hud-id">DRONĂ: —</div>
+        <div id="lf-hud-lat">LAT: —</div>
+        <div id="lf-hud-lng">LNG: —</div>
+      </div>
+      <!-- Colț dreapta sus -->
+      <div style="position:absolute;top:18px;right:22px;font-family:monospace;font-size:11px;color:#2e8ab8;line-height:1.9;letter-spacing:1px;text-align:right;">
+        <div id="lf-hud-time2">--:--:--</div>
+        <div id="lf-hud-alt">ALT: — m</div>
+        <div id="lf-hud-spd">VIT: — km/h</div>
+      </div>
+      <!-- Colț stânga jos -->
+      <div style="position:absolute;bottom:18px;left:22px;font-family:monospace;font-size:11px;color:#2e8ab8;letter-spacing:1px;">
+        <div id="lf-hud-bat">BAT: —%</div>
+        <div id="lf-hud-status" style="color:#c0392b;font-weight:700;">■ FEED LIVE ACTIV</div>
+      </div>
+      <!-- Colț dreapta jos -->
+      <div style="position:absolute;bottom:18px;right:22px;font-family:monospace;font-size:11px;color:#2eb87a;letter-spacing:1px;text-align:right;">
+        <div>AI: SCANARE ACTIVĂ</div>
+        <div id="lf-hud-zoom">ZOOM: 1.0x</div>
+      </div>
+      <!-- Reticul central -->
+      <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:80px;height:80px;">
+        <div style="position:absolute;top:0;left:0;width:20px;height:20px;border-top:1.5px solid rgba(46,127,196,.7);border-left:1.5px solid rgba(46,127,196,.7);"></div>
+        <div style="position:absolute;top:0;right:0;width:20px;height:20px;border-top:1.5px solid rgba(46,127,196,.7);border-right:1.5px solid rgba(46,127,196,.7);"></div>
+        <div style="position:absolute;bottom:0;left:0;width:20px;height:20px;border-bottom:1.5px solid rgba(46,127,196,.7);border-left:1.5px solid rgba(46,127,196,.7);"></div>
+        <div style="position:absolute;bottom:0;right:0;width:20px;height:20px;border-bottom:1.5px solid rgba(46,127,196,.7);border-right:1.5px solid rgba(46,127,196,.7);"></div>
+        <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:6px;height:6px;border-radius:50%;border:1px solid rgba(46,127,196,.5);"></div>
+      </div>
+      <!-- Scanline animat -->
+      <div id="lf-scanline" style="position:absolute;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,rgba(46,184,122,.3),transparent);animation:lf-scan 3s linear infinite;"></div>
+    </div>
+  </div>
+  <!-- Bara de jos -->
+  <div style="display:flex;gap:8px;padding:10px 18px;background:#020810;border-top:1px solid #0f2a40;flex-shrink:0;align-items:center;">
+    <span style="font-size:9px;color:#4a7090;letter-spacing:1px;margin-right:8px;">DRONĂ:</span>
+    <div id="lf-drone-btns" style="display:flex;gap:6px;flex-wrap:wrap;flex:1;"></div>
+    <button onclick="lfZoom(-0.2)" style="background:transparent;border:1px solid #0f2a40;color:#4a7090;padding:4px 10px;border-radius:3px;cursor:pointer;font-size:11px;">−</button>
+    <button onclick="lfZoom(0.2)" style="background:transparent;border:1px solid #0f2a40;color:#4a7090;padding:4px 10px;border-radius:3px;cursor:pointer;font-size:11px;">+</button>
+    <span style="font-size:9px;color:#4a7090;margin-left:4px;">ZOOM</span>
+  </div>
+</div>
+<style>
+@keyframes lf-scan{0%{top:0%}100%{top:100%}}
+</style>
 
 <!-- ══════════ RESCUE: SOS ALERT (floating) ══════════ -->
 <div class="sos-alert" id="sos-alert">
@@ -9077,6 +9168,66 @@ function demoStop(){
 
 
 // ════════════════════════════════════════════
+// ════════════════════════════════════════════
+// LIVE FEED FULLSCREEN
+// ════════════════════════════════════════════
+let _lfZoom=1.0,_lfTimer=null;
+function openLiveFeed(){
+  const ov=document.getElementById('livefeed-overlay');
+  ov.style.display='flex';
+  _renderLFDroneBtns();
+  _lfTick();
+  _lfTimer=setInterval(_lfTick,1000);
+}
+function closeLiveFeed(){
+  document.getElementById('livefeed-overlay').style.display='none';
+  clearInterval(_lfTimer);
+}
+function _renderLFDroneBtns(){
+  const c=document.getElementById('lf-drone-btns');if(!c)return;
+  const fleet=(typeof DRONE_FLEET!=='undefined')?DRONE_FLEET:[];
+  if(!fleet.length){c.innerHTML='<span style="font-size:9px;color:#4a7090">Nicio dronă adăugată</span>';return;}
+  c.innerHTML=fleet.map((d,i)=>`<button onclick="_lfSelectDrone(${i})" style="padding:3px 10px;font-size:9px;background:transparent;border:1px solid #0f2a40;color:#4a7090;border-radius:3px;cursor:pointer;" id="lf-btn-${i}">${d.id||'D'+i}</button>`).join('');
+  _lfSelectDrone(0);
+}
+let _lfDroneIdx=0;
+function _lfSelectDrone(i){
+  _lfDroneIdx=i;
+  const fleet=(typeof DRONE_FLEET!=='undefined')?DRONE_FLEET:[];
+  const d=fleet[i];
+  document.querySelectorAll('[id^="lf-btn-"]').forEach(b=>b.style.borderColor='#0f2a40');
+  const btn=document.getElementById('lf-btn-'+i);
+  if(btn)btn.style.borderColor='var(--accent)';
+  if(d){
+    document.getElementById('lf-drone-name').textContent=d.id||'—';
+    document.getElementById('lf-hud-id').textContent='DRONĂ: '+(d.id||'—');
+  }
+}
+function _lfTick(){
+  const fleet=(typeof DRONE_FLEET!=='undefined')?DRONE_FLEET:[];
+  const d=fleet[_lfDroneIdx];
+  const now=new Date();
+  const ts=now.toTimeString().slice(0,8);
+  const el=id=>document.getElementById(id);
+  if(el('lf-time'))el('lf-time').textContent=ts;
+  if(el('lf-hud-time2'))el('lf-hud-time2').textContent=ts;
+  if(d){
+    if(el('lf-hud-lat'))el('lf-hud-lat').textContent='LAT: '+(d.lat?d.lat.toFixed(5):'—');
+    if(el('lf-hud-lng'))el('lf-hud-lng').textContent='LNG: '+(d.lng?d.lng.toFixed(5):'—');
+    if(el('lf-hud-alt'))el('lf-hud-alt').textContent='ALT: '+(d.altitude||Math.round(80+Math.random()*40))+' m';
+    if(el('lf-hud-spd'))el('lf-hud-spd').textContent='VIT: '+(d.speed||Math.round(28+Math.random()*12))+' km/h';
+    if(el('lf-hud-bat'))el('lf-hud-bat').textContent='BAT: '+(d.battery||'—')+'%';
+  }
+}
+function lfZoom(delta){
+  _lfZoom=Math.max(0.5,Math.min(4,_lfZoom+delta));
+  const svg=document.querySelector('#livefeed-overlay svg');
+  if(svg)svg.style.transform=`scale(${_lfZoom})`;
+  const el=document.getElementById('lf-hud-zoom');
+  if(el)el.textContent='ZOOM: '+_lfZoom.toFixed(1)+'x';
+}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeLiveFeed();});
+
 function fixMapHeight(){
   try{ if(map&&map.invalidateSize) map.invalidateSize({animate:false}); }catch(e){}
 }
@@ -10022,27 +10173,60 @@ function clearReports() {
 function exportReportsPDF() {
   const reports = JSON.parse(localStorage.getItem(REPORTS_KEY) || '[]');
   if (reports.length === 0) { alert('Nicio misiune de exportat.'); return; }
-  const icons = {fire:'INCENDIU',avalanche:'AVALANSA',flood:'INUNDATIE',patrol:'PATRULARE',delivery:'LIVRARE',other:'ALTA'};
-  let content = `DROZON MAXIM — Jurnal Misiuni
-Generat: ${new Date().toLocaleString('ro-RO')}
-${'='.repeat(60)}
-
-`;
-  reports.forEach(r => {
-    content += `ID: ${r.id}
-Tip: ${icons[r.type]||r.type}
-Data: ${r.ts}
-Locatie: ${r.location}
-Drone: ${r.drones}
-Rezultat: ${r.outcome}
-${'-'.repeat(40)}
-`;
-  });
-  const blob = new Blob([content], {type:'text/plain;charset=utf-8'});
-  const url  = URL.createObjectURL(blob);
-  const a    = document.createElement('a');
-  a.href = url; a.download = `DroZon-Rapoarte-${Date.now()}.txt`; a.click();
-  URL.revokeObjectURL(url);
+  const icons = {fire:'🔥 INCENDIU',avalanche:'🏔️ AVALANȘĂ',flood:'🌊 INUNDAȚIE',patrol:'🛡️ PATRULARE',delivery:'📦 LIVRARE',other:'📌 ALTA'};
+  const fleet = (typeof DRONE_FLEET !== 'undefined') ? DRONE_FLEET : [];
+  const fleetRows = fleet.map(d=>`<tr><td>${d.id||'—'}</td><td>${d.type||'—'}</td><td style="text-align:center">${d.battery||0}%</td><td>${d.status||'—'}</td><td>${d.lat?d.lat.toFixed(4):'—'}, ${d.lng?d.lng.toFixed(4):'—'}</td></tr>`).join('');
+  const missionRows = reports.slice(0,50).map(r=>`<tr><td style="color:#4a6a80;font-size:9px">${r.id||'—'}</td><td>${icons[r.type]||r.type}</td><td>${r.ts||'—'}</td><td>${r.location||'—'}</td><td style="text-align:center">${r.drones||'—'}</td><td>${r.outcome||'—'}</td></tr>`).join('');
+  const html=`<!DOCTYPE html><html lang="ro"><head><meta charset="UTF-8"><title>DroZon MAXIM — Raport Operațional</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Courier New',monospace;background:#fff;color:#0a1a2a;padding:28px;font-size:10px}
+.hdr{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;padding-bottom:14px;border-bottom:3px solid #0a3a5c}
+.logo{font-size:26px;font-weight:900;letter-spacing:5px;color:#0a3a5c}.logo span{color:#1e7ac8}
+.sub{font-size:9px;color:#4a6a80;letter-spacing:2px;text-transform:uppercase;margin-top:4px}
+.meta{text-align:right;font-size:9px;color:#4a6a80;line-height:1.8}
+.meta b{color:#0a3a5c}
+.sec{font-size:11px;font-weight:700;color:#0a3a5c;letter-spacing:2px;text-transform:uppercase;margin:18px 0 8px;border-left:4px solid #1e7ac8;padding-left:10px}
+table{width:100%;border-collapse:collapse;font-size:9px;margin-bottom:6px}
+th{background:#0a3a5c;color:#fff;padding:7px 8px;text-align:left;font-size:8px;letter-spacing:1px;text-transform:uppercase}
+td{padding:6px 8px;border-bottom:1px solid #e0e8f0;vertical-align:top}
+tr:nth-child(even) td{background:#f4f8fc}
+.summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:12px 0}
+.sum-box{border:1px solid #c0d8ec;padding:10px;text-align:center;border-radius:4px}
+.sum-num{font-size:22px;font-weight:900;color:#1e7ac8}
+.sum-lbl{font-size:8px;color:#4a6a80;text-transform:uppercase;letter-spacing:1px;margin-top:3px}
+.stamp{text-align:center;margin:22px 0 10px}
+.stamp-box{display:inline-block;border:2px solid #0a3a5c;padding:10px 22px;font-size:9px;color:#0a3a5c;letter-spacing:3px;transform:rotate(-1.5deg);opacity:.55;text-transform:uppercase}
+.footer{margin-top:20px;padding-top:10px;border-top:1px solid #c0d0e0;font-size:8px;color:#7a9ab0;display:flex;justify-content:space-between}
+@media print{body{padding:16px}}
+</style></head><body>
+<div class="hdr">
+  <div><div class="logo">DROZ<span>ON</span> MAXIM</div><div class="sub">Sistem Management Flotă Drone · Centru Comandă</div></div>
+  <div class="meta">
+    <div><b>Raport Nr.:</b> RPT-${Date.now().toString().slice(-6)}</div>
+    <div><b>Generat:</b> ${new Date().toLocaleString('ro-RO')}</div>
+    <div><b>Clasificare:</b> OPERAȚIONAL</div>
+    <div><b>Operator:</b> DROZON COMMAND</div>
+  </div>
+</div>
+<div class="sec">📊 Sumar Operațional</div>
+<div class="summary-grid">
+  <div class="sum-box"><div class="sum-num">${fleet.length}</div><div class="sum-lbl">Drone active</div></div>
+  <div class="sum-box"><div class="sum-num">${reports.length}</div><div class="sum-lbl">Misiuni totale</div></div>
+  <div class="sum-box"><div class="sum-num">${fleet.filter(d=>d.battery>=25).length}</div><div class="sum-lbl">Drone operaționale</div></div>
+  <div class="sum-box"><div class="sum-num">${reports.filter(r=>r.type==='fire'||r.type==='avalanche'||r.type==='flood').length}</div><div class="sum-lbl">Misiuni urgență</div></div>
+</div>
+<div class="sec">🛸 Stare Flotă</div>
+<table><thead><tr><th>ID Dronă</th><th>Tip</th><th style="text-align:center">Baterie</th><th>Status</th><th>Poziție GPS</th></tr></thead><tbody>${fleetRows||'<tr><td colspan="5" style="color:#888;text-align:center">Nicio dronă înregistrată</td></tr>'}</tbody></table>
+<div class="sec">📋 Jurnal Misiuni</div>
+<table><thead><tr><th>ID</th><th>Tip Misiune</th><th>Data / Ora</th><th>Locație</th><th style="text-align:center">Drone</th><th>Rezultat / Observații</th></tr></thead><tbody>${missionRows||'<tr><td colspan="6" style="color:#888;text-align:center">Nicio misiune înregistrată</td></tr>'}</tbody></table>
+<div class="stamp"><div class="stamp-box">✅ Document generat automat · DroZon MAXIM · ${new Date().toLocaleDateString('ro-RO')}</div></div>
+<div class="footer"><span>DroZon MAXIM © ${new Date().getFullYear()} — Sistem de Management Drone</span><span>Total misiuni: ${reports.length} · Export: ${new Date().toLocaleString('ro-RO')}</span></div>
+<script>window.onload=()=>window.print();<\/script>
+</body></html>`;
+  const win=window.open('','_blank');
+  if(!win){alert('Permite pop-up-urile pentru export PDF.');return;}
+  win.document.write(html);win.document.close();
 }
 
 function checkBatteryAlerts() {
