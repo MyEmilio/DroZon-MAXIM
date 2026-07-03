@@ -5,6 +5,7 @@ import axios from "axios";
 import Login from "@/components/Login";
 import Dashboard from "@/components/Dashboard";
 import UserAdmin from "@/components/UserAdmin";
+import ImpactCalculator from "@/components/ImpactCalculator";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 export const API = `${BACKEND_URL}/api`;
@@ -66,6 +67,7 @@ function App() {
           <Route path="/" element={<LandingSwitch />} />
           <Route path="/dashboard" element={<Protected><Dashboard /></Protected>} />
           <Route path="/users" element={<Protected roles={["commander"]}><UserAdmin /></Protected>} />
+          <Route path="/impact" element={<Protected><ImpactCalculator /></Protected>} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>

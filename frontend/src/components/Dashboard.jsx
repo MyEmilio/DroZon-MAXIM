@@ -104,9 +104,15 @@ export default function Dashboard() {
         <div className="dz-launch" data-testid="launch-panel">
           <h2>DESCHIDE CENTRUL TACTIC</h2>
           <p>Hartă live · Telemetrie · Misiuni RESCUE / SWARM / Waypoint · SOS</p>
-          <button className="dz-btn primary" onClick={launchDrozon} data-testid="btn-launch-drozon">
-            ▸ Intră în DroZon
-          </button>
+          <div style={{ display: 'flex', gap: 14, justifyContent: 'center', flexWrap: 'wrap' }}>
+            <button className="dz-btn primary" onClick={launchDrozon} data-testid="btn-launch-drozon">
+              ▸ Intră în DroZon
+            </button>
+            <button className="dz-btn" onClick={() => nav("/impact")} data-testid="btn-launch-impact"
+              style={{ borderColor: 'var(--dz-accent2)', color: 'var(--dz-accent2)' }}>
+              📊 Impact Calculator · Pentru investitori
+            </button>
+          </div>
         </div>
 
         <div className="dz-grid" style={{ gridTemplateColumns: '1fr 1fr' }}>

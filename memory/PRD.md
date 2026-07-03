@@ -27,6 +27,13 @@ Prioritățile menționate:
 - ✅ React shell: Login (cu demo buttons), Dashboard (statistici, adaptoare, SOS panel), UserAdmin (CRUD users)
 - ✅ Auth gate în drozon.html: verifică sesiunea, redirect la login dacă lipsă, injectează HUD sus-dreapta cu callsign + rol + Ieșire
 - ✅ Observer read-only banner + role-gated CSS classes
+- ✅ **ROI / Impact Calculator** — pagină dedicată pentru investitori (`/impact`):
+  - 5 scenarii cu iconuri (SAR, avalanșă, incendiu, inundație, extracție medicală)
+  - Slidere: arie km², nr. victime, dificultate teren
+  - Comparație vizuală Manual (Salvamont/ISU) vs DroZon: timp răspuns, cost, rată supraviețuire
+  - Chart bar animat (recharts) + carduri metrici animate (framer-motion)
+  - Formula supraviețuire pe fereastră critică (t_critical exponential decay)
+  - Pitch line "La 100 misiuni pe an" cu vieți salvate + € economisiți
 - ✅ Backend: 30/30 pytest cases green
 - ✅ Frontend: login + dashboard + user admin + drozon integration validated E2E
 
