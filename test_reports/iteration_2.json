@@ -1,0 +1,64 @@
+{
+  "summary": "DroZon Sprint 1 retest (iteration 2). All 3 previous backend bugs are confirmed FIXED. Backend regression suite is 30/30 green. Frontend E2E: observer launch + observer-banner + hud-logout + auth-gate flows all pass. NEW CRITICAL bug discovered: `POST /api/auth/register` unconditionally sets access/refresh cookies on the response, so when a commander creates another user via UserAdmin.jsx the commander's own session is silently overwritten with the newly-created user's cookies and the follow-up GET /api/users returns 403. The user IS persisted in DB but the UI list does not refresh and shows an error banner.",
+  "backend_issues": {
+    "critical": [
+      {
+        "endpoint": "POST /api/auth/register",
+        "issue": "Session-hijack bug. When an authenticated commander creates a pilot/commander, the server still calls set_auth_cookies() → overwrites the commander's httpOnly access_token+refresh_token with the newly-created user's tokens. The next request from the same browser tab is now made as the new pilot → GET /api/users returns 403 'Rol insuficient. Necesar: commander'. Fix: only set auth cookies when the register call is a public self-registration (no existing valid access_token in the request). Reproduction: login as commander, POST /api/auth/register {role:pilot} in same browser session, then GET /api/users → 403.",
+        "priority": "CRITICAL"
+      }
+    ],
+    "minor": [
+      {
+        "endpoint": "CORS middleware",
+        "issue": "backend/.env sets CORS_ORIGINS=* and server uses allow_credentials=True. Browsers reject credentialed requests when Access-Control-Allow-Origin is '*'. Currently works only because the app is same-origin. Any future cross-origin caller (mobile/native) will silently drop cookies. Set explicit origin list in prod."
+      },
+      {
+        "endpoint": "startup",
+        "issue": "app.on_event('startup')/('shutdown') is deprecated in FastAPI 0.109+. Migrate to lifespan handler."
+      }
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [
+      {
+        "flow": "UserAdmin create-new-user (commander)",
+        "issue": "After clicking CREEAZĂ UTILIZATOR, the new user IS created in DB but the users-table is NOT refreshed and an error 'Rol insuficient. Necesar: commander' appears. Root cause is backend register cookie side-effect (see backend critical bug). Frontend workaround would be to re-login/re-fetch /auth/me after create — but the correct fix is server-side.",
+        "affected_selectors": ["admin-create-user", "users-table"]
+      }
+    ],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/backend_test.py",
+    "/app/test_reports/pytest/pytest_results.xml"
+  ],
+  "action_items": [
+    "server.py:289-333 register() — do NOT call set_auth_cookies() when the caller is already authenticated (i.e., `tok` is present and valid). Only set cookies for public observer self-registration. Alternative: gate cookie-setting on `if role_wanted == 'observer' and not tok`.",
+    "server.py CORS — replace wildcard with explicit origin list in production/preview envs.",
+    "Optional frontend hardening (UserAdmin.jsx): after createUser() do a re-login using stored commander creds OR call GET /auth/me to detect if session flipped — but the correct fix is the backend one above."
+  ],
+  "critical_code_review_comments": [
+    "register() has a design smell: it doubles as (a) public self-signup and (b) admin-create-user. These two flows have opposite session semantics. Splitting into POST /api/auth/register (public, observer only, sets cookies) and POST /api/users (commander-only admin creation, does NOT touch cookies) would eliminate this class of bug.",
+    "Old dead comment/logic assumption still visible in tests: 'register does set cookies for the created user!' — the tests worked around this but the frontend cannot.",
+    "Cookies still `secure=False` even though preview URL is HTTPS — should be secure=True when behind HTTPS.",
+    "Startup event handlers are deprecated FastAPI API — migrate to lifespan.",
+    "drozon.html is 10k+ lines — flagged for future modularisation, not fixed here."
+  ],
+  "updated_files": [
+    "/app/backend/tests/backend_test.py — hardened test_delete_user_by_commander, test_commander_can_create_pilot, test_delete_mission_commander_ok to use fresh commander sessions (register side-effect makes shared session fixtures unsafe). Also fixed lowercase email comparison and removed `return` from a test."
+  ],
+  "success_rate": {
+    "backend": "100% (30/30 pytest cases green)",
+    "frontend": "80% (3 of 4 E2E flows green — observer launch/banner OK, hud-logout OK, direct /drozon.html gate OK. Commander create-user flow BROKEN due to backend cookie bug though the user IS persisted in DB)"
+  },
+  "test_credentials": "commander: comandant@drozon.ro / Comandant2026! | pilot: pilot@drozon.ro / Pilot2026! | observer: observer@drozon.ro / Observer2026!",
+  "seed_data_creation": "Multiple TEST_* users remain in DB from both iterations (test_del_*, test_obs_*, test_pilot_*, test_pw_*). All emails are lowercased in DB. These are cosmetic only and will show up in the Utilizatori table.",
+  "retest_needed": true,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Backend suite is fully green (30/30). If register cookie fix lands, expected outcome: UserAdmin form → click Creează → new row appears in users-table without a 403 error. All other frontend flows already verified.",
+  "rca_of_the_issue": {
+    "commander_register_403": "server.py register() calls set_auth_cookies(response, access, refresh) at line ~325 for EVERY successful registration, including when the caller is a commander. Browsers apply Set-Cookie headers atomically so the commander's httpOnly access_token/refresh_token get replaced with the newly-created user's tokens. axios' next request (GET /api/users to refresh the list) is now sent as that new user → require_role('commander') rejects it with 403. Reproduction: 1) login commander in browser, 2) navigate /users, 3) submit create-user form with role=pilot, 4) observe 403 in devtools + red banner in UI + no new row. Verify user IS in DB via server-side GET /api/users from a separate curl session (works). Fix: guard set_auth_cookies with `if not tok` (public self-signup path) OR split the endpoint into public /register (observer only) and commander-only /users (POST)."
+  }
+}

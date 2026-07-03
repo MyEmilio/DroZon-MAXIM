@@ -189,20 +189,26 @@ def require_role(*allowed: str):
 async def check_lockout(ip: str, email: str):
     key = f"{ip}:{email.lower()}"
     doc = await db.login_attempts.find_one({"identifier": key})
-    if not doc:
+    if not doc or not doc.get("locked_until"):
         return
-    if doc.get("locked_until") and doc["locked_until"] > datetime.now(timezone.utc):
-        raise HTTPException(status_code=429, detail=f"Prea multe încercări. Blocat până la {doc['locked_until'].isoformat()}")
+    locked_until = doc["locked_until"]
+    # Normalize to tz-aware UTC (Motor/BSON returns tz-naive)
+    if locked_until.tzinfo is None:
+        locked_until = locked_until.replace(tzinfo=timezone.utc)
+    if locked_until > datetime.now(timezone.utc):
+        log.warning(f"🔒 LOCKOUT hit for {key} until {locked_until.isoformat()}")
+        raise HTTPException(status_code=429, detail=f"Prea multe încercări. Blocat până la {locked_until.isoformat()}")
 
 async def record_failed(ip: str, email: str):
     key = f"{ip}:{email.lower()}"
     now = datetime.now(timezone.utc)
     doc = await db.login_attempts.find_one({"identifier": key})
     count = (doc["count"] if doc else 0) + 1
-    update = {"count": count, "last_attempt": now}
+    update = {"count": count, "last_attempt": now, "identifier": key}
     if count >= BRUTE_MAX:
         update["locked_until"] = now + timedelta(minutes=BRUTE_WINDOW_MIN)
         update["count"] = 0
+        log.warning(f"🔒 LOCKOUT armed for {key} — {BRUTE_WINDOW_MIN} min")
     await db.login_attempts.update_one({"identifier": key}, {"$set": update}, upsert=True)
 
 async def clear_attempts(ip: str, email: str):
@@ -281,8 +287,7 @@ def user_public(u: dict) -> dict:
     }
 
 @api.post("/auth/register")
-async def register(data: RegisterIn, request: Request, response: Response,
-                   me: Optional[dict] = None):
+async def register(data: RegisterIn, request: Request, response: Response):
     # Public registration only creates observers. Only commanders can create pilots/commanders.
     tok = _extract_token(request)
     role_wanted = data.role
@@ -296,33 +301,51 @@ async def register(data: RegisterIn, request: Request, response: Response,
                 raise HTTPException(status_code=403, detail="Doar comandantul poate crea acest rol")
         except HTTPException:
             raise
-        except Exception:
+        except jwt.InvalidTokenError:
             raise HTTPException(status_code=401, detail="Token invalid")
 
     email = data.email.lower()
     if await db.users.find_one({"email": email}):
         raise HTTPException(status_code=409, detail="Email deja înregistrat")
-    user = {
-        "id": str(uuid.uuid4()),
+    user_id = str(uuid.uuid4())
+    created_at = datetime.now(timezone.utc).isoformat()
+    user_doc = {
+        "id": user_id,
         "email": email,
         "password_hash": hash_password(data.password),
         "name": data.name,
         "role": role_wanted,
         "callsign": data.callsign,
         "unit": data.unit,
-        "created_at": datetime.now(timezone.utc).isoformat(),
+        "created_at": created_at,
     }
-    await db.users.insert_one(user)
-    access = create_access_token(user["id"], user["email"], user["role"])
-    refresh = create_refresh_token(user["id"])
+    await db.users.insert_one(user_doc)
+    access = create_access_token(user_id, email, role_wanted)
+    refresh = create_refresh_token(user_id)
     set_auth_cookies(response, access, refresh)
-    return {"user": user_public(user), "access_token": access}
+    # Build a fresh dict for the response — never return the mutated Mongo dict (has _id).
+    return {
+        "user": {
+            "id": user_id, "email": email, "name": data.name, "role": role_wanted,
+            "callsign": data.callsign, "unit": data.unit, "created_at": created_at,
+        },
+        "access_token": access,
+    }
+
+
+def _client_ip(request: Request) -> str:
+    # Behind Kubernetes ingress client.host is often the ingress IP.
+    # Prefer X-Forwarded-For (first value) when present.
+    xff = request.headers.get("x-forwarded-for", "")
+    if xff:
+        return xff.split(",")[0].strip()
+    return request.client.host if request.client else "unknown"
 
 
 @api.post("/auth/login")
 async def login(data: LoginIn, request: Request, response: Response):
     email = data.email.lower()
-    ip = request.client.host if request.client else "unknown"
+    ip = _client_ip(request)
     await check_lockout(ip, email)
     user = await db.users.find_one({"email": email})
     if not user or not verify_password(data.password, user["password_hash"]):
@@ -404,8 +427,9 @@ async def list_missions(user: dict = Depends(get_current_user)):
 async def create_mission(data: MissionIn,
                          user: dict = Depends(require_role("commander", "pilot"))):
     now = datetime.now(timezone.utc).isoformat()
-    m = {
-        "id": str(uuid.uuid4()),
+    mission_id = str(uuid.uuid4())
+    m_doc = {
+        "id": mission_id,
         "name": data.name,
         "mission_type": data.mission_type,
         "drone_ids": data.drone_ids,
@@ -417,8 +441,10 @@ async def create_mission(data: MissionIn,
         "created_at": now,
         "updated_at": now,
     }
-    await db.missions.insert_one(m)
-    return m
+    await db.missions.insert_one(m_doc)
+    # Never return the dict Mongo mutated — build a fresh response
+    m_doc.pop("_id", None)
+    return m_doc
 
 @api.patch("/missions/{mission_id}")
 async def update_mission(mission_id: str, patch: dict,

@@ -136,9 +136,12 @@ class TestRegistration:
         })
         assert r.status_code == 403
 
-    def test_commander_can_create_pilot(self, commander):
+    def test_commander_can_create_pilot(self):
+        # Use a fresh commander session — register mutates the caller's cookies
+        # (sets them to the newly-created user) so we must not use the shared fixture.
+        cmd = _session_for("commander")
         email = f"TEST_pilot_{uuid.uuid4().hex[:8]}@drozon.ro"
-        r = commander.post(f"{API}/auth/register", json={
+        r = cmd.post(f"{API}/auth/register", json={
             "email": email, "password": "Test1234!", "name": "Pilot Test",
             "role": "pilot", "callsign": "TST-PIL", "unit": "Test",
         })
@@ -184,19 +187,21 @@ class TestUsersAdmin:
         r = commander.delete(f"{API}/users/{me['id']}")
         assert r.status_code == 400
 
-    def test_delete_user_by_commander(self, commander):
-        # create a throwaway user, then delete
+    def test_delete_user_by_commander(self):
+        # Use a fresh commander session — register mutates cookies of the caller
+        cmd_creator = _session_for("commander")
         email = f"TEST_del_{uuid.uuid4().hex[:8]}@drozon.ro"
-        cr = commander.post(f"{API}/auth/register", json={
+        cr = cmd_creator.post(f"{API}/auth/register", json={
             "email": email, "password": "Test1234!", "name": "Del Test",
             "role": "pilot",
         })
-        assert cr.status_code == 200
-        # commander was just logged in as this new user? No - register does set cookies for the created user!
-        # This overwrites the commander's cookies. We need a fresh commander session.
+        assert cr.status_code == 200, cr.text
+        # register-side effect: cmd_creator now holds the new pilot's cookies.
+        # Use a second fresh commander session for the delete flow.
         cmd2 = _session_for("commander")
         users = cmd2.get(f"{API}/users").json()
-        target = next(u for u in users if u["email"] == email)
+        target = next((u for u in users if u["email"] == email.lower()), None)
+        assert target is not None, f"created user {email} not found in list"
         dr = cmd2.delete(f"{API}/users/{target['id']}")
         assert dr.status_code == 200
 
@@ -215,7 +220,8 @@ class TestMissions:
         m = r.json()
         assert m["status"] == "planned"
         assert m["name"] == "TEST Mission Rescue"
-        return m["id"]
+        assert "id" in m and isinstance(m["id"], str)
+        assert "_id" not in m  # regression: no ObjectId leak
 
     def test_create_mission_as_observer_forbidden(self, observer):
         r = observer.post(f"{API}/missions", json={
@@ -230,11 +236,13 @@ class TestMissions:
         r = pilot.delete(f"{API}/missions/{m['id']}")
         assert r.status_code == 403
 
-    def test_delete_mission_commander_ok(self, commander, pilot):
+    def test_delete_mission_commander_ok(self, pilot):
+        # Use fresh commander session to avoid any prior test polluting shared cookies
+        cmd = _session_for("commander")
         m = pilot.post(f"{API}/missions", json={
             "name": "TEST cmd del", "mission_type": "rescue"
         }).json()
-        r = commander.delete(f"{API}/missions/{m['id']}")
+        r = cmd.delete(f"{API}/missions/{m['id']}")
         assert r.status_code == 200
 
 
