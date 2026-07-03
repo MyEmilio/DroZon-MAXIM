@@ -1,55 +1,75 @@
-import { useEffect } from "react";
+import { useEffect, useState, createContext, useContext } from "react";
 import "@/App.css";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { HOME } from "@/constants/testIds";
+import Login from "@/components/Login";
+import Dashboard from "@/components/Dashboard";
+import UserAdmin from "@/components/UserAdmin";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
-const API = `${BACKEND_URL}/api`;
+export const API = `${BACKEND_URL}/api`;
 
-const Home = () => {
-  const helloWorldApi = async () => {
+axios.defaults.withCredentials = true;
+
+export const AuthContext = createContext(null);
+export const useAuth = () => useContext(AuthContext);
+
+function AuthProvider({ children }) {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  const refresh = async () => {
     try {
-      const response = await axios.get(`${API}/`);
-      console.log(response.data.message);
-    } catch (e) {
-      console.error(e, `errored out requesting / api`);
+      const { data } = await axios.get(`${API}/auth/me`);
+      setUser(data);
+    } catch (_) {
+      setUser(false);
+    } finally {
+      setLoading(false);
     }
   };
 
-  useEffect(() => {
-    helloWorldApi();
-  }, []);
+  useEffect(() => { refresh(); }, []);
+
+  const logout = async () => {
+    try { await axios.post(`${API}/auth/logout`); } catch { /* ignore */ }
+    setUser(false);
+  };
 
   return (
-    <div>
-      <header className="App-header">
-        <a
-          data-testid={HOME.emergentLink}
-          className="App-link"
-          href="https://emergent.sh"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <img src="https://avatars.githubusercontent.com/in/1201222?s=120&u=2686cf91179bbafbc7a71bfbc43004cf9ae1acea&v=4" />
-        </a>
-        <p className="mt-5">Building something incredible ~!</p>
-      </header>
-    </div>
+    <AuthContext.Provider value={{ user, setUser, loading, refresh, logout }}>
+      {children}
+    </AuthContext.Provider>
   );
-};
+}
+
+function Protected({ children, roles }) {
+  const { user, loading } = useAuth();
+  if (loading) return <div className="fullscreen-loading" data-testid="loading-screen">SISTEM SE INIȚIALIZEAZĂ…</div>;
+  if (!user) return <Navigate to="/" replace />;
+  if (roles && !roles.includes(user.role)) return <Navigate to="/dashboard" replace />;
+  return children;
+}
+
+function LandingSwitch() {
+  const { user, loading } = useAuth();
+  if (loading) return <div className="fullscreen-loading">SISTEM SE INIȚIALIZEAZĂ…</div>;
+  if (user) return <Navigate to="/dashboard" replace />;
+  return <Login />;
+}
 
 function App() {
   return (
-    <div className="App">
+    <AuthProvider>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Home />}>
-            <Route index element={<Home />} />
-          </Route>
+          <Route path="/" element={<LandingSwitch />} />
+          <Route path="/dashboard" element={<Protected><Dashboard /></Protected>} />
+          <Route path="/users" element={<Protected roles={["commander"]}><UserAdmin /></Protected>} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>
-    </div>
+    </AuthProvider>
   );
 }
 

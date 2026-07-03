@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="10" skipped="0" tests="30" time="5.196" timestamp="2026-07-03T06:45:24.997692+00:00" hostname="agent-env-1dde19b2-3803-4630-9aa6-b6a7134d87db"><testcase classname="tests.backend_test.TestAuth" name="test_login_commander" time="0.489" /><testcase classname="tests.backend_test.TestAuth" name="test_login_pilot" time="0.488" /><testcase classname="tests.backend_test.TestUsersAdmin" name="test_list_users_commander" time="0.974" /><testcase classname="tests.backend_test.TestAuth" name="test_login_observer" time="0.580" /><testcase classname="tests.backend_test.TestUsersAdmin" name="test_list_users_pilot_forbidden" time="0.582" /><testcase classname="tests.backend_test.TestAuth" name="test_login_wrong_password" time="0.367" /><testcase classname="tests.backend_test.TestUsersAdmin" name="test_list_users_observer_forbidden" time="0.429" /><testcase classname="tests.backend_test.TestAuth" name="test_me_without_cookie" time="0.196" /><testcase classname="tests.backend_test.TestUsersAdmin" name="test_patch_role_pilot_forbidden" time="0.110" /><testcase classname="tests.backend_test.TestUsersAdmin" name="test_delete_self_forbidden" time="0.150" /><testcase classname="tests.backend_test.TestUsersAdmin" name="test_delete_user_by_commander" time="0.257"><failure message="assert 422 == 200&#10; +  where 422 = &lt;Response [422]&gt;.status_code">backend/tests/backend_test.py:194: in test_delete_user_by_commander
+    assert cr.status_code == 200
+E   assert 422 == 200
+E    +  where 422 = &lt;Response [422]&gt;.status_code</failure></testcase><testcase classname="tests.backend_test.TestRegistration" name="test_public_register_observer" time="0.125"><failure message="AssertionError: {&quot;detail&quot;:[{&quot;type&quot;:&quot;missing&quot;,&quot;loc&quot;:[&quot;body&quot;,&quot;data&quot;],&quot;msg&quot;:&quot;Field required&quot;,&quot;input&quot;:null,&quot;url&quot;:&quot;https://errors.pydantic.dev/2.13/v/missing&quot;}]}&#10;assert 422 == 200&#10; +  where 422 = &lt;Response [422]&gt;.status_code">backend/tests/backend_test.py:122: in test_public_register_observer
+    assert r.status_code == 200, r.text
+E   AssertionError: {"detail":[{"type":"missing","loc":["body","data"],"msg":"Field required","input":null,"url":"https://errors.pydantic.dev/2.13/v/missing"}]}
+E   assert 422 == 200
+E    +  where 422 = &lt;Response [422]&gt;.status_code</failure></testcase><testcase classname="tests.backend_test.TestAuth" name="test_me_with_cookie" time="0.481" /><testcase classname="tests.backend_test.TestAuth" name="test_logout_clears_cookies" time="0.468" /><testcase classname="tests.backend_test.TestRegistration" name="test_public_register_pilot_forbidden" time="0.294"><failure message="assert 422 == 403&#10; +  where 422 = &lt;Response [422]&gt;.status_code">backend/tests/backend_test.py:130: in test_public_register_pilot_forbidden
+    assert r.status_code == 403
+E   assert 422 == 403
+E    +  where 422 = &lt;Response [422]&gt;.status_code</failure></testcase><testcase classname="tests.backend_test.TestRegistration" name="test_public_register_commander_forbidden" time="0.164"><failure message="assert 422 == 403&#10; +  where 422 = &lt;Response [422]&gt;.status_code">backend/tests/backend_test.py:137: in test_public_register_commander_forbidden
+    assert r.status_code == 403
+E   assert 422 == 403
+E    +  where 422 = &lt;Response [422]&gt;.status_code</failure></testcase><testcase classname="tests.backend_test.TestRegistration" name="test_commander_can_create_pilot" time="0.052"><failure message="AssertionError: {&quot;detail&quot;:[{&quot;type&quot;:&quot;missing&quot;,&quot;loc&quot;:[&quot;body&quot;,&quot;data&quot;],&quot;msg&quot;:&quot;Field required&quot;,&quot;input&quot;:null,&quot;url&quot;:&quot;https://errors.pydantic.dev/2.13/v/missing&quot;}]}&#10;assert 422 == 200&#10; +  where 422 = &lt;Response [422]&gt;.status_code">backend/tests/backend_test.py:145: in test_commander_can_create_pilot
+    assert r.status_code == 200, r.text
+E   AssertionError: {"detail":[{"type":"missing","loc":["body","data"],"msg":"Field required","input":null,"url":"https://errors.pydantic.dev/2.13/v/missing"}]}
+E   assert 422 == 200
+E    +  where 422 = &lt;Response [422]&gt;.status_code</failure></testcase><testcase classname="tests.backend_test.TestRegistration" name="test_pilot_cannot_create_pilot" time="0.237"><failure message="assert 422 == 403&#10; +  where 422 = &lt;Response [422]&gt;.status_code">backend/tests/backend_test.py:153: in test_pilot_cannot_create_pilot
+    assert r.status_code == 403
+E   assert 422 == 403
+E    +  where 422 = &lt;Response [422]&gt;.status_code</failure></testcase><testcase classname="tests.backend_test.TestMissions" name="test_create_mission_as_pilot" time="0.057"><failure message="AssertionError: Internal Server Error&#10;assert 500 == 200&#10; +  where 500 = &lt;Response [500]&gt;.status_code">backend/tests/backend_test.py:214: in test_create_mission_as_pilot
+    assert r.status_code == 200, r.text
+E   AssertionError: Internal Server Error
+E   assert 500 == 200
+E    +  where 500 = &lt;Response [500]&gt;.status_code</failure></testcase><testcase classname="tests.backend_test.TestTelemetryAndSOS" name="test_telemetry_as_pilot" time="0.450" /><testcase classname="tests.backend_test.TestMissions" name="test_create_mission_as_observer_forbidden" time="0.222" /><testcase classname="tests.backend_test.TestMissions" name="test_delete_mission_pilot_forbidden" time="0.181"><failure message="requests.exceptions.JSONDecodeError: Expecting value: line 1 column 1 (char 0)">/root/.venv/lib/python3.11/site-packages/requests/models.py:1116: in json
+    return complexjson.loads(self.text, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.11/json/__init__.py:346: in loads
+    return _default_decoder.decode(s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.11/json/decoder.py:337: in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.11/json/decoder.py:355: in raw_decode
+    raise JSONDecodeError("Expecting value", s, err.value) from None
+E   json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+
+During handling of the above exception, another exception occurred:
+backend/tests/backend_test.py:229: in test_delete_mission_pilot_forbidden
+    }).json()
+       ^^^^^^
+/root/.venv/lib/python3.11/site-packages/requests/models.py:1120: in json
+    raise RequestsJSONDecodeError(e.msg, e.doc, e.pos)
+E   requests.exceptions.JSONDecodeError: Expecting value: line 1 column 1 (char 0)</failure></testcase><testcase classname="tests.backend_test.TestTelemetryAndSOS" name="test_telemetry_as_observer_forbidden" time="0.432" /><testcase classname="tests.backend_test.TestMissions" name="test_delete_mission_commander_ok" time="0.061"><failure message="requests.exceptions.JSONDecodeError: Expecting value: line 1 column 1 (char 0)">/root/.venv/lib/python3.11/site-packages/requests/models.py:1116: in json
+    return complexjson.loads(self.text, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.11/json/__init__.py:346: in loads
+    return _default_decoder.decode(s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.11/json/decoder.py:337: in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.11/json/decoder.py:355: in raw_decode
+    raise JSONDecodeError("Expecting value", s, err.value) from None
+E   json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+
+During handling of the above exception, another exception occurred:
+backend/tests/backend_test.py:236: in test_delete_mission_commander_ok
+    }).json()
+       ^^^^^^
+/root/.venv/lib/python3.11/site-packages/requests/models.py:1120: in json
+    raise RequestsJSONDecodeError(e.msg, e.doc, e.pos)
+E   requests.exceptions.JSONDecodeError: Expecting value: line 1 column 1 (char 0)</failure></testcase><testcase classname="tests.backend_test.TestTelemetryAndSOS" name="test_sos_any_authenticated" time="0.172" /><testcase classname="tests.backend_test.TestHealth" name="test_health" time="0.128" /><testcase classname="tests.backend_test.TestTelemetryAndSOS" name="test_sos_ack_observer_forbidden" time="0.128" /><testcase classname="tests.backend_test.TestDroneAdapters" name="test_adapters_list" time="0.056" /><testcase classname="tests.backend_test.TestBruteForce" name="test_lockout_after_5_failed" time="0.488"><failure message="AssertionError: expected 429 lockout somewhere, got [401, 401, 401, 401, 401, 401, 401]&#10;assert 429 in [401, 401, 401, 401, 401, 401, ...]">backend/tests/backend_test.py:307: in test_lockout_after_5_failed
+    assert 429 in codes, f"expected 429 lockout somewhere, got {codes}"
+E   AssertionError: expected 429 lockout somewhere, got [401, 401, 401, 401, 401, 401, 401]
+E   assert 429 in [401, 401, 401, 401, 401, 401, ...]</failure></testcase><testcase classname="tests.backend_test.TestTelemetryAndSOS" name="test_sos_ack_commander_ok" time="0.110" /></testsuite></testsuites>

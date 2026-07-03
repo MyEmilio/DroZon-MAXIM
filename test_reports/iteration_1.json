@@ -1,0 +1,74 @@
+{
+  "summary": "First testing pass on DroZon Sprint 1 (auth + roles + drozon.html HUD). Backend pytest suite (30 tests) executed against public URL: 20/30 passed. Three critical/high backend bugs found. Frontend: login → dashboard → users admin → drozon.html HUD flows all functional for commander and observer roles; observer/users role-gate and observer-banner both work as spec'd.",
+  "backend_issues": {
+    "critical": [
+      {
+        "endpoint": "POST /api/auth/register",
+        "issue": "Returns 422 for every valid payload with detail `body.data required`. Root cause: signature has extra `me: Optional[dict] = None` param — because `dict` is not a scalar type, FastAPI treats it as a second body field and expects the request wrapped as `{\"data\": {...}, \"me\": {...}}`. Fix: remove `me` param (it is never used). Breaks: public observer signup, commander-created pilots, commander-created commanders, UserAdmin.jsx create user form.",
+        "priority": "CRITICAL"
+      },
+      {
+        "endpoint": "POST /api/missions",
+        "issue": "Returns 500 `ObjectId is not iterable / vars() has no __dict__`. Root cause: `await db.missions.insert_one(m)` mutates `m` by adding `_id: ObjectId`, then the same dict is returned. FastAPI/jsonable_encoder cannot serialize ObjectId. Same bug will affect `POST /api/auth/register` return payload (line 315-319 also returns the user dict after insert). Fix: `m.pop('_id', None)` before return, or build a fresh dict.",
+        "priority": "CRITICAL"
+      },
+      {
+        "endpoint": "POST /api/auth/login (brute-force protection)",
+        "issue": "After 7 consecutive failed logins with the same email/IP the server never returns 429; all responses are 401. `record_failed` writes `locked_until` as tz-aware datetime; on retrieval Motor/BSON returns tz-naive, so the comparison `doc['locked_until'] > datetime.now(timezone.utc)` in `check_lockout` would raise TypeError silently in some paths — or the identifier key differs across requests (behind Kubernetes ingress `request.client.host` may vary or all requests share same host but per-container attempt state isn't persisted across pods). Needs main-agent RCA; suggest normalising datetime timezone on read and adding a broad `try/except` log inside check_lockout.",
+        "priority": "HIGH"
+      }
+    ],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [
+      {
+        "flow": "UserAdmin create-new-user form",
+        "issue": "Cannot verify E2E because underlying `POST /api/auth/register` returns 422 (backend bug #1). The UI itself renders correctly.",
+        "affected_selectors": ["admin-create-user", "admin-email", "admin-password"]
+      },
+      {
+        "flow": "Mission creation (from drozon.html or future UI)",
+        "issue": "Any pilot/commander mission POST hits 500 (backend bug #2).",
+        "affected_selectors": []
+      }
+    ],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/backend_test.py",
+    "/app/test_reports/pytest/pytest_results.xml"
+  ],
+  "action_items": [
+    "server.py:283 — remove the unused `me: Optional[dict] = None` parameter from `register()` so FastAPI parses only `data: RegisterIn` from the body.",
+    "server.py:407-421 (`create_mission`) — do `m.pop('_id', None)` after `insert_one` before returning, or build a separate response dict; apply same pattern to `register()` and any other endpoint that returns the post-insert dict.",
+    "server.py:189-206 — fix brute-force lockout: (a) normalise `doc['locked_until']` to UTC-aware (`if l.tzinfo is None: l = l.replace(tzinfo=timezone.utc)`), (b) verify `request.client.host` is stable behind the ingress or key the lockout only by email/username, (c) add a log/warn when lockout kicks in for observability."
+  ],
+  "critical_code_review_comments": [
+    "server.py register endpoint has a dead `me: Optional[dict] = None` parameter that not only is unused but actively breaks the endpoint (FastAPI body dispatch).",
+    "Multiple mutating `insert_one(doc)` followed by `return doc` pattern — this repeatedly leaks Mongo's `ObjectId` back into responses. Should be a linted rule for this project.",
+    "server.py imports both `HTTPException` and re-raises via `except HTTPException: raise` inside register — good — but the outer `except Exception: raise HTTPException(401)` swallows original JWT errors making debugging harder.",
+    "CORS `allow_origins=os.environ.get('CORS_ORIGINS', '*').split(',')` with `*` plus `allow_credentials=True` — many browsers (incl. Chrome) will reject credentialed requests with wildcard origin. Currently it works because same-origin, but if a mobile/native client ever calls cross-origin, cookies would be dropped. Suggest explicit origin list in prod.",
+    "Cookies are `secure=False` — OK for preview HTTP but should be flipped when running behind HTTPS in prod (the preview URL is already HTTPS so this could be secure=True today).",
+    "app.on_event('startup') is deprecated in FastAPI 0.109+ — should use lifespan handler.",
+    "drozon.html is a 10,950-line single file — not scoped for testing here, but flagged for future modularisation."
+  ],
+  "updated_files": [
+    "/app/backend/tests/backend_test.py (new — pytest regression suite for DroZon Sprint 1)"
+  ],
+  "success_rate": {
+    "backend": "67% (20/30 pytest cases)",
+    "frontend": "95% (login + dashboard + user admin nav + drozon HUD + role gates all working; only mission-create-related flows blocked by backend bug)"
+  },
+  "test_credentials": "commander: comandant@drozon.ro / Comandant2026! | pilot: pilot@drozon.ro / Pilot2026! | observer: observer@drozon.ro / Observer2026!  (seeded on backend startup)",
+  "seed_data_creation": "Test suite creates ephemeral TEST_* users/missions/SOS via API where possible. Most creation calls currently fail (bug #1/#2) so leftover data is minimal. Also produced 5 SOS events (TEST-SOS, TEST-SOS-ACK, TEST-SOS-ACK2) that remain in DB — they show in the Dashboard SOS panel and are cosmetic only.",
+  "retest_needed": true,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Auth login/me/logout/users/telemetry/SOS/adapters/health all validated OK. Remaining coverage after fixes: (a) re-run backend_test.py — TestRegistration + TestMissions + TestBruteForce should go green; (b) frontend re-test of UserAdmin create-user (commander) — click admin-create-user and verify new row appears in users-table; (c) validate mission creation via drozon.html once /api/missions is fixed.",
+  "rca of the issue": {
+    "register_422": "FastAPI parses parameters typed as Pydantic model OR non-scalar (dict/list) as body params. `me: Optional[dict] = None` therefore becomes a body field and, combined with `data: RegisterIn`, forces the request body to be `{data: {...}, me: {...}}` instead of the flat RegisterIn payload the clients send.",
+    "missions_500": "`await db.missions.insert_one(m)` mutates `m` in-place to add `_id: ObjectId(...)`. The same reference is returned by the handler → FastAPI's `jsonable_encoder` calls `vars()` on ObjectId and raises. Reproduction: any authenticated pilot/commander doing `POST /api/missions {name, mission_type}` gets 500.",
+    "brute_force": "Suspected timezone-mismatch or per-request IP variability behind the ingress. Repro: send 6-7 wrong-password requests to /api/auth/login with the same email — all return 401, never 429. Verified via /app/backend/tests/backend_test.py::TestBruteForce."
+  }
+}

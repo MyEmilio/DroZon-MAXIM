@@ -1,34 +1,465 @@
-.App-logo {
-    height: 40vmin;
-    pointer-events: none;
+/* ═══════════════════════════════════════════════════════════
+   DROZON — Command Center Theme (matches drozon.html palette)
+   ═══════════════════════════════════════════════════════════ */
+:root {
+  --dz-bg: #050a0f;
+  --dz-panel: #080e16;
+  --dz-panel2: #0d1520;
+  --dz-panel3: #101e2e;
+  --dz-border: #0f2a40;
+  --dz-accent: #00d4ff;
+  --dz-accent2: #00ff9d;
+  --dz-warn: #ff8c00;
+  --dz-danger: #ff2244;
+  --dz-text: #c8e0f0;
+  --dz-muted: #4a7090;
+  --dz-glow: 0 0 20px rgba(0, 212, 255, 0.35);
+  --dz-glow2: 0 0 20px rgba(0, 255, 157, 0.3);
 }
 
-@media (prefers-reduced-motion: no-preference) {
-    .App-logo {
-        animation: App-logo-spin infinite 20s linear;
-    }
+* { box-sizing: border-box; }
+
+.App {
+  background: var(--dz-bg);
+  color: var(--dz-text);
+  min-height: 100vh;
+  font-family: 'IBM Plex Mono', ui-monospace, monospace;
 }
 
-.App-header {
-    background-color: #0f0f10;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    font-size: calc(10px + 2vmin);
-    color: white;
+.fullscreen-loading {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  background: var(--dz-bg);
+  color: var(--dz-accent);
+  font-family: 'Orbitron', sans-serif;
+  letter-spacing: 5px;
+  font-weight: 800;
+  animation: dz-pulse 1.4s ease-in-out infinite;
+  text-shadow: var(--dz-glow);
 }
 
-.App-link {
-    color: #61dafb;
+@keyframes dz-pulse {
+  0%, 100% { opacity: 0.35; }
+  50% { opacity: 1; }
 }
 
-@keyframes App-logo-spin {
-    from {
-        transform: rotate(0deg);
-    }
-    to {
-        transform: rotate(360deg);
-    }
+/* ─── Grid background ─── */
+.dz-grid-bg {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 15% 20%, rgba(0, 212, 255, 0.08), transparent 45%),
+    radial-gradient(circle at 85% 80%, rgba(0, 255, 157, 0.06), transparent 45%),
+    linear-gradient(rgba(15, 42, 64, 0.35) 1px, transparent 1px) 0 0 / 42px 42px,
+    linear-gradient(90deg, rgba(15, 42, 64, 0.35) 1px, transparent 1px) 0 0 / 42px 42px,
+    var(--dz-bg);
+  position: relative;
+  overflow-x: hidden;
+}
+
+.dz-scan-line::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 0%, rgba(0, 212, 255, 0.03) 50%, transparent 100%);
+  background-size: 100% 8px;
+  pointer-events: none;
+  animation: dz-scan 8s linear infinite;
+  z-index: 1;
+}
+
+@keyframes dz-scan {
+  0% { background-position: 0 0; }
+  100% { background-position: 0 100vh; }
+}
+
+/* ─── Header ─── */
+.dz-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 28px;
+  height: 60px;
+  border-bottom: 1px solid var(--dz-border);
+  background: rgba(8, 14, 22, 0.75);
+  backdrop-filter: blur(14px);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.dz-logo {
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 900;
+  font-size: 22px;
+  color: var(--dz-accent);
+  letter-spacing: 7px;
+  text-shadow: var(--dz-glow);
+}
+.dz-logo span { color: var(--dz-accent2); }
+
+.dz-tag {
+  font-size: 10px;
+  letter-spacing: 3px;
+  color: var(--dz-muted);
+  text-transform: uppercase;
+  padding-left: 16px;
+  border-left: 1px solid var(--dz-border);
+  margin-left: 16px;
+}
+
+.dz-user-badge {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 6px 14px;
+  border: 1px solid var(--dz-border);
+  border-radius: 4px;
+  background: rgba(13, 21, 32, 0.6);
+}
+.dz-user-badge .callsign {
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 700;
+  color: var(--dz-accent);
+  letter-spacing: 2px;
+  font-size: 12px;
+}
+.dz-user-badge .name { font-size: 11px; color: var(--dz-text); }
+.dz-user-badge .role {
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 2px;
+  font-weight: 700;
+}
+.role-commander { background: rgba(255, 34, 68, 0.15); color: var(--dz-danger); border: 1px solid rgba(255, 34, 68, 0.35); }
+.role-pilot { background: rgba(255, 140, 0, 0.15); color: var(--dz-warn); border: 1px solid rgba(255, 140, 0, 0.35); }
+.role-observer { background: rgba(74, 112, 144, 0.2); color: var(--dz-text); border: 1px solid var(--dz-border); }
+
+/* ─── Buttons ─── */
+.dz-btn {
+  background: transparent;
+  color: var(--dz-accent);
+  border: 1px solid var(--dz-border);
+  padding: 10px 22px;
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+.dz-btn:hover {
+  background: rgba(0, 212, 255, 0.08);
+  border-color: var(--dz-accent);
+  box-shadow: var(--dz-glow);
+}
+.dz-btn.primary {
+  background: linear-gradient(135deg, rgba(0, 212, 255, 0.15), rgba(0, 255, 157, 0.1));
+  border-color: var(--dz-accent);
+  color: var(--dz-accent);
+}
+.dz-btn.primary:hover {
+  background: linear-gradient(135deg, rgba(0, 212, 255, 0.25), rgba(0, 255, 157, 0.18));
+  box-shadow: 0 0 30px rgba(0, 212, 255, 0.5);
+}
+.dz-btn.danger { color: var(--dz-danger); border-color: rgba(255, 34, 68, 0.4); }
+.dz-btn.danger:hover { background: rgba(255, 34, 68, 0.1); box-shadow: 0 0 20px rgba(255, 34, 68, 0.3); }
+.dz-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+/* ─── Card / Panel ─── */
+.dz-panel {
+  background: rgba(13, 21, 32, 0.7);
+  border: 1px solid var(--dz-border);
+  padding: 24px;
+  backdrop-filter: blur(8px);
+  position: relative;
+}
+.dz-panel::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 40px; height: 2px;
+  background: var(--dz-accent);
+  box-shadow: var(--dz-glow);
+}
+.dz-panel-title {
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 4px;
+  color: var(--dz-accent);
+  text-transform: uppercase;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--dz-border);
+}
+
+/* ─── Inputs ─── */
+.dz-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+.dz-field label {
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: var(--dz-muted);
+  text-transform: uppercase;
+  font-weight: 500;
+}
+.dz-input, .dz-select {
+  background: rgba(5, 10, 15, 0.9);
+  border: 1px solid var(--dz-border);
+  color: var(--dz-text);
+  padding: 12px 14px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 14px;
+  outline: none;
+  transition: all 0.2s ease;
+}
+.dz-input:focus, .dz-select:focus {
+  border-color: var(--dz-accent);
+  box-shadow: 0 0 0 2px rgba(0, 212, 255, 0.15);
+}
+
+/* ─── Login screen ─── */
+.dz-login-wrap {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  position: relative;
+  z-index: 2;
+}
+.dz-login-card {
+  width: 100%;
+  max-width: 480px;
+  padding: 44px 40px;
+  background: rgba(8, 14, 22, 0.85);
+  border: 1px solid var(--dz-border);
+  backdrop-filter: blur(16px);
+  position: relative;
+  animation: dz-fade-in 0.5s ease-out;
+}
+.dz-login-card::before,
+.dz-login-card::after {
+  content: '';
+  position: absolute;
+  width: 40px; height: 40px;
+  border: 2px solid var(--dz-accent);
+}
+.dz-login-card::before { top: -1px; left: -1px; border-right: none; border-bottom: none; }
+.dz-login-card::after { bottom: -1px; right: -1px; border-left: none; border-top: none; }
+
+.dz-login-brand {
+  text-align: center;
+  margin-bottom: 36px;
+}
+.dz-login-brand h1 {
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 900;
+  font-size: 34px;
+  color: var(--dz-accent);
+  letter-spacing: 10px;
+  text-shadow: var(--dz-glow);
+  margin: 0;
+}
+.dz-login-brand h1 span { color: var(--dz-accent2); }
+.dz-login-brand p {
+  margin-top: 8px;
+  font-size: 10px;
+  letter-spacing: 4px;
+  color: var(--dz-muted);
+  text-transform: uppercase;
+}
+
+.dz-tabs {
+  display: flex;
+  border: 1px solid var(--dz-border);
+  margin-bottom: 24px;
+}
+.dz-tab {
+  flex: 1;
+  padding: 10px;
+  background: transparent;
+  border: none;
+  color: var(--dz-muted);
+  font-family: 'Orbitron', sans-serif;
+  font-size: 10px;
+  letter-spacing: 3px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+}
+.dz-tab.active {
+  background: rgba(0, 212, 255, 0.1);
+  color: var(--dz-accent);
+  box-shadow: inset 0 -2px 0 var(--dz-accent);
+}
+
+.dz-error {
+  padding: 10px 14px;
+  border-left: 3px solid var(--dz-danger);
+  background: rgba(255, 34, 68, 0.08);
+  color: #ffaabb;
+  font-size: 12px;
+  margin-bottom: 16px;
+  letter-spacing: 1px;
+}
+.dz-hint {
+  font-size: 10px;
+  color: var(--dz-muted);
+  margin-top: 20px;
+  text-align: center;
+  letter-spacing: 1.5px;
+  line-height: 1.7;
+}
+.dz-hint code {
+  color: var(--dz-accent);
+  background: rgba(0, 212, 255, 0.08);
+  padding: 2px 6px;
+  border-radius: 2px;
+}
+
+@keyframes dz-fade-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── Dashboard ─── */
+.dz-dashboard {
+  padding: 32px;
+  position: relative;
+  z-index: 2;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+.dz-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+  margin-top: 24px;
+}
+.dz-stat {
+  padding: 20px;
+  background: rgba(13, 21, 32, 0.65);
+  border: 1px solid var(--dz-border);
+  border-left: 3px solid var(--dz-accent);
+}
+.dz-stat .val {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--dz-accent);
+  letter-spacing: 3px;
+  line-height: 1;
+}
+.dz-stat .lbl {
+  font-size: 10px;
+  letter-spacing: 3px;
+  color: var(--dz-muted);
+  text-transform: uppercase;
+  margin-top: 8px;
+}
+.dz-stat.warn .val { color: var(--dz-warn); }
+.dz-stat.warn { border-left-color: var(--dz-warn); }
+.dz-stat.danger .val { color: var(--dz-danger); }
+.dz-stat.danger { border-left-color: var(--dz-danger); }
+.dz-stat.ok .val { color: var(--dz-accent2); }
+.dz-stat.ok { border-left-color: var(--dz-accent2); }
+
+.dz-launch {
+  margin-top: 32px;
+  padding: 40px;
+  background: linear-gradient(135deg, rgba(0, 212, 255, 0.06), rgba(0, 255, 157, 0.04));
+  border: 1px solid var(--dz-accent);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.dz-launch::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, rgba(0, 212, 255, 0.12), transparent 60%);
+  pointer-events: none;
+}
+.dz-launch h2 {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 26px;
+  letter-spacing: 6px;
+  color: var(--dz-text);
+  margin: 0 0 6px 0;
+}
+.dz-launch p {
+  color: var(--dz-muted);
+  font-size: 12px;
+  letter-spacing: 2px;
+  margin-bottom: 24px;
+}
+.dz-launch .dz-btn.primary {
+  font-size: 14px;
+  padding: 16px 40px;
+  letter-spacing: 5px;
+}
+
+/* ─── Users table ─── */
+.dz-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 12px;
+}
+.dz-table th, .dz-table td {
+  padding: 12px 14px;
+  text-align: left;
+  border-bottom: 1px solid var(--dz-border);
+  font-size: 12px;
+}
+.dz-table th {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: var(--dz-muted);
+  text-transform: uppercase;
+  font-weight: 600;
+}
+.dz-table tbody tr:hover { background: rgba(0, 212, 255, 0.04); }
+
+.dz-back {
+  color: var(--dz-muted);
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-decoration: none;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.dz-back:hover { color: var(--dz-accent); }
+
+/* Radio group */
+.dz-radio-group { display: flex; gap: 8px; }
+.dz-radio-group label {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid var(--dz-border);
+  text-align: center;
+  cursor: pointer;
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  transition: all 0.15s;
+}
+.dz-radio-group input[type="radio"] { display: none; }
+.dz-radio-group input[type="radio"]:checked + span {
+  color: var(--dz-accent);
+}
+.dz-radio-group label:has(input:checked) {
+  border-color: var(--dz-accent);
+  background: rgba(0, 212, 255, 0.08);
+  box-shadow: var(--dz-glow);
 }
