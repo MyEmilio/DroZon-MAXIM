@@ -320,16 +320,18 @@ async def register(data: RegisterIn, request: Request, response: Response):
         "created_at": created_at,
     }
     await db.users.insert_one(user_doc)
-    access = create_access_token(user_id, email, role_wanted)
-    refresh = create_refresh_token(user_id)
-    set_auth_cookies(response, access, refresh)
+    # Only set auth cookies for PUBLIC self-signup (no existing session).
+    # When a commander creates a user, the commander's own session must stay intact.
+    if not tok:
+        access = create_access_token(user_id, email, role_wanted)
+        refresh = create_refresh_token(user_id)
+        set_auth_cookies(response, access, refresh)
     # Build a fresh dict for the response — never return the mutated Mongo dict (has _id).
     return {
         "user": {
             "id": user_id, "email": email, "name": data.name, "role": role_wanted,
             "callsign": data.callsign, "unit": data.unit, "created_at": created_at,
         },
-        "access_token": access,
     }
 
 
