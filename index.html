@@ -1223,6 +1223,28 @@ header{
 .op-drone-claim{font-size:7px;color:var(--muted);display:flex;align-items:center;gap:4px;}
 .op-activity{font-size:7px;color:var(--muted);margin-left:auto;}
 
+/* ── ROLE-BASED VISIBILITY ── */
+body.role-pilot .role-cmd{display:none!important;}
+body.role-public .role-cmd,body.role-public .role-pilot{display:none!important;}
+
+/* ── ROLE SWITCHER WIDGET ── */
+#role-sw{position:fixed;bottom:22px;right:20px;z-index:8500;font-family:'Rajdhani',sans-serif;}
+#role-sw-btn{display:flex;align-items:center;gap:7px;padding:8px 14px;border-radius:6px;border:1px solid var(--accent);background:rgba(5,8,15,.95);color:var(--text);font-size:9px;letter-spacing:2px;cursor:pointer;white-space:nowrap;box-shadow:0 0 18px rgba(46,127,196,.25);transition:all .2s;}
+#role-sw-btn:hover{background:rgba(46,127,196,.12);}
+#role-sw-btn .rsw-icon{font-size:14px;}
+#role-sw-btn .rsw-label{color:var(--accent);font-weight:700;}
+#role-sw-menu{display:none;position:absolute;bottom:calc(100% + 8px);right:0;background:rgba(5,8,15,.98);border:1px solid #0f2a40;border-radius:7px;overflow:hidden;min-width:200px;box-shadow:0 0 30px rgba(0,0,0,.7);}
+#role-sw-menu.open{display:block;}
+.rsw-option{display:flex;align-items:center;gap:10px;padding:11px 16px;cursor:pointer;border-bottom:1px solid #0f2a40;transition:background .15s;}
+.rsw-option:last-child{border-bottom:none;}
+.rsw-option:hover{background:rgba(46,127,196,.1);}
+.rsw-option.active{background:rgba(46,127,196,.15);}
+.rsw-option-icon{font-size:18px;width:24px;text-align:center;}
+.rsw-option-info{flex:1;}
+.rsw-option-name{font-size:11px;font-weight:700;letter-spacing:2px;color:var(--text);}
+.rsw-option-desc{font-size:8px;color:var(--muted);margin-top:1px;}
+.rsw-option-badge{font-size:7px;padding:2px 7px;border-radius:3px;letter-spacing:1px;font-weight:700;}
+
 /* ══════════════════════════════════════
    V8 — MOBILE RESPONSIVE
 ══════════════════════════════════════ */
@@ -1890,31 +1912,31 @@ body { font-size:13px; }
     </div>
     <div id="clock">--:--:--</div>
     <div style="display:flex;gap:4px;flex-wrap:wrap;">
-      <button class="mbtn" onclick="openStats()" title="Statistici">📊</button>
-      <button class="mbtn" onclick="openWaypoints()" title="Rute">🗺️</button>
-      <button class="mbtn" onclick="toggleBatPanel()" title="Baterii" id="bat-hdr-btn">🔋</button>
-      <button class="mbtn" onclick="toggleOperatorMode()" title="Operatori" id="op-mode-btn">👥</button>
-      <button class="mbtn" onclick="openSwarm()" title="Swarm" style="color:var(--accent2);border-color:rgba(38,122,80,.3)">📡 SWARM</button>
-      <button class="mbtn" onclick="openRescue()" title="Rescue" style="color:var(--danger);border-color:rgba(176,32,32,.35);font-weight:700;animation:blink-border 2s infinite">🚁 RESCUE</button>
-      <button class="kmk-hdr-btn" onclick="openBiodrone()" title="Biodrone">🌿 BIODRONE</button>
-      <button class="mbtn" onclick="openFinancial()" title="Financiar" style="color:#267a50;border-color:rgba(38,122,80,.2)">💰</button>
-      <button class="mbtn" onclick="openLegal()" title="Legal" style="color:#ffcc00;border-color:rgba(255,204,0,.2)">📜</button>
-      <button class="mbtn" onclick="openSecurity()" title="Securitate" style="color:var(--danger);border-color:rgba(176,32,32,.2)">🔐</button>
-      <button class="mbtn" onclick="openBusiness()" title="Business" style="color:var(--accent)">🏢</button>
-      <button class="mbtn" onclick="openPitch()" title="Pitch Deck" style="color:#aa44ff;border-color:rgba(170,68,255,.3);font-weight:700">📈 PITCH</button>
-      <button class="mbtn" onclick="startDemo()" title="Demo Auto" style="color:var(--warn);border-color:rgba(184,114,24,.3);font-weight:700">🎬 DEMO</button>
+      <button class="mbtn role-cmd" onclick="openStats()" title="Statistici">📊</button>
+      <button class="mbtn role-pilot" onclick="openWaypoints()" title="Rute">🗺️</button>
+      <button class="mbtn role-pilot" onclick="toggleBatPanel()" title="Baterii" id="bat-hdr-btn">🔋</button>
+      <button class="mbtn role-cmd" onclick="toggleOperatorMode()" title="Operatori" id="op-mode-btn">👥</button>
+      <button class="mbtn role-cmd" onclick="openSwarm()" title="Swarm" style="color:var(--accent2);border-color:rgba(38,122,80,.3)">📡 SWARM</button>
+      <button class="mbtn role-cmd" onclick="openRescue()" title="Rescue" style="color:var(--danger);border-color:rgba(176,32,32,.35);font-weight:700;animation:blink-border 2s infinite">🚁 RESCUE</button>
+      <button class="kmk-hdr-btn role-cmd" onclick="openBiodrone()" title="Biodrone">🌿 BIODRONE</button>
+      <button class="mbtn role-cmd" onclick="openFinancial()" title="Financiar" style="color:#267a50;border-color:rgba(38,122,80,.2)">💰</button>
+      <button class="mbtn role-cmd" onclick="openLegal()" title="Legal" style="color:#ffcc00;border-color:rgba(255,204,0,.2)">📜</button>
+      <button class="mbtn role-cmd" onclick="openSecurity()" title="Securitate" style="color:var(--danger);border-color:rgba(176,32,32,.2)">🔐</button>
+      <button class="mbtn role-cmd" onclick="openBusiness()" title="Business" style="color:var(--accent)">🏢</button>
+      <button class="mbtn role-cmd" onclick="openPitch()" title="Pitch Deck" style="color:#aa44ff;border-color:rgba(170,68,255,.3);font-weight:700">📈 PITCH</button>
+      <button class="mbtn role-cmd" onclick="startDemo()" title="Demo Auto" style="color:var(--warn);border-color:rgba(184,114,24,.3);font-weight:700">🎬 DEMO</button>
     </div>
   </div>
   <!-- Rând 2: butoane MAXIM -->
   <div class="hrow2">
-    <button class="tb-maxim" onclick="openMaxim('fire')">🔥 INCENDII</button>
-    <button class="tb-maxim" onclick="openMaxim('avalanche')">🏔️ AVALANSE</button>
-    <button class="tb-maxim" onclick="openMaxim('flood')">🌊 INUNDATII</button>
-    <button class="tb-maxim" onclick="openMaxim('simulator')">🎮 SIMULATOR</button>
-    <button class="tb-maxim" onclick="openMaxim('reports')">📋 RAPOARTE</button>
-    <button class="tb-maxim" onclick="openMaxim('weather')">☁️ METEO LIVE</button>
-    <button class="tb-maxim" onclick="openMaxim('qrcodes')">📱 QR / MOB</button>
-    <button class="tb-maxim" onclick="openMaxim('export')">📤 EXPORT</button>
+    <button class="tb-maxim role-pilot" onclick="openMaxim('fire')">🔥 INCENDII</button>
+    <button class="tb-maxim role-pilot" onclick="openMaxim('avalanche')">🏔️ AVALANSE</button>
+    <button class="tb-maxim role-pilot" onclick="openMaxim('flood')">🌊 INUNDATII</button>
+    <button class="tb-maxim role-pilot" onclick="openMaxim('simulator')">🎮 SIMULATOR</button>
+    <button class="tb-maxim role-cmd" onclick="openMaxim('reports')">📋 RAPOARTE</button>
+    <button class="tb-maxim role-pilot" onclick="openMaxim('weather')">☁️ METEO LIVE</button>
+    <button class="tb-maxim role-pilot" onclick="openMaxim('qrcodes')">📱 QR / MOB</button>
+    <button class="tb-maxim role-cmd" onclick="openMaxim('export')">📤 EXPORT</button>
   </div>
 </header>
 
@@ -1961,7 +1983,7 @@ body { font-size:13px; }
 <!-- ══════════════════════════════════════════════
      BOTTOM DOCK
 ══════════════════════════════════════════════ -->
-<div id="bottom-dock">
+<div id="bottom-dock" class="role-pilot">
 
   <!-- Card 1: Meteo Live -->
   <div class="dock-card">
@@ -4064,7 +4086,7 @@ function renderDetail(id){
         <div class="loglist">${logs}</div>
       </div>
 
-      <div class="dsec">
+      <div class="dsec role-pilot">
         <div class="dsec-t">Control</div>
         <button class="cockpit-open-btn" onclick="openCockpit('${d.id}')">⚡ DESCHIDE COCKPIT PILOTAJ</button>
         <button class="cockpit-open-btn" style="border-color:var(--accent2);color:var(--accent2);background:rgba(38,122,80,.06);margin-top:0" onclick="openAutoModal('${d.id}')">🛫 MISIUNE AUTONOMĂ — COORDONATE</button>
@@ -10944,6 +10966,80 @@ document.addEventListener('click', function(e) {
       ' | z:'+s.zIndex+' pos:'+s.position+' pe:'+s.pointerEvents+' display:'+s.display);
   });
 }, true);
+</script>
+
+<!-- ══════════ ROLE SWITCHER ══════════ -->
+<div id="role-sw">
+  <div id="role-sw-menu">
+    <div class="rsw-option active" data-role="cmd" onclick="setRole('cmd')">
+      <div class="rsw-option-icon">👨‍✈️</div>
+      <div class="rsw-option-info">
+        <div class="rsw-option-name">COMANDANT</div>
+        <div class="rsw-option-desc">Acces complet — toate funcțiile</div>
+      </div>
+      <div class="rsw-option-badge" style="background:rgba(46,127,196,.2);color:var(--accent);border:1px solid var(--accent)">FULL</div>
+    </div>
+    <div class="rsw-option" data-role="pilot" onclick="setRole('pilot')">
+      <div class="rsw-option-icon">🎮</div>
+      <div class="rsw-option-info">
+        <div class="rsw-option-name">PILOT</div>
+        <div class="rsw-option-desc">Control drone + misiuni operaționale</div>
+      </div>
+      <div class="rsw-option-badge" style="background:rgba(38,122,80,.2);color:var(--accent2);border:1px solid var(--accent2)">OPS</div>
+    </div>
+    <div class="rsw-option" data-role="public" onclick="setRole('public')">
+      <div class="rsw-option-icon">👁️</div>
+      <div class="rsw-option-info">
+        <div class="rsw-option-name">VIZUALIZARE PUBLIC</div>
+        <div class="rsw-option-desc">Hartă + status drone, fără control</div>
+      </div>
+      <div class="rsw-option-badge" style="background:rgba(255,255,255,.05);color:var(--muted);border:1px solid var(--border)">VIEW</div>
+    </div>
+  </div>
+  <button id="role-sw-btn" onclick="toggleRoleMenu()">
+    <span class="rsw-icon" id="rsw-icon">👨‍✈️</span>
+    <span class="rsw-label" id="rsw-label">COMANDANT</span>
+    <span style="color:var(--muted);font-size:8px">▲</span>
+  </button>
+</div>
+
+<script>
+(function(){
+  const ROLES={
+    cmd:  {icon:'👨‍✈️',label:'COMANDANT',  bodyClass:''},
+    pilot:{icon:'🎮', label:'PILOT',       bodyClass:'role-pilot'},
+    public:{icon:'👁️',label:'PUBLIC',      bodyClass:'role-public'},
+  };
+  let _menuOpen=false;
+
+  window.setRole=function(role){
+    const r=ROLES[role]; if(!r) return;
+    document.body.className=document.body.className
+      .replace(/\brole-pilot\b|\brole-public\b/g,'').trim();
+    if(r.bodyClass) document.body.classList.add(r.bodyClass);
+    document.getElementById('rsw-icon').textContent=r.icon;
+    document.getElementById('rsw-label').textContent=r.label;
+    document.querySelectorAll('.rsw-option').forEach(el=>{
+      el.classList.toggle('active', el.dataset.role===role);
+    });
+    _menuOpen=false;
+    document.getElementById('role-sw-menu').classList.remove('open');
+    const col=role==='cmd'?'var(--accent)':role==='pilot'?'var(--accent2)':'var(--muted)';
+    document.getElementById('role-sw-btn').style.borderColor=col;
+  };
+
+  window.toggleRoleMenu=function(){
+    _menuOpen=!_menuOpen;
+    document.getElementById('role-sw-menu').classList.toggle('open',_menuOpen);
+  };
+
+  document.addEventListener('click',function(e){
+    if(_menuOpen&&!document.getElementById('role-sw').contains(e.target)){
+      _menuOpen=false;
+      document.getElementById('role-sw-menu').classList.remove('open');
+    }
+  });
+})();
 </script>
 
 </body>
